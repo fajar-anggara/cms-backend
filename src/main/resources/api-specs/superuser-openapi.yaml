@@ -1,0 +1,424 @@
+openapi: "3.0.3"
+
+info:
+  version: 3.0.3
+  title: "cms-superuser-api"
+  description: |
+    Dibagian ini akan mengatur tentang bagaimana superuser bisa:
+    
+    di /api/v1/superuser/user
+    /get
+      getAllUser
+    /post
+      createUser
+    
+    di /api/v1/superuser/user/{id}
+    /get
+      getSingleUser
+    /put
+      updateSingleUser
+    /delete
+      deleteSingleUser
+
+  contact:
+    name: "Moh. Fajar Anggara"
+    email: "muhamadfajaranggara@gmail.com"
+
+servers:
+  - url: "http://localhost:8080"
+    description: "Development Server"
+
+tags:
+  - name: "SuperuserController"
+    description: "Endpoint untuk operasi superuser"
+
+paths:
+  /api/v1/superuser/user:
+    get:
+      tags:
+        - "SuperuserController"
+      operationId: "getAllUser"
+      description: "Mendapatkan semua data user."
+      parameters:
+        - name: "userId"
+          description: "Penanda user ini adalah superuser."
+          in: cookie
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+        - name: "deleted"
+          in: query
+          description: "Apakah menampilkan user yang sudah didelete, tidak, atau semuanya"
+          schema:
+            type: string
+            enum:
+              - "DELETED"
+              - "NONDELETED"
+              - "ALL"
+            default: "NONDELETED"
+        - name: "sortBy"
+          in: query
+          description: "Mengurutkan user berdasarkan"
+          schema:
+            type: string
+            enum:
+              - "USERNAME"
+              - "CREATEDAT"
+              - "DELETEDAT"
+            default: "USERNAME"
+        - name: "sortOrder"
+          in: query
+          description: "Menentukan arah urutan"
+          schema:
+            type: string
+            enum:
+              - "ASC"
+              - "DESC"
+            default: "ASC"
+        - name: "limit"
+          in: query
+          description: "Jumlah user yang akan ditampilkan"
+          schema:
+            type: integer
+            default: "10"
+            minimum: 1
+          example: 1
+        - name: search
+          in: query
+          description: "Keyword untuk mencari user/blogger dengan email atau username"
+          schema:
+            type: string
+            minimum: 1
+            maximum: 225
+            example: "andriana"
+          required: false
+      responses:
+        "200":
+          description: "Berhasil mendapatkan semua user/blogger data."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: './users-openapi.yaml#/components/schemas/UserListResponse'
+                          - type: object
+                            properties:
+                              pagination:
+                                allOf:
+                                  - $ref: './blogs-openapi.yaml#/components/schemas/PaginationMetadata'
+
+        "401":
+          description: "Unauthorized, harap login kembali."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "403":
+          description: "Forbidden, anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Server Error"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+    post:
+      tags:
+        - "AdminController"
+      operationId: "createUser"
+      description: "Membuat user/blogger baru"
+      parameters:
+        - name: "userId"
+          in: cookie
+          description: "Superuser id"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: './users-openapi.yaml#/components/schemas/UserRegisterRequest'
+                - type: object
+                  properties:
+                    role:
+                      type: string
+                      description: "Role yang akan diberikan."
+                      enum:
+                        - "ADMIN"
+                        - "BLOGGER"
+                      default: "BLOGGER"
+                    is_enable:
+                      type: boolean
+                      description: "Apakah user/blogger langsung diaktifkan atau tidak."
+                      default: true
+                      example: true
+                    is_email_verified:
+                      type: boolean
+                      description: "Apakah pengguna sudah menghubungkan emailnya?."
+                      default: true
+                      example: true
+                  required:
+                    - role
+      responses:
+        "200":
+          description: "Berhasil membuat user/blogger, return data user/blogger lengkap"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: './users-openapi.yaml#/components/schemas/UserResponse'
+
+        "400":
+          description: "Bad request, Field tidak sesuai."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
+                  - type: object
+                    properties:
+                      errors:
+                        allOf:
+                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
+
+        "401":
+          description: "Unauthorized, harap login kembali."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "403":
+          description: "Forbidden, anda tidak diizinkan melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+  /api/v1/superuser/user/{id}:
+    get:
+      tags:
+        - "SuperuserController"
+      operationId: "getSingleUser"
+      description: "Mengambil single data user"
+      parameters:
+        - name: "userId"
+          in: cookie
+          description: "Superuser ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+        - name: id
+          in: path
+          description: "Id user yang akan diambil"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+      responses:
+        "200":
+          description: "Berhasil mengambil data user/blogger, return data user/blogger lengkap."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: './users-openapi.yaml#/components/schemas/UserResponse'
+
+        "401":
+          description: "Unauthorized, harap login kembali."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "403":
+          description: "Forbidden. anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+    put:
+      tags:
+        - "SuperuserController"
+      operationId: "updateSingleUser"
+      description: "Mengupdate single data user."
+      parameters:
+        - name: "userId"
+          in: cookie
+          description: "Admin ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+        - name: id
+          in: path
+          description: "Id user yang akan diupdate."
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: './users-openapi.yaml#/components/schemas/UserUpdateRequest'
+
+      responses:
+        "200":
+          description: "Berhasil mengupdate user, return data user lengkap"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: './users-openapi.yaml#/components/schemas/UserResponse'
+
+        "400":
+          description: "Bad request, Field tidak sesuai."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
+                  - type: object
+                    properties:
+                      errors:
+                        allOf:
+                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
+
+        "401":
+          description: "Unauthorized, Harap login kembali."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "403":
+          description: "Forbidden, Anda tidak boleh melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Bad server"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+    delete:
+      tags:
+        - "SuperuserController"
+      operationId: "deleteSingleUser"
+      description: "menghapus single data user"
+      parameters:
+        - name: "userId"
+          in: cookie
+          description: "Admin ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+        - name: id
+          in: path
+          description: "Id user yang akan dihapus"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+      responses:
+        "200":
+          description: "Berhasil menghapus user, redirect"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Bad server"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+

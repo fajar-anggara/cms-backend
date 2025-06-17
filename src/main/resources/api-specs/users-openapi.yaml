@@ -1,0 +1,868 @@
+openapi: "3.0.3"
+
+info:
+  version: 3.0.3
+  title: "cms-user-api"
+  description: |
+    
+    Dibagian ini mengatur berbagai operasi user (blogger) terhadap dirinya sendiri. Ada:
+    
+    di /api/v1/auth yang berhubungan dengan autentikasi yaitu:
+      /register post
+        userRegister
+      /login post
+        userLogin
+      /logout get
+        userLogout
+      /password get
+        userGetRefreshPasswordToken
+                     post
+        userPostNewPassword
+      /me get
+        getUser
+          put
+        updateUser
+          patch
+        changePassword
+          delete
+        deleteUser
+
+  contact:
+    name: "Moh. Fajar Anggara"
+    email: "muhamadfajaranggara@gmail.com"
+
+servers:
+  - url: "http://localhost:8080"
+    description: "Development Server"
+
+tags:
+  - name: UserController
+    description: "Endpoint api yang berhubungan dengan user/blogger."
+
+
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - UserController
+      operationId: "userRegister"
+      summary: "Register user/blogger baru"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegisterRequest'
+      responses:
+        "200":
+          description: "Berhasil didaftarkan sebagai blogger"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSimpleResponse'
+
+        "400":
+          description: "Pengisian field tidak sesuai."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
+                  - type: object
+                    properties:
+                      errors:
+                        allOf:
+                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
+
+        "409":
+          description: "Username atau Email sudah terdaftar."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "500":
+          description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+  /api/v1/auth/login:
+    post:
+      tags:
+        - UserController
+      operationId: "userLogin"
+      summary: "User/blogger mencoba untuk login."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+      responses:
+        "200":
+          description: "User berhasil login"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSimpleResponse'
+
+        "400":
+          description: "Pengisian field tidak sesuai."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
+                  - type: object
+                    properties:
+                      errors:
+                        allOf:
+                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
+
+        "401":
+          description: "Username, Email atau Password salah."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "500":
+          description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+  /api/v1/auth/logout:
+    get:
+      tags:
+        - UserController
+      operationId: "userLogout"
+      summary: "User mengirimkan permintaan logout, logout dilakukan dengan mengidentifikasi id dari cookie."
+      parameters:
+        - name: userId
+          in: cookie
+          description: "User ID"
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+      responses:
+        "200":
+          description: "Logout sukses, Frontend tolong redirect"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+
+        "403":
+          description: "Forbidden, anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Sever Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+  /api/v1/auth/password:
+    get:
+      tags:
+        - UserController
+      operationId: "userGetRefreshPasswordToken"
+      summary: "User lupa password dan ingin memperbarui password dengan meminta reset_password_token, diidentifikasi dengan id di cookie."
+      parameters:
+        - name: userId
+          in: cookie
+          description: "User ID"
+          schema:
+            type: integer
+            format: int64
+          example: 1
+          required: true
+      responses:
+        "200":
+          description: "Token dikirim di email. Segera lihat"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            format: int64
+                            description: "Id user berdasarkan email/username nya."
+
+        "403":
+          description: "Forbidden, anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+    post:
+      tags:
+        - UserController
+      operationId: "userRenewThePassword"
+      description: "User/blogger telah menerima token di email dan mengirimkan password baru"
+      parameters:
+        - name: "userId"
+          in: cookie
+          description: "User/blogger id yang diterima saat permintaan reset password"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/RenewPasswordRequest'
+      responses:
+        "200":
+          description: "User berhasil reset kata sandi dan return profile"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSimpleResponse'
+
+        "403":
+          description: "Forbidden, anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+  /api/v1/users/me:
+    get:
+      tags:
+        - UserController
+      operationId: "getUser"
+      description: "Mendapatkan informasi user/blogger lengkap."
+      parameters:
+        - name: userId
+          in: cookie
+          schema:
+            type: integer
+            format: int64
+            description: "User ID"
+            example: 1
+          required: true
+      responses:
+        "200":
+          description: "Berhasil, berikan data user/blogger"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/UserResponse'
+
+        "403":
+          description: "Forbidden, anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Bad server"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+    put:
+      tags:
+        - UserController
+      operationId: "updateUser"
+      description: "User mengupdate property milik dirinya."
+      parameters:
+        - name: userId
+          in: cookie
+          schema:
+            type: integer
+            format: int64
+            description: "User ID"
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        "200":
+          description: "User berhasil diupdate, kembailkan data user lengkap."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        allOf:
+                          - $ref: '#/components/schemas/UserResponse'
+
+        "400":
+          description: "Bad Request, Field tidak sesuai"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
+                  - type: object
+                    properties:
+                      errors:
+                        allOf:
+                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
+
+        "401":
+          description: "Unauthorized, harap login kembali."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+
+        "403":
+          description: "Forbidden, anda tidak bisa melakukan operasi ini."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error403Response'
+
+        "500":
+          description: "Bad server"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+    patch:
+      tags:
+        - UserController
+      operationId: "changePassword"
+      description: "User mengirimkan permintaan mengubah password tanpa lupa password."
+      parameters:
+        - name: userId
+          in: cookie
+          schema:
+            type: integer
+            format: int64
+            description: "User ID"
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        "200":
+          description: "User berhasil mengubah password."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/UserSimpleResponse'
+
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
+                  - type: object
+                    properties:
+                      errors:
+                        allOf:
+                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
+
+        "401":
+          description: "Unauthorize / password salah"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "500":
+          description: "Bad server"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+    delete:
+      tags:
+        - UserController
+      operationId: "deleteUser"
+      description: "Menghapus user (oleh dirinya sendiri)"
+      parameters:
+        - name: "userId"
+          in: cookie
+          description: "User ID"
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        "200":
+          description: "Berhasil menghapus user, balikan ke register page"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+
+        "401":
+          description: "Unauthorize"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "500":
+          description: "Bad server"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+####################################################################################################
+
+components:
+  schemas:
+    UserDTO:
+      description: "Object user/blogger."
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "Identifier untuk untuk setiap user/blogger."
+          example: 1
+          readOnly: true
+        username:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
+          example: "andriana"
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+          description: "Email untuk setiap user/blogger (unique) bisa dijadikan identifier saar login."
+          example: "andriana@gmail.com"
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger yang sudah di HASH."
+          example: "xxxxxxxx"
+        profile_picture:
+          type: string
+          format: url
+          description: "Foto profil user/blogger (URL) (optional)."
+          example: "images.com/images.png"
+        bio:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Penjelasan singkat tentang user/blogger (optional)."
+          example: "Saya merupakan seorang programer..."
+        role:
+          type: string
+          enum:
+            - "ADMIN"
+            - "BLOGGER"
+          default: "BLOGGER"
+          description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
+          example: "BLOGGER"
+        is_enable:
+          type: boolean
+          description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging?."
+          default: false
+          example: true
+        is_email_verified:
+          type: boolean
+          description: "Apakah user/blogger sudah menghubungkan email nya?."
+          default: false
+          example: true
+        reset_password_token:
+          type: integer
+          format: int64
+          description: "Token yang akan dikirim kan juga ke user/blogger jika lupa password yang nantinya akan di cocokan di backend."
+          example: '443'
+        created_at:
+          type: string
+          format: date-time
+          description: "Kapan user/blogger ini dibuat"
+          example: "2024-06-10T10:15:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: "Kapan user/blogger ini diedit"
+          example: "2024-06-10T10:15:00Z"
+        deleted_at:
+          type: string
+          format: date-time
+          description: "Kapan user/blogger ini dihapus"
+          example: "2024-06-10T10:15:00Z"
+      required:
+        - username
+        - email
+        - password
+        - role
+        - is_enable
+        - is_email_verified
+
+    UserSimpleDTO:
+      type: object
+      description: "Response untuk full user data"
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "Identifier untuk untuk setiap user/blogger."
+          example: 1
+          readOnly: true
+        username:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
+          example: "andriana"
+        profile_picture:
+          type: string
+          format: url
+          description: "Foto profil user/blogger (URL) (optional)."
+          example: "images.com/images.png"
+        bio:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Penjelasan singkat tentang user/blogger (optional)."
+          example: "Saya merupakan seorang programer..."
+        role:
+          type: string
+          enum:
+            - "ADMIN"
+            - "BLOGGER"
+          default: "BLOGGER"
+          description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
+          example: "BLOGGER"
+        is_enable:
+          type: boolean
+          description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging? akan digunakan untuk circle profile picture."
+          default: false
+          example: true
+      required:
+        - id
+        - username
+        - profile_picture
+        - is_enable
+
+    UserRegisterRequest:
+      type: object
+      description: "Reequest body yang diharuskan saat register user baru"
+      properties:
+        username:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
+          example: "andriana"
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+          description: "Email untuk setiap user/blogger (unique) bisa dijadikan identifier saar login."
+          example: "andriana@gmail.com"
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger yang sudah di HASH."
+          example: "xxxxxxxx"
+        confirmPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: "Field ini harus sama dengan field password"
+          example: "xxxxxxxxx"
+      required:
+        - username
+        - email
+        - password
+        - confirmPassword
+
+    UserLoginRequest:
+      type: object
+      description: "Request body saat user akan login"
+      properties:
+        identifier:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Identifier bisa menggunakan username atau email untuk login."
+          example: "andriana@gmail.com"
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger yang sudah di HASH."
+          example: "xxxxxxxx"
+        rememberMe:
+          type: boolean
+          description: "Apakah user ingin diingat atau login setiap sesi"
+          example: true
+          default: false
+      required:
+        - identifier
+        - password
+        - rememberMe
+
+    ForgotPasswordRequest:
+      type: object
+      description: "User/blogger mengirim permintaan resep password karena lupa password"
+      properties:
+        identifier:
+          type: string
+          description: "Email atau username."
+          minLength: 1
+          maxLength: 225
+          example: "andriana"
+      required:
+        - identifier
+
+    RenewPasswordRequest:
+      type: object
+      description: "User/blogger telah menerima reset_password_token code dan melakukan update password."
+      properties:
+        resetPasswordToken:
+          type: integer
+          format: int64
+          description: "Token unik yang diterima user/blogger yang digunakan untuk memperbarui password yang nantinya akan dicocokan."
+          example: '443'
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger baru yang sudah di HASH."
+          example: "xxxxxxxx"
+        confirmNewPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger baru yang sudah di HASH dan mirip dengan newPassword."
+          example: "xxxxxxxx"
+      required:
+        - resetPasswordToken
+        - newPassword
+        - confirmNewPassword
+
+    ChangePasswordRequest:
+      type: object
+      description: "User/blogger mengirim permintaan penggantian password tanpa lupa password sembari menyertakan password sekarang. Form di handle di front end."
+      properties:
+        oldPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger lama yang sudah di HASH."
+          example: "xxxxxxxx"
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger baru yang sudah di HASH."
+          example: "xxxxxxxx"
+        confirmNewPassword:
+          type: string
+          format: password
+          minLength: 8
+          description: "Password user/blogger baru yang sudah di HASH dan harus identik dengan newPassword."
+          example: "xxxxxxxx"
+      required:
+        - oldPassword
+        - newPassword
+        - confirmPassword
+
+    UserUpdateRequest:
+      type: object
+      description: "User/blogger mengirimkan permintaan update terhadap sebagian atau seluruh property nya."
+      properties:
+        username:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
+          example: "andriana"
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+          description: "Email untuk setiap user/blogger (unique) bisa dijadikan identifier saar login."
+          example: "andriana@gmail.com"
+        profile_picture:
+          type: string
+          format: url
+          description: "Foto profil user/blogger (URL) (optional)."
+          example: "images.com/images.png"
+        bio:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Penjelasan singkat tentang user/blogger (optional)."
+          example: "Saya merupakan seorang programer..."
+        role:
+          type: string
+          enum:
+            - "ADMIN"
+            - "BLOGGER"
+          default: "BLOGGER"
+          description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
+          example: "BLOGGER"
+        is_enable:
+          type: boolean
+          description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging?."
+          default: false
+          example: true
+        is_email_verified:
+          type: boolean
+          description: "Apakah user/blogger sudah menghubungkan email nya?."
+          default: false
+          example: true
+    # Tidak ada required, user/blogger bebas mengupdate semua atau salah satu dari property diatas.
+
+###############################################################
+
+    UserResponse:
+      type: object
+      description: "Mengembalikan data user/blogger secara full. required: id, username, profile_picture, is_enable"
+      allOf:
+        - $ref: '#/components/schemas/UserSimpleDTO'
+        - type: object
+          properties:
+            email:
+              type: string
+              format: email
+              minLength: 1
+              maxLength: 255
+              description: "Email untuk setiap user/blogger (unique) bisa dijadikan identifier saar login."
+              example: "andriana@gmail.com"
+            is_email_verified:
+              type: boolean
+              description: "Apakah user/blogger sudah menghubungkan email nya?."
+              default: false
+              example: true
+
+    UserSimpleResponse:
+      type: object
+      description: "Mengembalikan data user/blogger secukupnya. required id, username, profile_picture, is_enable."
+      allOf:
+        - $ref: '#/components/schemas/UserSimpleDTO'
+
+    UserListResponse:
+      type: array
+      description: "Mengembalikan list of data user/blogger full. required id, username, profile_pictures, is_enable (superuser only)"
+      items:
+        allOf:
+          - $ref: '#/components/schemas/UserSimpleDTO'
+          - type: object
+            properties:
+              email:
+                type: string
+                format: email
+                minLength: 1
+                maxLength: 255
+                description: "Email untuk setiap user/blogger (unique) bisa dijadikan identifier saar login."
+                example: "andriana@gmail.com"
+              is_email_verified:
+                type: boolean
+                description: "Apakah user/blogger sudah menghubungkan email nya?."
+                default: false
+                example: true
+
+
+
+

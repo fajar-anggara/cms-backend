@@ -1,0 +1,165 @@
+openapi: "3.0.3"
+
+info:
+  version: 3.0.3
+  title: "cms-general-responses"
+  description: |
+    
+    Dibagian ini dideskripsikan berbagai response seperti:
+    
+    response 200 = ok
+    IdResponse = response yang hanya return id
+    ErrorFieldResponse = response yang akan mengembalikan fiel field yang error
+    
+    response 400 = Bad Request
+    response 401 = Unauthorized
+    response 403 = Forbidden
+    response 404 = Not Found
+    response 409 = Conflict
+    response 429 = Too Many Request
+    response 500 = Bad Server
+
+  contact:
+    name: "Moh. Fajar Anggara"
+    email: "muhamadfajaranggara@gmail.com"
+
+servers:
+  - url: "http://localhost:8080"
+    description: "Development Server"
+
+tags:
+  - name: "generalResponses"
+    description: "Endpoint api untuk error dan success yang umum"
+
+
+components:
+  schemas:
+    success200Response:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: "Success 200 ok"
+          default: true
+        message:
+          type: string
+          description: "Success"
+      required:
+        - success
+        - message
+
+      # --- Respons Error Klien (4xx) ---
+
+    ErrorFieldResponse:
+      type: array
+      description: "Error field, Mengembalikan identias field yang error, Front end bertnaggung jawab menyimpan old value."
+      items:
+        type: object
+        properties:
+          field:
+            type: string
+            description: "Field yang error"
+            example: "'email"
+          message:
+            type: string
+            description: "Kenapa field ini error"
+            example: "Password kurang dari 8 karakter"
+
+    Error400Response:
+      type: object
+      description: "Respons standar untuk permintaan yang salah (400 Bad Request)."
+      properties:
+        success:
+          type: boolean
+          description: "Menandakan bahwa operasi gagal."
+          default: false
+          example: false
+        message:
+          type: string
+          description: "Kenpaa bisa bad request (karena field tidak sesuai)."
+          default: "Field tidak sesuai"
+          example: "Field tidak sesuai"
+      required:
+        - success
+        - message
+
+    Error401Response:
+      type: object
+      description: "Respons standar untuk autentikasi yang gagal (401 Unauthorized)."
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          default: "Verifikasi diri anda, harap login kembali."
+          example: "Verifikasi diri anda, harap login kembali."
+      required:
+        - success
+        - message
+
+    Error403Response:
+      type: object
+      description: "Respons standar untuk otorisasi yang gagal (403 Forbidden)."
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          default: "Anda tidak memiliki izin untuk melakukan operasi ini."
+          example: "Anda tidak memiliki izin untuk melakukan operasi ini."
+      required:
+        - success
+        - message
+
+    Error404Response:
+      type: object
+      description: "Respons standar untuk sumber daya tidak ditemukan (404 Not Found)."
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          default: "Sumber daya tidak ditemukan."
+          example: "Sumber daya tidak ditemukan."
+      required:
+        - success
+        - message
+
+    Error409Response:
+      type: object
+      description: "Respons standar untuk konflik (409 Conflict)."
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          default: "Username atau Email sudah terdaftar."
+          example: "Username atau Email sudah terdaftar."
+      required:
+        - success
+        - message
+
+    # --- Respons Error Server (5xx) ---
+
+    Error500Response:
+      type: object
+      description: "Respons standar untuk kesalahan server internal (500 Internal Server Error)."
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          default: "Terjadi kesalahan pada server. Silakan coba lagi nanti."
+          example: "Terjadi kesalahan pada server. Silakan coba lagi nanti."
+        code: # Opsional: kode error internal untuk debugging
+          type: string
+          nullable: true
+          example: "ERR_DB_CONN_001"
+      required:
+        - success
+        - message
