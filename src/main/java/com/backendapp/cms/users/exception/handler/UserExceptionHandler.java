@@ -1,6 +1,6 @@
 package com.backendapp.cms.users.exception.handler;
 
-import com.backendapp.cms.dto.ErrorResponse;
+import com.backendapp.cms.common.dto.ErrorResponse;
 import com.backendapp.cms.users.exception.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
