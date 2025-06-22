@@ -127,10 +127,16 @@
 						<apiPackage>${openapi-package}.blogging.api</apiPackage>
 						<modelPackage>${openapi-package-with-dto}</modelPackage>
 						<configOptions>
+							<interfaceOnly>true</interfaceOnly>
 							<delegatePattern>true</delegatePattern>
 							<useJakartaEe>true</useJakartaEe>
 							<useTags>true</useTags>
-							<interfaceOnly>true</interfaceOnly> </configOptions>
+							<useBeanValidation>true</useBeanValidation>
+							<implicitHeaders>true</implicitHeaders>
+							<useJakartaEe>true</useJakartaEe>
+							<delegatePattern>false</delegatePattern>
+							<skipDefaultInterface>false</skipDefaultInterface>
+						</configOptions>
 					</configuration>
 				</execution>
 				<execution>
@@ -146,10 +152,15 @@
 						<apiPackage>${openapi-package}.blogs.api</apiPackage>
 						<modelPackage>${openapi-package-with-dto}</modelPackage>
 						<configOptions>
+							<interfaceOnly>true</interfaceOnly>
 							<delegatePattern>true</delegatePattern>
 							<useJakartaEe>true</useJakartaEe>
 							<useTags>true</useTags>
-							<interfaceOnly>true</interfaceOnly>
+							<useBeanValidation>true</useBeanValidation>
+							<implicitHeaders>true</implicitHeaders>
+							<useJakartaEe>true</useJakartaEe>
+							<delegatePattern>false</delegatePattern>
+							<skipDefaultInterface>false</skipDefaultInterface>
 						</configOptions>
 					</configuration>
 				</execution>
@@ -166,10 +177,15 @@
 						<apiPackage>${openapi-package}.superuser.api</apiPackage>
 						<modelPackage>${openapi-package-with-dto}</modelPackage>
 						<configOptions>
+							<interfaceOnly>true</interfaceOnly>
 							<delegatePattern>true</delegatePattern>
 							<useJakartaEe>true</useJakartaEe>
 							<useTags>true</useTags>
-							<interfaceOnly>true</interfaceOnly>
+							<useBeanValidation>true</useBeanValidation>
+							<implicitHeaders>true</implicitHeaders>
+							<useJakartaEe>true</useJakartaEe>
+							<delegatePattern>false</delegatePattern>
+							<skipDefaultInterface>false</skipDefaultInterface>
 						</configOptions>
 					</configuration>
 				</execution>
@@ -186,10 +202,15 @@
 						<apiPackage>${openapi-package}.users.api</apiPackage>
 						<modelPackage>${openapi-package-with-dto}</modelPackage>
 						<configOptions>
+							<interfaceOnly>true</interfaceOnly>
 							<delegatePattern>true</delegatePattern>
 							<useJakartaEe>true</useJakartaEe>
 							<useTags>true</useTags>
-							<interfaceOnly>true</interfaceOnly>
+							<useBeanValidation>true</useBeanValidation>
+							<implicitHeaders>true</implicitHeaders>
+							<useJakartaEe>true</useJakartaEe>
+							<delegatePattern>false</delegatePattern>
+							<skipDefaultInterface>false</skipDefaultInterface>
 						</configOptions>
 					</configuration>
 				</execution>
