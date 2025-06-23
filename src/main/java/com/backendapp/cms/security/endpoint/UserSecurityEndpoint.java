@@ -2,8 +2,8 @@ package com.backendapp.cms.security.endpoint;
 
 import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
-import com.backendapp.cms.users.dto.UserEntityDto;
 import com.backendapp.cms.users.endpoint.generated.UserControllerApi;
+import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +34,7 @@ public class UserSecurityEndpoint implements UserControllerApi {
 
     @Override
     public ResponseEntity<UserRegister200Response> userRegister(@Valid @RequestBody UserRegisterRequest request) {
-        UserEntityDto register = userRegistrationPerformer.registerUser(request);
+        UserEntity register = userRegistrationPerformer.registerUser(request);
         return userRegistrationPerformer.getResponse(register);
     }
 

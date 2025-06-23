@@ -1,6 +1,6 @@
 package com.backendapp.cms.security.entity;
 
-import com.backendapp.cms.common.enums.Roles;
+import com.backendapp.cms.common.enums.Authority;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +15,6 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_granted_authority")
 public class UserGrantedAuthority implements GrantedAuthority {
 
     @Id
@@ -28,11 +27,12 @@ public class UserGrantedAuthority implements GrantedAuthority {
     private UserEntity user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", nullable = false)
-    private Roles role;
+    @Column(nullable = false)
+    private Authority authority;
 
+    @Override
     public String getAuthority() {
-        return role.name();
+        return "ROLE_" + this.authority.name();
     }
 
     @Override
@@ -42,11 +42,12 @@ public class UserGrantedAuthority implements GrantedAuthority {
         if (o == null || getClass() != o.getClass())
             return false;
         UserGrantedAuthority that = (UserGrantedAuthority) o;
-        return role == that.role;
+        return authority == that.authority;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(role);
+        return Objects.hash(authority);
     }
+
 }

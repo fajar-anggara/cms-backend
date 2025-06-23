@@ -1,14 +1,18 @@
 package com.backendapp.cms.security.service;
 
 import com.backendapp.cms.common.constant.UserConstants;
+import com.backendapp.cms.common.enums.Authority;
 import com.backendapp.cms.openapi.dto.UserRegister200Response;
 import com.backendapp.cms.openapi.dto.UserRegisterRequest;
-import com.backendapp.cms.security.converter.RegistrationConverter;
+import com.backendapp.cms.openapi.dto.UserSimpleResponse;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import com.backendapp.cms.security.exception.PasswordMismatchException;
-import com.backendapp.cms.users.dto.UserEntityDto;
+import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
+import com.backendapp.cms.users.converter.RegisterUserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
+import com.backendapp.cms.users.exception.AlreadyExistsException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,61 +21,61 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserRegistrationOperationPerformer {
     private final PasswordEncoder passwordEncoder;
+    private final RegisterUserConverter registerUserConverter;
     private final UserCrudRepository userCrudRepository;
+    private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
 
-    private UserRegistrationOperationPerformer(
+    public UserRegistrationOperationPerformer(
             PasswordEncoder passwordEncoder,
-            UserCrudRepository userCrudRepository
+            UserCrudRepository userCrudRepository,
+            RegisterUserConverter registerUserConverter,
+            UserGrantedAuthorityRepository userGrantedAuthorityRepository
     ) {
         this.passwordEncoder = passwordEncoder;
-        this.userCrudRepository = userCrudRepository
+        this.userCrudRepository = userCrudRepository;
+        this.registerUserConverter = registerUserConverter;
+        this.userGrantedAuthorityRepository = userGrantedAuthorityRepository;
     }
 
-    public  UserEntityDto registerUser(@Valid UserRegisterRequest request) {
-        // validasi conflict
+    @Transactional
+    public UserEntity registerUser(@Valid UserRegisterRequest request) {
+        if (userCrudRepository.existsByUsername(request.getUsername())) {
+            throw new AlreadyExistsException("username");
+        }
+        if (userCrudRepository.existsByEmail(request.getEmail())) {
+            throw new AlreadyExistsException("email");
+        }
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new PasswordMismatchException();
         }
 
+        UserGrantedAuthority defaultAuthority = userGrantedAuthorityRepository.findByAuthority(UserConstants.DEFAULT_ROLE)
+                .orElseGet(() -> {
+                    UserGrantedAuthority newAuthority = UserGrantedAuthority.builder()
+                            .authority(Authority.BLOGGER)
+                            .build();
+
+                    return userGrantedAuthorityRepository.save(newAuthority);
+                });
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
-        UserEntity user = RegistrationConverter.toEntity(request);
+        UserEntity user = registerUserConverter.toEntity(request);
         user.setPassword(encryptedPassword);
         user.setProfilePicture(UserConstants.DEFAULT_PROFILE_PICTURE);
         user.setBio(UserConstants.DEFAULT_BIO);
-        user.setRole(UserConstants.DEFAULT_ROLE);
+        user.setRole(defaultAuthority);
         user.setEnabled(UserConstants.DEFAULT_ENABLE);
         user.setEmailVerified(UserConstants.DEFAULT_EMAIL_VERIFIED);
 
-        UserEntity userEntity = userCrudRepository.save(user);
-        return RegistrationConverter.toDto(userEntity);
+        return userCrudRepository.save(user);
     }
 
-    public ResponseEntity<UserRegister200Response> getResponse(UserEntityDto user) {
-
-    }
-
-    {
-
-        String encryptedPassword = passwordEncoder.encode(userRegistrationRequest.getPassword());
-        UserGrantedAuthority defaultUserGrantedAuthority = UserGrantedAuthority.builder().authority(Authority.USER).build();
-
-        UserEntity newUserEntity = registrationDtoConverter.toEntity(userRegistrationRequest);
-        newUserEntity.setPassword(encryptedPassword);
-        newUserEntity.addAuthority(defaultUserGrantedAuthority);
-        newUserEntity.setAccountNonExpired(DEFAULT_ACCOUNT_NON_EXPIRED);
-        newUserEntity.setAccountNonLocked(DEFAULT_ACCOUNT_NON_LOCKED);
-        newUserEntity.setCredentialsNonExpired(DEFAULT_CREDENTIALS_NON_EXPIRED);
-        newUserEntity.setEnabled(DEFAULT_ENABLED);
-
-        UserEntity userEntity = userCrudRepository.save(newUserEntity);
-
-        final String jwtRefreshToken = jwtTokenProvider.generateRefreshToken(userEntity);
-        final String jwtToken = jwtTokenProvider.generateToken(userEntity);
-
-        UserRegistrationResponse response = new UserRegistrationResponse();
-        response.setToken(jwtToken);
-        response.setRefreshToken(jwtRefreshToken);
-        return response;
+    public ResponseEntity<UserRegister200Response> getResponse(UserEntity userEntity) {
+        UserSimpleResponse userSimpleResponse = registerUserConverter.toSimpleResponse(userEntity);
+        UserRegister200Response response = new UserRegister200Response();
+        response.setSuccess(Boolean.TRUE);
+        response.setMessage(userEntity.getUsername() + "Berhasil didaftarkan");
+        response.setData(userSimpleResponse);
+        return ResponseEntity.ok(response);
     }
 }
