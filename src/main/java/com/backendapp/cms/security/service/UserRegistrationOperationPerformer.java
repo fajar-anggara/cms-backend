@@ -63,7 +63,7 @@ public class UserRegistrationOperationPerformer {
         user.setPassword(encryptedPassword);
         user.setProfilePicture(UserConstants.DEFAULT_PROFILE_PICTURE);
         user.setBio(UserConstants.DEFAULT_BIO);
-        user.setRole(defaultAuthority);
+        user.setAuthority(defaultAuthority);
         user.setEnabled(UserConstants.DEFAULT_ENABLE);
         user.setEmailVerified(UserConstants.DEFAULT_EMAIL_VERIFIED);
 

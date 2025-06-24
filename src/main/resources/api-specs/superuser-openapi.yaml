@@ -39,15 +39,9 @@ paths:
         - "SuperuserController"
       operationId: "getAllUser"
       description: "Mendapatkan semua data user."
+      security:
+        - BearerAuth: []
       parameters:
-        - name: "userId"
-          description: "Penanda user ini adalah superuser."
-          in: cookie
-          schema:
-            type: integer
-            format: int64
-          example: 1
-          required: true
         - name: "deleted"
           in: query
           description: "Apakah menampilkan user yang sudah didelete, tidak, atau semuanya"
@@ -141,15 +135,8 @@ paths:
         - "AdminController"
       operationId: "createUser"
       description: "Membuat user/blogger baru"
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "Superuser id"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -234,15 +221,9 @@ paths:
         - "SuperuserController"
       operationId: "getSingleUser"
       description: "Mengambil single data user"
+      security:
+        - BearerAuth: []
       parameters:
-        - name: "userId"
-          in: cookie
-          description: "Superuser ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
         - name: id
           in: path
           description: "Id user yang akan diambil"
@@ -293,15 +274,9 @@ paths:
         - "SuperuserController"
       operationId: "updateSingleUser"
       description: "Mengupdate single data user."
+      security:
+        - BearerAuth: []
       parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
         - name: id
           in: path
           description: "Id user yang akan diupdate."
@@ -372,15 +347,9 @@ paths:
         - "SuperuserController"
       operationId: "deleteSingleUser"
       description: "menghapus single data user"
+      security:
+        - BearerAuth: []
       parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
         - name: id
           in: path
           description: "Id user yang akan dihapus"
@@ -422,3 +391,10 @@ paths:
                 allOf:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
 
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Token bearer <token>"

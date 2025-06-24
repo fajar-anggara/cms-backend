@@ -17,4 +17,5 @@ import java.util.function.Function;
 public interface UserCrudRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByUsername(String username); // <-- Perbaiki di sini
     boolean existsByEmail(String email);
+    Optional<UserEntity> findByUsername(String username);
 }

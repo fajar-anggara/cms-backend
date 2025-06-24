@@ -153,15 +153,8 @@ paths:
         - UserController
       operationId: "userLogout"
       summary: "User mengirimkan permintaan logout, logout dilakukan dengan mengidentifikasi id dari cookie."
-      parameters:
-        - name: userId
-          in: cookie
-          description: "User ID"
-          schema:
-            type: integer
-            format: int64
-          example: 1
-          required: true
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: "Logout sukses, Frontend tolong redirect"
@@ -193,15 +186,8 @@ paths:
         - UserController
       operationId: "userGetRefreshPasswordToken"
       summary: "User lupa password dan ingin memperbarui password dengan meminta reset_password_token, diidentifikasi dengan id di cookie."
-      parameters:
-        - name: userId
-          in: cookie
-          description: "User ID"
-          schema:
-            type: integer
-            format: int64
-          example: 1
-          required: true
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: "Token dikirim di email. Segera lihat"
@@ -240,15 +226,8 @@ paths:
         - UserController
       operationId: "userRenewThePassword"
       description: "User/blogger telah menerima token di email dan mengirimkan password baru"
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "User/blogger id yang diterima saat permintaan reset password"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -290,15 +269,8 @@ paths:
         - UserController
       operationId: "getUser"
       description: "Mendapatkan informasi user/blogger lengkap."
-      parameters:
-        - name: userId
-          in: cookie
-          schema:
-            type: integer
-            format: int64
-            description: "User ID"
-            example: 1
-          required: true
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: "Berhasil, berikan data user/blogger"
@@ -334,14 +306,8 @@ paths:
         - UserController
       operationId: "updateUser"
       description: "User mengupdate property milik dirinya."
-      parameters:
-        - name: userId
-          in: cookie
-          schema:
-            type: integer
-            format: int64
-            description: "User ID"
-            example: 1
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -405,14 +371,8 @@ paths:
         - UserController
       operationId: "changePassword"
       description: "User mengirimkan permintaan mengubah password tanpa lupa password."
-      parameters:
-        - name: userId
-          in: cookie
-          schema:
-            type: integer
-            format: int64
-            description: "User ID"
-            example: 1
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -466,14 +426,8 @@ paths:
         - UserController
       operationId: "deleteUser"
       description: "Menghapus user (oleh dirinya sendiri)"
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "User ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
+      security:
+        - BearerAuth: []
       responses:
         "200":
           description: "Berhasil menghapus user, balikan ke register page"
@@ -502,6 +456,12 @@ paths:
 ####################################################################################################
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Token bearer <token>"
   schemas:
     UserDTO:
       description: "Object user/blogger."
@@ -544,7 +504,7 @@ components:
           maxLength: 255
           description: "Penjelasan singkat tentang user/blogger (optional)."
           example: "Saya merupakan seorang programer..."
-        role:
+        authority:
           type: string
           enum:
             - "ADMIN"
@@ -586,7 +546,7 @@ components:
         - username
         - email
         - password
-        - role
+        - authority
         - is_enable
         - is_email_verified
 
@@ -618,7 +578,7 @@ components:
           maxLength: 255
           description: "Penjelasan singkat tentang user/blogger (optional)."
           example: "Saya merupakan seorang programer..."
-        role:
+        authority:
           type: string
           enum:
             - "ADMIN"
@@ -794,7 +754,7 @@ components:
           maxLength: 255
           description: "Penjelasan singkat tentang user/blogger (optional)."
           example: "Saya merupakan seorang programer..."
-        role:
+        authority:
           type: string
           enum:
             - "ADMIN"

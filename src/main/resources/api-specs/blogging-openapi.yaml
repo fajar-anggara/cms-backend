@@ -61,15 +61,9 @@ paths:
         - BloggingController
       operationId: "adminDashboard"
       description: "Dashboard admin. categories akan selalu ada dibawah walau sedang search, categories post dll"
+      security:
+        - BearerAuth: [ ]
       parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin user ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
         - name: "limit"
           in: query
           description: "Jumlah postingan yang akan ditampilkan"
@@ -154,15 +148,8 @@ paths:
         - BloggingController
       operationId: "getAllArticles"
       description: "Mendapatakan semua postingan."
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
+      security:
+        - BearerAuth: [ ]
       responses:
         "200":
           description: "Berhasil mendapatakn semua postingan"
@@ -205,15 +192,8 @@ paths:
         - BloggingController
       operationId: "postArticle"
       description: "Memposting artikel"
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
+      security:
+        - BearerAuth: [ ]
       requestBody:
         content:
           application/json:
@@ -260,18 +240,12 @@ paths:
       tags:
         - BloggingController
       operationId: "getSingleArticle"
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: "id"
           in: path
           description: "ID artikel"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -318,18 +292,12 @@ paths:
         - BloggingController
       operationId: "updateSingleArticle"
       description: "Mengedit sebuah artikel"
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: "id"
           in: path
           description: "ID artikel"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -380,18 +348,12 @@ paths:
         - BloggingController
       operationId: "editSingleArticleCategories"
       description: "Mengedit, menambahkan atau menghapus kategori sebuah artikel"
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: "id"
           in: path
           description: "ID artikel"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -445,18 +407,12 @@ paths:
         - BloggingController
       operationId: "deleteSingleArticle"
       description: "Mengahapus sebuah artikel"
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: "id"
           in: path
           description: "ID artikel"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -500,15 +456,8 @@ paths:
       tags:
         - BloggingController
       operationId: "categoriesDashboard"
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
+      security:
+        - BearerAuth: [ ]
       responses:
         "200":
           description: "Berhasil mengambil semua kategori yang tersedia"
@@ -548,15 +497,8 @@ paths:
         - BloggingController
       operationId: "createCategory"
       description: "Membuat kategori baru"
-      parameters:
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
+      security:
+        - BearerAuth: [ ]
       requestBody:
         content:
           application/json:
@@ -598,18 +540,12 @@ paths:
       tags:
         - BloggingController
       operationId: "getSingleCategory"
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: "id"
           in: path
           description: "ID kategori"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -656,18 +592,12 @@ paths:
         - BloggingController
       operationId: "editSingleCategory"
       description: "Mengedit sebuah kategori"
+      security:
+        - BearerAuth: [ ]
       parameters:
         - name: "id"
           in: path
           description: "ID kategori"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -718,18 +648,12 @@ paths:
         - BloggingController
       operationId: "editSingleCategoryArticles"
       description: "Mengedit, menambahkan atau menghapus kategori sebuah artikel"
+      security:
+        - BearerAuth: []
       parameters:
         - name: "id"
           in: path
           description: "ID category"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -783,18 +707,12 @@ paths:
         - BloggingController
       operationId: "deleteSingleCategory"
       description: "Mengahapus sebuah kategori"
+      security:
+        - BearerAuth: []
       parameters:
         - name: "id"
           in: path
           description: "ID kategori"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-        - name: "userId"
-          in: cookie
-          description: "Admin ID"
           schema:
             type: integer
             format: int64
@@ -834,6 +752,12 @@ paths:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Token bearer <token>"
   schemas:
     PostDTO:
       type: object

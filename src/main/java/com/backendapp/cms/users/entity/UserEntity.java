@@ -7,8 +7,12 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -21,7 +25,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +48,7 @@ public class UserEntity {
 
     @ManyToOne(fetch = FetchType.EAGER) // FetchType.EAGER karena role selalu dibutuhkan
     @JoinColumn(name = "authority_id", nullable = false) // Ini akan membuat kolom FK di tabel 'users'
-    private UserGrantedAuthority role; // Ganti nama field agar lebih jelas merujuk ke satu Authority
+    private UserGrantedAuthority authority; // Ganti nama field agar lebih jelas merujuk ke satu Authority
 
     @Column(name = "is_enable")
     private boolean isEnabled;
@@ -78,5 +82,10 @@ public class UserEntity {
     @Override
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
     }
 }
