@@ -64,6 +64,11 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/UserSimpleResponse'
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: "Token JWT"
 
         "400":
           description: "Pengisian field tidak sesuai."
@@ -117,6 +122,11 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/UserSimpleResponse'
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: "Token JWT"
 
         "400":
           description: "Pengisian field tidak sesuai."

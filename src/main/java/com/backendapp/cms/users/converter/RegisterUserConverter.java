@@ -12,7 +12,6 @@ public interface RegisterUserConverter {
 
     UserDTO toDto(UserEntity userEntity);
 
-    @Mapping(source = "")
     UserEntity toEntity(UserRegisterRequest userRegisterRequest);
     UserSimpleResponse toSimpleResponse(UserEntity userEntity);
 
