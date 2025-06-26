@@ -21,20 +21,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserRegistrationOperationPerformer {
     private final PasswordEncoder passwordEncoder;
-    private final RegisterUserConverter registerUserConverter;
     private final UserCrudRepository userCrudRepository;
     private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
+    private final RegisterUserConverter registerUserConverter;
 
     public UserRegistrationOperationPerformer(
             PasswordEncoder passwordEncoder,
             UserCrudRepository userCrudRepository,
-            RegisterUserConverter registerUserConverter,
-            UserGrantedAuthorityRepository userGrantedAuthorityRepository
+            UserGrantedAuthorityRepository userGrantedAuthorityRepository,
+            RegisterUserConverter registerUserConverter
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userCrudRepository = userCrudRepository;
-        this.registerUserConverter = registerUserConverter;
         this.userGrantedAuthorityRepository = userGrantedAuthorityRepository;
+        this.registerUserConverter = registerUserConverter;
     }
 
     @Transactional
@@ -68,14 +68,5 @@ public class UserRegistrationOperationPerformer {
         user.setEmailVerified(UserConstants.DEFAULT_EMAIL_VERIFIED);
 
         return userCrudRepository.save(user);
-    }
-
-    public ResponseEntity<UserRegister200Response> getResponse(UserEntity userEntity) {
-        UserSimpleResponse userSimpleResponse = registerUserConverter.toSimpleResponse(userEntity);
-        UserRegister200Response response = new UserRegister200Response();
-        response.setSuccess(Boolean.TRUE);
-        response.setMessage(userEntity.getUsername() + "Berhasil didaftarkan");
-        response.setData(userSimpleResponse);
-        return ResponseEntity.ok(response);
     }
 }

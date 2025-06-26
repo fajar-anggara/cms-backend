@@ -1,6 +1,7 @@
 // src/main/java/com/backendapp/cms/security/config/ApplicationConfig.java
 package com.backendapp.cms.security.config;
 
+import com.backendapp.cms.users.converter.RegisterUserConverter;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

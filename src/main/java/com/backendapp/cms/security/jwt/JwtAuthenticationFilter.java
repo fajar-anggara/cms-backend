@@ -1,5 +1,6 @@
 package com.backendapp.cms.security.jwt;
 
+import com.backendapp.cms.common.constant.ApiConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +25,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String requestURI = request.getRequestURI();
+
+        List<String> whiteList = Arrays.asList(
+                "/v3/api-docs",
+                "/swagger-ui",
+                "/swagger-resources",
+                "/webjars",
+                ApiConstants.AUTH_PATH,
+                ApiConstants.PUBLIC_PATH
+        );
+        return whiteList.stream().anyMatch(requestURI::startsWith) ||
+                // Periksa juga untuk kasus spesifik seperti /swagger-ui.html
+                requestURI.equals("/swagger-ui.html");
+    }
     @Override
     protected void doFilterInternal(
             @NotNull HttpServletRequest request,

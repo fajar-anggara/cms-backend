@@ -29,19 +29,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // Nonaktifkan CSRF untuk API stateless (penting untuk API REST)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(ApiConstants.SUPERUSER_PATH+ "/**").hasRole("SUPERUSER")
-                        .requestMatchers(ApiConstants.USER_PATH+ "/**").hasRole("USER")
-                        .requestMatchers(ApiConstants.AUTHOR_PATH + "/**").hasRole("USER")
-                        .requestMatchers(ApiConstants.AUTH_PATH + "/**").permitAll()
-                        .requestMatchers(ApiConstants.PUBLIC_PATH + "/**").permitAll()
-                        .anyRequest().authenticated()).httpBasic(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+                        .anyRequest().permitAll() // Izinkan semua request ke semua endpoint
+                );
         return http.build();
-
     }
 }

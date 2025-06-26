@@ -4,6 +4,7 @@ import com.backendapp.cms.common.dto.ErrorResponse;
 import com.backendapp.cms.users.exception.AlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,7 +28,14 @@ public class UserExceptionHandler {
     @ExceptionHandler(AlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleAlreadyExistsException(AlreadyExistsException e, WebRequest request) {
         errors.put(e.getMessage(), e.getMessage() + " sudah terdaftar");
-        ErrorResponse error = new ErrorResponse(true, e.getMessage() + " sudah terdaftar", errors);
+        ErrorResponse error = new ErrorResponse(false, e.getMessage() + " sudah terdaftar", errors);
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> haldlerUsernameNotFoundExeption(UsernameNotFoundException e) {
+        errors.put("username", "Username tidak terdaftar");
+        ErrorResponse error = new ErrorResponse(false, "Username " + e.getMessage() + " tidak terdaftar", errors);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }
