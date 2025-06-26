@@ -38,9 +38,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 ApiConstants.PUBLIC_PATH
         );
         return whiteList.stream().anyMatch(requestURI::startsWith) ||
-                // Periksa juga untuk kasus spesifik seperti /swagger-ui.html
                 requestURI.equals("/swagger-ui.html");
     }
+
     @Override
     protected void doFilterInternal(
             @NotNull HttpServletRequest request,
@@ -53,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            return;
         }
 
         jwt = authHeader.substring(7);

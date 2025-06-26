@@ -1,6 +1,7 @@
 package com.backendapp.cms.security.config;
 
 import com.backendapp.cms.common.constant.ApiConstants;
+import com.backendapp.cms.common.enums.Authority;
 import com.backendapp.cms.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,8 +32,22 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Nonaktifkan CSRF untuk API stateless (penting untuk API REST)
                 .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll() // Izinkan semua request ke semua endpoint
-                );
+                        .requestMatchers(ApiConstants.SUPERUSER_PATH).hasRole(String.valueOf(Authority.ADMIN))
+                        .requestMatchers(ApiConstants.AUTHOR_PATH).hasRole(String.valueOf(Authority.BLOGGER))
+                        .requestMatchers(ApiConstants.USER_PATH).hasRole(String.valueOf(Authority.BLOGGER))
+                        .requestMatchers(ApiConstants.AUTH_PATH).permitAll()
+                        .requestMatchers((ApiConstants.PUBLIC_PATH)).permitAll()
+                        .requestMatchers("/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/swagger-ui.html/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }
