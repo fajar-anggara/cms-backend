@@ -1,5 +1,6 @@
 package com.backendapp.cms.users.converter.mapper;
 
+import com.backendapp.cms.openapi.dto.UserResponse;
 import com.backendapp.cms.openapi.dto.UserSimpleResponse;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import org.mapstruct.Mapper;
@@ -21,6 +22,25 @@ public class UserAuthorityMapper {
             }
 
             return UserSimpleResponse.AuthorityEnum.valueOf(authorityString.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            System.err.println("tidak bisa mapping authority UserGrantedAuthority ke authority UserSimpleResponse.AuthorityEnum");
+            return null;
+        }
+
+    }
+    @Named("mapUserGrantedAuthorityToUserResponseAuthorityEnum")
+    public UserResponse.AuthorityEnum mapUserGrantedAuthorityToUserResponseAuthorityEnum(UserGrantedAuthority userGrantedAuthority) {
+        if(userGrantedAuthority == null || userGrantedAuthority.getAuthority() == null) {
+            return null;
+        }
+
+        try {
+            String authorityString = userGrantedAuthority.getAuthority();
+            if(authorityString.startsWith("ROLE_")) {
+                authorityString = authorityString.substring(5);
+            }
+
+            return UserResponse.AuthorityEnum.valueOf(authorityString.toUpperCase());
         } catch (IllegalArgumentException e) {
             System.err.println("tidak bisa mapping authority UserGrantedAuthority ke authority UserSimpleResponse.AuthorityEnum");
             return null;

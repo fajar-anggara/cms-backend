@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationOperationPerformer {
     private final AuthenticationManager authenticationManager;
-    private final UserCrudRepository userRepository;
     private final JwtService jwtService;
 
     public AuthenticationOperationPerformer(AuthenticationManager authenticationManager,
@@ -22,7 +21,6 @@ public class AuthenticationOperationPerformer {
                                             JwtService jwtService
     ) {
         this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
         this.jwtService = jwtService;
     }
 

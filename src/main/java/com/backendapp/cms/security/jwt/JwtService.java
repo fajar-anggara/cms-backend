@@ -78,13 +78,11 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         Jws<Claims> jwsClaims = Jwts.parser()
-                .verifyWith(getSignInKey()) // <-- Ini pengganti setSigningKey()
+                .verifyWith(getSignInKey())
                 .build()
-                // --- PENGGANTI UTAMA DI SINI ---
-                .parseSignedClaims(token); // <-- Pengganti parseClaimsJws()
+                .parseSignedClaims(token);
 
-        // --- PENGGANTI JUGA DI SINI ---
-        return jwsClaims.getPayload(); // <-- Pengganti getBody()
+        return jwsClaims.getPayload();
     }
 
     private SecretKey getSignInKey() {

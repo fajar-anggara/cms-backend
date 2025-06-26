@@ -2,19 +2,16 @@ package com.backendapp.cms.security.service;
 
 import com.backendapp.cms.common.constant.UserConstants;
 import com.backendapp.cms.common.enums.Authority;
-import com.backendapp.cms.openapi.dto.UserRegister200Response;
 import com.backendapp.cms.openapi.dto.UserRegisterRequest;
-import com.backendapp.cms.openapi.dto.UserSimpleResponse;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
-import com.backendapp.cms.users.converter.RegisterUserConverter;
+import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
 import com.backendapp.cms.users.exception.AlreadyExistsException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,18 +20,18 @@ public class UserRegistrationOperationPerformer {
     private final PasswordEncoder passwordEncoder;
     private final UserCrudRepository userCrudRepository;
     private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
-    private final RegisterUserConverter registerUserConverter;
+    private final UserConverter userConverter;
 
     public UserRegistrationOperationPerformer(
             PasswordEncoder passwordEncoder,
             UserCrudRepository userCrudRepository,
             UserGrantedAuthorityRepository userGrantedAuthorityRepository,
-            RegisterUserConverter registerUserConverter
+            UserConverter userConverter
     ) {
         this.passwordEncoder = passwordEncoder;
         this.userCrudRepository = userCrudRepository;
         this.userGrantedAuthorityRepository = userGrantedAuthorityRepository;
-        this.registerUserConverter = registerUserConverter;
+        this.userConverter = userConverter;
     }
 
     @Transactional
@@ -59,7 +56,7 @@ public class UserRegistrationOperationPerformer {
                 });
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
-        UserEntity user = registerUserConverter.toEntity(request);
+        UserEntity user = userConverter.toEntity(request);
         user.setPassword(encryptedPassword);
         user.setProfilePicture(UserConstants.DEFAULT_PROFILE_PICTURE);
         user.setBio(UserConstants.DEFAULT_BIO);

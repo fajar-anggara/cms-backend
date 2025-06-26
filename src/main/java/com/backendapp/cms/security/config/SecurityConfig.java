@@ -33,8 +33,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Nonaktifkan CSRF untuk API stateless (penting untuk API REST)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(ApiConstants.SUPERUSER_PATH).hasRole(String.valueOf(Authority.ADMIN))
-                        .requestMatchers(ApiConstants.AUTHOR_PATH).hasRole(String.valueOf(Authority.BLOGGER))
-                        .requestMatchers(ApiConstants.USER_PATH).hasRole(String.valueOf(Authority.BLOGGER))
+                        .requestMatchers(ApiConstants.AUTHOR_PATH).hasAnyRole(String.valueOf(Authority.BLOGGER), String.valueOf(Authority.ADMIN))
+                        .requestMatchers(ApiConstants.USER_PATH).hasAnyRole(String.valueOf(Authority.BLOGGER), String.valueOf(Authority.ADMIN))
                         .requestMatchers(ApiConstants.AUTH_PATH).permitAll()
                         .requestMatchers((ApiConstants.PUBLIC_PATH)).permitAll()
                         .requestMatchers("/v3/api-docs/**",
