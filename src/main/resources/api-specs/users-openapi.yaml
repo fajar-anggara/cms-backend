@@ -89,7 +89,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error409Response'
 
         "500":
           description: "Server Error."
