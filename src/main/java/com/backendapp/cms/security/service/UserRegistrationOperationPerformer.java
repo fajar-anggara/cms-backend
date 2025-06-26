@@ -10,6 +10,7 @@ import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
 import com.backendapp.cms.users.exception.EmailAlreadyExistException;
 import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
+import com.backendapp.cms.users.exception.UsernameOrEmailUsedToExistException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -40,8 +41,14 @@ public class UserRegistrationOperationPerformer {
         if (userCrudRepository.existsByUsername(request.getUsername())) {
             throw new UsernameAlreadyExistException();
         }
+        if (existsByUsernameIncludingDeleted(request.getUsername())) {
+            throw new UsernameOrEmailUsedToExistException();
+        }
         if (userCrudRepository.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyExistException();
+        }
+        if (existsByEmailIncludingDeleted(request.getEmail())) {
+            throw new UsernameOrEmailUsedToExistException();
         }
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new PasswordMismatchException();
@@ -66,5 +73,15 @@ public class UserRegistrationOperationPerformer {
         user.setEmailVerified(UserConstants.DEFAULT_EMAIL_VERIFIED);
 
         return userCrudRepository.save(user);
+    }
+
+    public boolean existsByUsernameIncludingDeleted(String username) {
+        Integer count = userCrudRepository.countByUsernameIncludingDeleted(username);
+        return count != null && count > 0;
+    }
+
+    public boolean existsByEmailIncludingDeleted(String username) {
+        Integer count = userCrudRepository.countByUsernameIncludingDeleted(username);
+        return count != null && count > 0;
     }
 }

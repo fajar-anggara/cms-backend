@@ -8,7 +8,9 @@ import com.backendapp.cms.security.service.AuthenticationOperationPerformer;
 import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
+import com.backendapp.cms.users.service.UserDeleteOperationPerformer;
 import com.backendapp.cms.users.service.UserEntityProvider;
+import com.backendapp.cms.users.service.UserUpdateOperationPerformer;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,18 +27,24 @@ public class UserEndpoint implements UserControllerApi {
     private final UserRegister200Response userSimpleResponse = new UserRegister200Response();
     private final AuthenticationOperationPerformer authenticationOperationPerformer;
     private final UserEntityProvider userEntityProvider;
+    private final UserUpdateOperationPerformer userUpdateOperationPerformer;
+    private final UserDeleteOperationPerformer userDeleteOperationPerformer;
 
     public UserEndpoint (
             UserRegistrationOperationPerformer userRegistrationOperationPerformer,
             UserConverter userConverter,
             JwtService jwtService,
             AuthenticationOperationPerformer authenticationOperationPerformer,
-            UserEntityProvider userEntityProvider) {
+            UserEntityProvider userEntityProvider,
+            UserUpdateOperationPerformer userUpdateOperationPerformer,
+            UserDeleteOperationPerformer userDeleteOperationPerformer) {
         this.userRegistrationOperationPerformer = userRegistrationOperationPerformer;
         this.userConverter = userConverter;
         this.jwtService = jwtService;
         this.authenticationOperationPerformer = authenticationOperationPerformer;
         this.userEntityProvider = userEntityProvider;
+        this.userUpdateOperationPerformer = userUpdateOperationPerformer;
+        this.userDeleteOperationPerformer = userDeleteOperationPerformer;
     }
 
     @Override
@@ -81,4 +89,30 @@ public class UserEndpoint implements UserControllerApi {
 
         return ResponseEntity.ok(response);
     }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetUser200Response> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity newUser = userUpdateOperationPerformer.updateUser(authentication, userUpdateRequest);
+        UserResponse userResponse = userConverter.toUserResponse(newUser);
+        GetUser200Response response = new GetUser200Response();
+
+        response.setSuccess(Boolean.TRUE);
+        response.setMessage("Success");
+        response.setData(userResponse);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Success200Response> deleteUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userDeleteOperationPerformer.deleteUser(authentication);
+
+        return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus user"));
+    }
+
+
 }

@@ -3,6 +3,9 @@ package com.backendapp.cms.users.entity;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DialectOverride;
+import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.Where;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -24,6 +27,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SQLRestriction("deleted_at IS NULL")
 public class UserEntity implements UserDetails {
 
     @Id

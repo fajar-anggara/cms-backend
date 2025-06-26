@@ -1,8 +1,8 @@
 package com.backendapp.cms.common.exception.handler;
 
 import com.backendapp.cms.common.dto.ErrorResponse;
-import com.backendapp.cms.users.exception.EmailAlreadyExistException;
-import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
+import com.backendapp.cms.security.exception.PasswordMismatchException;
+import com.backendapp.cms.users.exception.*;
 import com.backendapp.cms.common.exception.ResourceNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,9 +24,69 @@ import java.util.HashMap;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+    /**
+     * User exceptions handler
+     *
+     * handle_EmailAlreadyExistException
+     * handle_EmailNotFoundException
+     * handle_UsernameAlreadyExistException
+     * handle_UsernameNotFoundException
+     * handle_UsernameOrEmailNotFoundException
+     * handle_UsernameOrEmailUsedToExistException
+     *
+     * handle_BadCredentialsException
+     * handle_MethodArgumentNotValidException
+     */
+    @ExceptionHandler(EmailAlreadyExistException.class)
+    public ResponseEntity<ErrorResponse> handle_EmailAlreadyExistException(EmailAlreadyExistException e, WebRequest request) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("email", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EmailNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle_EmailNotFoundException(EmailNotFoundException e) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("email", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UsernameAlreadyExistException.class)
+    public ResponseEntity<ErrorResponse> handle_UsernameAlreadyExistException(UsernameAlreadyExistException e, WebRequest request) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("username", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle_UsernameNotFoundException(UsernameNotFoundException e) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("username", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UsernameOrEmailNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle_UsernameOrEmailNotFoundException(UsernameOrEmailNotFoundException e) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("identifier", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UsernameOrEmailUsedToExistException.class)
+    public ResponseEntity<ErrorResponse> handle_UsernameOrEmailUsedToExistException(UsernameOrEmailUsedToExistException e, WebRequest request) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("username", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException e) {
+    public ResponseEntity<ErrorResponse> handle_BadCredentialsException(BadCredentialsException e) {
         HashMap<String, String> errors = new HashMap<>();
         errors.put("username", "Username atau password salah");
         errors.put("password", "Username atau password salah");
@@ -35,7 +96,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handle_MethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         HashMap<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 fieldErrors.put(error.getField(), error.getDefaultMessage()));
@@ -44,22 +105,33 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+
+    /**
+     * Security exception handler
+     *
+     * handle_AuthenticationExceptions
+     * handle_JwtExceptions
+     * handle_AccessDeniedException
+     * handle_ResourceNotFoundException
+     * handle_PasswordMismatchException
+     * handle_InternalAuthenticationServiceException
+     * handle_AllUncaughtExceptions
+     */
+
+
     @ExceptionHandler({
             DisabledException.class,
             LockedException.class,
-            UsernameNotFoundException.class
     })
-    public ResponseEntity<ErrorResponse> handleAuthenticationExceptions(Exception ex) {
+    public ResponseEntity<ErrorResponse> handle_AuthenticationExceptions(Exception ex) {
         String message = "Authentication failed. Invalid credentials.";
         if (ex instanceof DisabledException) {
             message = "Your account is disabled.";
         } else if (ex instanceof LockedException) {
             message = "Your account is locked.";
-        } else if (ex instanceof UsernameNotFoundException) {
-            message = "User not found.";
         }
 
-        ErrorResponse errorResponse = new ErrorResponse(false, message); // Menggunakan konstruktor tanpa errors
+        ErrorResponse errorResponse = new ErrorResponse(false, message);
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
@@ -68,7 +140,7 @@ public class GlobalExceptionHandler {
             ExpiredJwtException.class,
             SignatureException.class
     })
-    public ResponseEntity<ErrorResponse> handleJwtExceptions(Exception ex) {
+    public ResponseEntity<ErrorResponse> handle_JwtExceptions(Exception ex) {
         String message = "Authentication failed: Invalid or expired token.";
         if (ex instanceof ExpiredJwtException) {
             message = "Authentication failed: Token has expired.";
@@ -78,54 +150,53 @@ public class GlobalExceptionHandler {
             message = "Authentication failed: Malformed token.";
         }
 
-        ErrorResponse errorResponse = new ErrorResponse(false, message); // Menggunakan konstruktor tanpa errors
+        ErrorResponse errorResponse = new ErrorResponse(false, message);
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    public ResponseEntity<ErrorResponse> handle_AccessDeniedException(AccessDeniedException ex) {
         ErrorResponse errorResponse = new ErrorResponse(false, "Access Denied. You do not have permission to access this resource.");
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler({
-            UsernameAlreadyExistException.class,
-            EmailAlreadyExistException.class,
-            // Tambahkan custom exception lain untuk konflik di sini
-    })
-    public ResponseEntity<ErrorResponse> handleConflictExceptions(Exception ex) {
-        String message = "A conflict occurred with the existing resource.";
-        HashMap<String, String> fieldErrors = null; // Inisialisasi null secara default
-        if (ex instanceof UsernameAlreadyExistException) {
-            message = ex.getMessage();
-            fieldErrors = new HashMap<>(); // Buat HashMap hanya jika diperlukan
-            fieldErrors.put("username", ex.getMessage());
-        } else if (ex instanceof EmailAlreadyExistException) {
-            message = ex.getMessage();
-            fieldErrors = new HashMap<>(); // Buat HashMap hanya jika diperlukan
-            fieldErrors.put("email", ex.getMessage());
-        }
-
-        // Menggunakan konstruktor yang sesuai
-        ErrorResponse errorResponse = (fieldErrors != null && !fieldErrors.isEmpty()) ?
-                new ErrorResponse(false, message, fieldErrors) :
-                new ErrorResponse(false, message);
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
-    }
-
-    // Tambahkan handler untuk 404 (ResourceNotFoundException) jika Anda memiliki custom exception ini
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException e) {
+    public ResponseEntity<ErrorResponse> handle_ResourceNotFoundException(ResourceNotFoundException e) {
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllUncaughtExceptions(Exception ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handle_AllUncaughtExceptions(Exception ex, WebRequest request) {
         System.err.println("An unexpected error occurred: " + ex.getMessage());
         ex.printStackTrace();
 
         ErrorResponse errorResponse = new ErrorResponse(false, "An unexpected internal server error occurred. Please try again later.");
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ErrorResponse> handle_InternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
+        String message;
+        HashMap<String, String> errors = null;
+
+        if (ex.getCause() instanceof UsernameOrEmailNotFoundException) {
+            message = ex.getCause().getMessage();
+            errors = new HashMap<>();
+            errors.put("identifier", message);
+            return new ResponseEntity<>(new ErrorResponse(false, message, errors), HttpStatus.UNAUTHORIZED);
+        } else {
+            message = "Authentication failed: " + ex.getMessage();
+            return new ResponseEntity<>(new ErrorResponse(false, message), HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<ErrorResponse> handle_PasswordMismatchException(PasswordMismatchException e, WebRequest request) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("password_confirm", "Password Tidak Sesuai.");
+
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }
