@@ -8,7 +8,8 @@ import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.exception.AlreadyExistsException;
+import com.backendapp.cms.users.exception.EmailAlreadyExistException;
+import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -37,10 +38,10 @@ public class UserRegistrationOperationPerformer {
     @Transactional
     public UserEntity registerUser(@Valid UserRegisterRequest request) {
         if (userCrudRepository.existsByUsername(request.getUsername())) {
-            throw new AlreadyExistsException("username");
+            throw new UsernameAlreadyExistException();
         }
         if (userCrudRepository.existsByEmail(request.getEmail())) {
-            throw new AlreadyExistsException("email");
+            throw new EmailAlreadyExistException();
         }
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new PasswordMismatchException();
