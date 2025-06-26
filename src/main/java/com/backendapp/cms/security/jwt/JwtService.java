@@ -1,16 +1,18 @@
 package com.backendapp.cms.security.jwt;
 
+import com.backendapp.cms.users.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +37,19 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> claims = new HashMap<>();
+        Collection<? extends GrantedAuthority> authority = userDetails.getAuthorities();
+        String authorityString = null;
+        if (authority != null && !authority.isEmpty()) {
+            authorityString = authority.iterator().next().getAuthority();
+        } else {
+            authorityString = "ROLE_ANONYMOUS";
+        }
+        if (userDetails instanceof UserEntity user) {
+            claims.put("userId", user.getId());
+        }
+        claims.put("authority", authorityString);
+        return generateToken(claims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
@@ -44,7 +58,7 @@ public class JwtService {
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration)) // Token kedaluwarsa
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey())
                 .compact();
     }

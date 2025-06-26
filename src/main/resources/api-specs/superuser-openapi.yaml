@@ -152,7 +152,7 @@ paths:
                         - "ADMIN"
                         - "BLOGGER"
                       default: "BLOGGER"
-                    is_enable:
+                    enabled:
                       type: boolean
                       description: "Apakah user/blogger langsung diaktifkan atau tidak."
                       default: true

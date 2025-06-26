@@ -22,8 +22,6 @@ public class UserSecurityEndpoint implements UserControllerApi {
     private final RegisterUserConverter registerUserConverter;
     private final JwtService jwtService;
     private final UserRegister200Response userSimpleResponse = new UserRegister200Response();
-
-    //Login
     private final AuthenticationOperationPerformer authenticationOperationPerformer;
     private final UserEntityProvider userEntityProvider;
 
@@ -57,7 +55,7 @@ public class UserSecurityEndpoint implements UserControllerApi {
      * @return
      */
     @Override
-    public ResponseEntity<UserRegister200Response> userLogin(UserLoginRequest userLoginRequest) {
+    public ResponseEntity<UserRegister200Response> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest) {
         AuthenticationResponse token = authenticationOperationPerformer.authenticate(userLoginRequest);
         UserEntity user = userEntityProvider.getUser(userLoginRequest.getIdentifier());
 

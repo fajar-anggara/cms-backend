@@ -7,7 +7,6 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,10 +21,9 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-// @RequiredArgsConstructor // <-- Hapus ini jika Anda punya @NoArgsConstructor dan @AllArgsConstructor
-@NoArgsConstructor // Diperlukan oleh JPA
-@AllArgsConstructor // Diperlukan oleh @Builder
-@Builder // Diperlukan untuk method builder()
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserEntity implements UserDetails {
 
     @Id
@@ -34,6 +32,9 @@ public class UserEntity implements UserDetails {
 
     @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(name = "display_name", nullable = false)
+    private String displayName;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -47,39 +48,34 @@ public class UserEntity implements UserDetails {
     @Column(name = "bio", nullable = true)
     private String bio;
 
-    @ManyToOne(fetch = FetchType.EAGER) // FetchType.EAGER karena role selalu dibutuhkan
-    @JoinColumn(name = "authority_id", nullable = false) // Ini akan membuat kolom FK di tabel 'users'
-    private UserGrantedAuthority authority; // Ganti nama field agar lebih jelas merujuk ke satu Authority
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "authority_id", nullable = false)
+    private UserGrantedAuthority authority;
 
-    @Column(name = "is_enable")
-    private boolean isEnabled; // Defaultnya adalah false jika tidak diinisialisasi
+    @Column(name = "enabled")
+    private boolean enabled;
 
     @Column(name = "is_email_verified", nullable = true)
-    private boolean isEmailVerified; // Defaultnya adalah false jika tidak diinisialisasi
-
+    private boolean isEmailVerified;
     @Column(name = "reset_password_token", nullable = true)
     private String resetPasswordToken;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false) // updatable = false untuk createdAt
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at") // Tambahkan nama kolom jika beda dari nama field
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at", nullable = true) // Tambahkan nullable = true jika bisa null
+    @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
 
-    // --- IMPLEMENTASI WAJIB DARI USERDETAILS ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Mengembalikan role/authority yang dimiliki pengguna.
-        // Jika satu user hanya punya satu authority (ManyToOne ke UserGrantedAuthority),
-        // gunakan Collections.singletonList. Jika bisa banyak, return List<UserGrantedAuthority>.
         if (this.authority == null) {
-            return Collections.emptyList(); // Jika tidak ada authority, kembalikan list kosong
+            return Collections.emptyList();
         }
         return Collections.singletonList(this.authority);
     }
@@ -96,26 +92,22 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        // Implementasi logika expired account jika ada, default true jika tidak ada
         return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        // Implementasi logika lock account jika ada, default true jika tidak ada
         return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        // Implementasi logika expired kredensial/password jika ada, default true jika tidak ada
         return true;
     }
 
     @Override
     public boolean isEnabled() {
-        // Mengembalikan status enabled pengguna
-        return isEnabled; // Menggunakan field isEnabled dari entity
+        return enabled; //
     }
 
 

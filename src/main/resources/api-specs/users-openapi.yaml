@@ -490,6 +490,13 @@ components:
           maxLength: 255
           description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
           example: "andriana"
+        display_name:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "display name untuk name yang ditampilkan (tidak unique)."
+          example: "andriana"
         email:
           type: string
           format: email
@@ -522,7 +529,7 @@ components:
           default: "BLOGGER"
           description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
           example: "BLOGGER"
-        is_enable:
+        enabled:
           type: boolean
           description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging?."
           default: false
@@ -554,10 +561,11 @@ components:
           example: "2024-06-10T10:15:00Z"
       required:
         - username
+        - display_name
         - email
         - password
         - authority
-        - is_enable
+        - enabled
         - is_email_verified
 
     UserSimpleDTO:
@@ -576,6 +584,13 @@ components:
           minLength: 1
           maxLength: 255
           description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
+          example: "andriana"
+        display_name:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "display name untuk name yang ditampilkan (tidak unique)."
           example: "andriana"
         profile_picture:
           type: string
@@ -596,7 +611,7 @@ components:
           default: "BLOGGER"
           description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
           example: "BLOGGER"
-        is_enable:
+        enabled:
           type: boolean
           description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging? akan digunakan untuk circle profile picture."
           default: false
@@ -604,8 +619,9 @@ components:
       required:
         - id
         - username
+        - display_name
         - profile_picture
-        - is_enable
+        - enabled
 
     UserRegisterRequest:
       type: object
@@ -617,6 +633,13 @@ components:
           minLength: 1
           maxLength: 255
           description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
+          example: "andriana"
+        display_name:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "display name untuk name yang ditampilkan (tidak unique)."
           example: "andriana"
         email:
           type: string
@@ -639,6 +662,7 @@ components:
           example: "xxxxxxxxx"
       required:
         - username
+        - display_name
         - email
         - password
         - confirmPassword
@@ -746,6 +770,13 @@ components:
           maxLength: 255
           description: "Username untuk setiap user/blogger (unique) bisa dijadikan identifier saat login."
           example: "andriana"
+        display_name:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          minLength: 1
+          maxLength: 255
+          description: "display name untuk name yang ditampilkan (tidak unique)."
+          example: "andriana"
         email:
           type: string
           format: email
@@ -772,7 +803,7 @@ components:
           default: "BLOGGER"
           description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
           example: "BLOGGER"
-        is_enable:
+        enabled:
           type: boolean
           description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging?."
           default: false
@@ -788,7 +819,7 @@ components:
 
     UserResponse:
       type: object
-      description: "Mengembalikan data user/blogger secara full. required: id, username, profile_picture, is_enable"
+      description: "Mengembalikan data user/blogger secara full. required: id, username, profile_picture, enabled"
       allOf:
         - $ref: '#/components/schemas/UserSimpleDTO'
         - type: object
@@ -808,13 +839,13 @@ components:
 
     UserSimpleResponse:
       type: object
-      description: "Mengembalikan data user/blogger secukupnya. required id, username, profile_picture, is_enable."
+      description: "Mengembalikan data user/blogger secukupnya. required id, username, profile_picture, enabled."
       allOf:
         - $ref: '#/components/schemas/UserSimpleDTO'
 
     UserListResponse:
       type: array
-      description: "Mengembalikan list of data user/blogger full. required id, username, profile_pictures, is_enable (superuser only)"
+      description: "Mengembalikan list of data user/blogger full. required id, username, profile_pictures, enabled (superuser only)"
       items:
         allOf:
           - $ref: '#/components/schemas/UserSimpleDTO'

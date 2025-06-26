@@ -19,7 +19,7 @@ public interface RegisterUserConverter {
     @Mapping(target = "profilePicture", ignore = true)
     @Mapping(target = "bio", ignore = true)
     @Mapping(target = "authority", ignore = true)
-    @Mapping(target = "isEnabled", ignore = true)
+    @Mapping(target = "enabled", ignore = true)
     @Mapping(target = "isEmailVerified", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

@@ -3,6 +3,7 @@ package com.backendapp.cms.security.config;
 
 import com.backendapp.cms.users.converter.RegisterUserConverter;
 import com.backendapp.cms.users.repository.UserCrudRepository;
+import com.backendapp.cms.users.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     private final UserCrudRepository userRepository;
+    private final CustomUserDetailsService userDetailsService;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -28,9 +30,9 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider(CustomUserDetailsService customUserDetailsService) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
