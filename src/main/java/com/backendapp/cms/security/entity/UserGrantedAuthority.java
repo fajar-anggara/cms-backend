@@ -22,10 +22,6 @@ public class UserGrantedAuthority implements GrantedAuthority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userAuthorityId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Authority authority;

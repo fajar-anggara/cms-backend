@@ -3,16 +3,17 @@ package com.backendapp.cms.users.entity;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections; // Import ini untuk Collections.singletonList
-import java.util.List;
+import java.util.Collections;
 import java.util.Objects;
 
 @Entity
@@ -25,7 +26,6 @@ import java.util.Objects;
 @NoArgsConstructor // Diperlukan oleh JPA
 @AllArgsConstructor // Diperlukan oleh @Builder
 @Builder // Diperlukan untuk method builder()
-@EqualsAndHashCode(of = "id") // <-- Tambahkan ini untuk memperbaiki error getId()
 public class UserEntity implements UserDetails {
 
     @Id
@@ -62,14 +62,14 @@ public class UserEntity implements UserDetails {
 
     @CreatedDate
     @Column(nullable = false, updatable = false) // updatable = false untuk createdAt
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at") // Tambahkan nama kolom jika beda dari nama field
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at", nullable = true) // Tambahkan nullable = true jika bisa null
-    private OffsetDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     // --- IMPLEMENTASI WAJIB DARI USERDETAILS ---
 
@@ -118,10 +118,20 @@ public class UserEntity implements UserDetails {
         return isEnabled; // Menggunakan field isEnabled dari entity
     }
 
-    // --- Perbaikan untuk error getId() di equals/hashCode, menggunakan @EqualsAndHashCode(of = "id") ---
-    // Karena Anda sudah pakai @EqualsAndHashCode(of = "id") di atas kelas,
-    // Anda TIDAK perlu menuliskan metode equals() dan hashCode() secara manual di sini.
-    // Lombok akan menggenerasinya berdasarkan field 'id' saja.
-    // Jika ada manual equals/hashCode, hapus saja.
 
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        UserEntity that = (UserEntity) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+    }
 }

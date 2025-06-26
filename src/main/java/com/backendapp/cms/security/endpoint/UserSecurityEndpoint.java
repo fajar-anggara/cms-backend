@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(ApiConstants.AUTH_PATH)
 public class UserSecurityEndpoint implements UserControllerApi {
 
     private final UserRegistrationOperationPerformer userRegistrationPerformer;
