@@ -17,11 +17,11 @@ public class UserExceptionHandler {
     HashMap<String, String > errors = new HashMap<>();
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleBadRequestException(MethodArgumentNotValidException e, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, WebRequest request) {
         e.getBindingResult()
                 .getFieldErrors()
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        ErrorResponse error = new ErrorResponse(false, "Input tidak valid", errors);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 

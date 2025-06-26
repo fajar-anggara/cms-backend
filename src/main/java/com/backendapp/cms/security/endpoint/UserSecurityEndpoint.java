@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserSecurityEndpoint implements UserControllerApi {
 
-    private final UserRegistrationOperationPerformer userRegistrationPerformer;
+    // Registration
+    private final UserRegistrationOperationPerformer userRegistrationOperationPerformer;
     private final RegisterUserConverter registerUserConverter;
     private final JwtService jwtService;
 
@@ -25,14 +26,14 @@ public class UserSecurityEndpoint implements UserControllerApi {
             RegisterUserConverter registerUserConverter,
             JwtService jwtService
     ) {
-        this.userRegistrationPerformer = userRegistrationOperationPerformer;
+        this.userRegistrationOperationPerformer = userRegistrationOperationPerformer;
         this.registerUserConverter = registerUserConverter;
         this.jwtService = jwtService;
     }
 
     @Override
     public ResponseEntity<UserRegister200Response> userRegister(@Valid @RequestBody UserRegisterRequest request) {
-        UserEntity register = userRegistrationPerformer.registerUser(request);
+        UserEntity register = userRegistrationOperationPerformer.registerUser(request);
 
         UserRegister200Response registeredUser = new UserRegister200Response();
         registeredUser.setSuccess(Boolean.TRUE);
@@ -41,4 +42,5 @@ public class UserSecurityEndpoint implements UserControllerApi {
         registeredUser.setToken(jwtService.generateToken(register));
         return ResponseEntity.ok(registeredUser);
     }
+
 }
