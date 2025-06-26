@@ -19,31 +19,27 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserCrudRepository userRepository; // Injeksikan UserRepository Anda
+    private final UserCrudRepository userRepository;
 
-    // UserDetailsService: Memberitahu Spring bagaimana memuat detail pengguna dari DB
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username) // Asumsi ada findByUsername di UserRepository Anda
+        return username -> userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
-    // AuthenticationProvider: Mengelola proses autentikasi (mengambil user details, mencocokkan password)
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService()); // Set UserDetailsService kita
-        authProvider.setPasswordEncoder(passwordEncoder()); // Set PasswordEncoder kita
+        authProvider.setUserDetailsService(userDetailsService());
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
-    // AuthenticationManager: Orchestrates the authentication process
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // PasswordEncoder: Untuk mengenkripsi dan memverifikasi password
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

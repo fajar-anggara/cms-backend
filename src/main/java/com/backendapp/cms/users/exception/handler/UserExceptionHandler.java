@@ -34,8 +34,12 @@ public class UserExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> haldlerUsernameNotFoundExeption(UsernameNotFoundException e) {
-        errors.put("username", "Username tidak terdaftar");
-        ErrorResponse error = new ErrorResponse(false, "Username " + e.getMessage() + " tidak terdaftar", errors);
+        if (e.getMessage().equals("username")) {
+            errors.put("username", "Username tidak terdaftar");
+        } else
+            errors.put("identifier", "Username atau email tidak terdaftar");
+
+        ErrorResponse error = new ErrorResponse(false, e.getMessage() + " tidak terdaftar", errors);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }

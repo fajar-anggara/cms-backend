@@ -1,10 +1,9 @@
 package com.backendapp.cms.security.service;
 
+import com.backendapp.cms.openapi.dto.UserLoginRequest;
 import com.backendapp.cms.security.dto.AuthenticationResponse;
-import com.backendapp.cms.security.dto.UserLoginRequest;
 import com.backendapp.cms.security.jwt.JwtService;
 import com.backendapp.cms.users.repository.UserCrudRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
