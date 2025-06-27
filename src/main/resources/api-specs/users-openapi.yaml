@@ -211,10 +211,10 @@ paths:
                       data:
                         type: object
                         properties:
-                          id:
-                            type: integer
+                          refreshPasswordToken:
+                            type: string
                             format: int64
-                            description: "Id user berdasarkan email/username nya."
+                            description: "mengembalikan refreshPasswordToken."
 
         "403":
           description: "Forbidden, anda tidak bisa melakukan operasi ini."

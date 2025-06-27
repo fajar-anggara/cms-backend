@@ -3,15 +3,18 @@ package com.backendapp.cms.users.endpoint;
 import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.openapi.users.api.UserControllerApi;
 import com.backendapp.cms.security.dto.AuthenticationResponse;
+import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.jwt.JwtService;
 import com.backendapp.cms.security.service.AuthenticationOperationPerformer;
 import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
+import com.backendapp.cms.users.service.UserChangePasswordOperationPerformer;
 import com.backendapp.cms.users.service.UserDeleteOperationPerformer;
 import com.backendapp.cms.users.service.UserEntityProvider;
 import com.backendapp.cms.users.service.UserUpdateOperationPerformer;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -29,6 +32,7 @@ public class UserEndpoint implements UserControllerApi {
     private final UserEntityProvider userEntityProvider;
     private final UserUpdateOperationPerformer userUpdateOperationPerformer;
     private final UserDeleteOperationPerformer userDeleteOperationPerformer;
+    private final UserChangePasswordOperationPerformer userChangePasswordOperationPerformer;
 
     public UserEndpoint (
             UserRegistrationOperationPerformer userRegistrationOperationPerformer,
@@ -37,7 +41,8 @@ public class UserEndpoint implements UserControllerApi {
             AuthenticationOperationPerformer authenticationOperationPerformer,
             UserEntityProvider userEntityProvider,
             UserUpdateOperationPerformer userUpdateOperationPerformer,
-            UserDeleteOperationPerformer userDeleteOperationPerformer) {
+            UserDeleteOperationPerformer userDeleteOperationPerformer,
+            UserChangePasswordOperationPerformer userChangePasswordOperationPerformer) {
         this.userRegistrationOperationPerformer = userRegistrationOperationPerformer;
         this.userConverter = userConverter;
         this.jwtService = jwtService;
@@ -45,6 +50,7 @@ public class UserEndpoint implements UserControllerApi {
         this.userEntityProvider = userEntityProvider;
         this.userUpdateOperationPerformer = userUpdateOperationPerformer;
         this.userDeleteOperationPerformer = userDeleteOperationPerformer;
+        this.userChangePasswordOperationPerformer = userChangePasswordOperationPerformer;
     }
 
     @Override
@@ -60,8 +66,6 @@ public class UserEndpoint implements UserControllerApi {
 
     /**
      * Kita menggunakan userRegister200Response karena sama saja dto nya dengan userLogin200Response
-     * @param userLoginRequest  (optional)
-     * @return
      */
     @Override
     public ResponseEntity<UserRegister200Response> userLogin(@Valid @RequestBody UserLoginRequest userLoginRequest) {
@@ -84,7 +88,7 @@ public class UserEndpoint implements UserControllerApi {
         GetUser200Response response = new GetUser200Response();
 
         response.setSuccess(Boolean.TRUE);
-        response.setMessage("Success");
+        response.setMessage("Berhasil mendapatkan data dari user " + user.getUsername());
         response.setData(userResponse);
 
         return ResponseEntity.ok(response);
@@ -99,7 +103,7 @@ public class UserEndpoint implements UserControllerApi {
         GetUser200Response response = new GetUser200Response();
 
         response.setSuccess(Boolean.TRUE);
-        response.setMessage("Success");
+        response.setMessage("Berhasil mengupdate user " + newUser.getUsername());
         response.setData(userResponse);
         response.setToken(jwtService.generateToken(newUser));
 
@@ -113,5 +117,27 @@ public class UserEndpoint implements UserControllerApi {
         userDeleteOperationPerformer.deleteUser(authentication);
 
         return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus user"));
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserRenewThePassword200Response> changePassword(@Valid @RequestBody @NotNull ChangePasswordRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userChangePasswordOperationPerformer.checkPassword(request, authentication);
+        UserEntity userThatPasswordHasChange = userChangePasswordOperationPerformer.changePasswordUser(request, authentication);
+        UserSimpleResponse userSimpleResponse = userConverter.toSimpleResponse(userThatPasswordHasChange);
+        UserRenewThePassword200Response renewPasswordResponse = new UserRenewThePassword200Response();
+
+        renewPasswordResponse.setSuccess(Boolean.TRUE);
+        renewPasswordResponse.setMessage("Berhasil mengubah password user " + userThatPasswordHasChange.getUsername());
+        renewPasswordResponse.setData(userSimpleResponse);
+
+        return ResponseEntity.ok(renewPasswordResponse);
+    }
+
+    @Override
+    public ResponseEntity<UserGetRefreshPasswordToken200Response> userGetRefreshPasswordToken() {
+        // jadikan bisa di akses walau tanpa jwt bearer karena dia mungkin belum login dan lupa password
+        // identifier menggunakan username atau email
     }
 }
