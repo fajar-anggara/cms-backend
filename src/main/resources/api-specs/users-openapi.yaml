@@ -294,6 +294,11 @@ paths:
                       data:
                         allOf:
                           - $ref: '#/components/schemas/UserResponse'
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: "New Jwt token"
 
         "403":
           description: "Forbidden, anda tidak bisa melakukan operasi ini."
@@ -337,6 +342,11 @@ paths:
                       data:
                         allOf:
                           - $ref: '#/components/schemas/UserResponse'
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: "New Jwt token"
 
         "400":
           description: "Bad Request, Field tidak sesuai"
@@ -795,14 +805,6 @@ components:
           maxLength: 255
           description: "Penjelasan singkat tentang user/blogger (optional)."
           example: "Saya merupakan seorang programer..."
-        authority:
-          type: string
-          enum:
-            - "ADMIN"
-            - "BLOGGER"
-          default: "BLOGGER"
-          description: "Role user/blogger yang menentukan apa yang bisa dia lakukan."
-          example: "BLOGGER"
         enabled:
           type: boolean
           description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging?."

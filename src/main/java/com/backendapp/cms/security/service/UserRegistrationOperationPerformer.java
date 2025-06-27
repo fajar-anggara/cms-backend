@@ -80,8 +80,8 @@ public class UserRegistrationOperationPerformer {
         return count != null && count > 0;
     }
 
-    public boolean existsByEmailIncludingDeleted(String username) {
-        Integer count = userCrudRepository.countByUsernameIncludingDeleted(username);
+    public boolean existsByEmailIncludingDeleted(String email) {
+        Integer count = userCrudRepository.countByEmailIncludingDeleted(email);
         return count != null && count > 0;
     }
 }

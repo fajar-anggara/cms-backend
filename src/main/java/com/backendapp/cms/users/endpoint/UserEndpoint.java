@@ -101,6 +101,7 @@ public class UserEndpoint implements UserControllerApi {
         response.setSuccess(Boolean.TRUE);
         response.setMessage("Success");
         response.setData(userResponse);
+        response.setToken(jwtService.generateToken(newUser));
 
         return ResponseEntity.ok(response);
     }
@@ -113,6 +114,4 @@ public class UserEndpoint implements UserControllerApi {
 
         return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus user"));
     }
-
-
 }

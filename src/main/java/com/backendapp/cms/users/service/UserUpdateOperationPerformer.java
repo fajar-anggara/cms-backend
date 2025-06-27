@@ -26,6 +26,9 @@ public class UserUpdateOperationPerformer {
         if (request.getEnabled() != null && request.getEnabled()) {
             userBeingUpdated.setEnabled(request.getEnabled());
         }
+        if(request.getUsername() != null && !request.getUsername().isEmpty()) {
+            userBeingUpdated.setUsername(request.getUsername());
+        }
         if (request.getIsEmailVerified() != null && request.getIsEmailVerified()) {
             userBeingUpdated.setEmailVerified(true);
         }
@@ -42,6 +45,5 @@ public class UserUpdateOperationPerformer {
             userBeingUpdated.setProfilePicture(request.getProfilePicture());
         }
         return userCrudRepository.save(userBeingUpdated);
-
     }
 }
