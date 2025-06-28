@@ -1,6 +1,7 @@
 package com.backendapp.cms.users.service;
 
 import com.backendapp.cms.users.entity.UserEntity;
+import com.backendapp.cms.users.exception.UsernameOrEmailNotFoundException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,9 @@ public class UserEntityProvider {
     }
 
     public UserEntity getUser(String identifier) {
-        UserEntity user = userCrudRepository.findByUsername(identifier) // Mencari berdasarkan username
-                .orElseGet(() -> userCrudRepository.findByEmail(identifier) // Jika tidak ditemukan, cari berdasarkan email
-                        .orElseThrow(() -> new UsernameNotFoundException("Username atau email")));
 
-        return user;
+        return userCrudRepository.findByUsername(identifier)
+                .orElseGet(() -> userCrudRepository.findByEmail(identifier)
+                        .orElseThrow(UsernameOrEmailNotFoundException::new));
     }
 }
