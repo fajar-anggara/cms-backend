@@ -1,20 +1,18 @@
 package com.backendapp.cms.users.endpoint;
 
+import com.backendapp.cms.email.service.EmailService;
 import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.openapi.users.api.UserControllerApi;
 import com.backendapp.cms.security.dto.AuthenticationResponse;
-import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.jwt.JwtService;
 import com.backendapp.cms.security.service.AuthenticationOperationPerformer;
 import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.service.UserChangePasswordOperationPerformer;
-import com.backendapp.cms.users.service.UserDeleteOperationPerformer;
-import com.backendapp.cms.users.service.UserEntityProvider;
-import com.backendapp.cms.users.service.UserUpdateOperationPerformer;
+import com.backendapp.cms.users.service.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -22,7 +20,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
+@AllArgsConstructor
 public class UserEndpoint implements UserControllerApi {
     private final UserRegistrationOperationPerformer userRegistrationOperationPerformer;
     private final UserConverter userConverter;
@@ -33,25 +34,7 @@ public class UserEndpoint implements UserControllerApi {
     private final UserUpdateOperationPerformer userUpdateOperationPerformer;
     private final UserDeleteOperationPerformer userDeleteOperationPerformer;
     private final UserChangePasswordOperationPerformer userChangePasswordOperationPerformer;
-
-    public UserEndpoint (
-            UserRegistrationOperationPerformer userRegistrationOperationPerformer,
-            UserConverter userConverter,
-            JwtService jwtService,
-            AuthenticationOperationPerformer authenticationOperationPerformer,
-            UserEntityProvider userEntityProvider,
-            UserUpdateOperationPerformer userUpdateOperationPerformer,
-            UserDeleteOperationPerformer userDeleteOperationPerformer,
-            UserChangePasswordOperationPerformer userChangePasswordOperationPerformer) {
-        this.userRegistrationOperationPerformer = userRegistrationOperationPerformer;
-        this.userConverter = userConverter;
-        this.jwtService = jwtService;
-        this.authenticationOperationPerformer = authenticationOperationPerformer;
-        this.userEntityProvider = userEntityProvider;
-        this.userUpdateOperationPerformer = userUpdateOperationPerformer;
-        this.userDeleteOperationPerformer = userDeleteOperationPerformer;
-        this.userChangePasswordOperationPerformer = userChangePasswordOperationPerformer;
-    }
+    private final UserRefreshPasswordOperationPerformer userRefreshPasswordOperationPerformer;
 
     @Override
     public ResponseEntity<UserRegister200Response> userRegister(@Valid @RequestBody UserRegisterRequest request) {
@@ -121,7 +104,7 @@ public class UserEndpoint implements UserControllerApi {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<UserRenewThePassword200Response> changePassword(@Valid @RequestBody @NotNull ChangePasswordRequest request) {
+    public ResponseEntity<UserRenewThePassword200Response> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         userChangePasswordOperationPerformer.checkPassword(request, authentication);
         UserEntity userThatPasswordHasChange = userChangePasswordOperationPerformer.changePasswordUser(request, authentication);
@@ -136,8 +119,10 @@ public class UserEndpoint implements UserControllerApi {
     }
 
     @Override
-    public ResponseEntity<UserGetRefreshPasswordToken200Response> userGetRefreshPasswordToken() {
-        // jadikan bisa di akses walau tanpa jwt bearer karena dia mungkin belum login dan lupa password
-        // identifier menggunakan username atau email
+    public ResponseEntity<Success200Response> userGetRefreshPasswordToken(UserGetRefreshPasswordTokenRequest request) {
+        String refreshPasswordToken = userRefreshPasswordOperationPerformer.getRefreshPasswordToken();
+        userRefreshPasswordOperationPerformer.sendRefreshPasswordTokenTo(Objects.requireNonNull(request).getIdentifier(), refreshPasswordToken);
+
+        return ResponseEntity.ok(new Success200Response(true, "Token refresh password berhasil dikirim, silahkan lihat email anda."));
     }
 }

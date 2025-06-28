@@ -195,9 +195,19 @@ paths:
       tags:
         - UserController
       operationId: "userGetRefreshPasswordToken"
-      summary: "User lupa password dan ingin memperbarui password dengan meminta reset_password_token, diidentifikasi dengan id di cookie."
-      security:
-        - BearerAuth: []
+      summary: "User lupa password dan ingin memperbarui password dengan meminta reset_password_token dan akan dikirimkan melalui email"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  description: "Username atau email pengguna."
+                  example: "andriana@gmail.com"
+              required:
+                - identifier
       responses:
         "200":
           description: "Token dikirim di email. Segera lihat"
@@ -206,15 +216,6 @@ paths:
               schema:
                 allOf:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          refreshPasswordToken:
-                            type: string
-                            format: int64
-                            description: "mengembalikan refreshPasswordToken."
 
         "403":
           description: "Forbidden, anda tidak bisa melakukan operasi ini."
@@ -502,7 +503,6 @@ components:
           example: "andriana"
         display_name:
           type: string
-          pattern: "^[a-zA-Z0-9_-]+$"
           minLength: 1
           maxLength: 255
           description: "display name untuk name yang ditampilkan (tidak unique)."
@@ -597,7 +597,6 @@ components:
           example: "andriana"
         display_name:
           type: string
-          pattern: "^[a-zA-Z0-9_-]+$"
           minLength: 1
           maxLength: 255
           description: "display name untuk name yang ditampilkan (tidak unique)."
@@ -646,7 +645,6 @@ components:
           example: "andriana"
         display_name:
           type: string
-          pattern: "^[a-zA-Z0-9_-]+$"
           minLength: 1
           maxLength: 255
           description: "display name untuk name yang ditampilkan (tidak unique)."
@@ -782,7 +780,6 @@ components:
           example: "andriana"
         display_name:
           type: string
-          pattern: "^[a-zA-Z0-9_-]+$"
           minLength: 1
           maxLength: 255
           description: "display name untuk name yang ditampilkan (tidak unique)."
