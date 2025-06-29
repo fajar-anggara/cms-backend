@@ -82,6 +82,7 @@ public class UserEndpoint implements UserControllerApi {
     public ResponseEntity<GetUser200Response> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity newUser = userUpdateOperationPerformer.updateUser(authentication, userUpdateRequest);
+        String token = jwtService.generateToken(newUser);
         UserResponse userResponse = userConverter.toUserResponse(newUser);
         GetUser200Response response = new GetUser200Response();
 
