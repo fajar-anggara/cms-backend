@@ -18,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 
 import java.util.HashMap;
 
@@ -26,19 +25,21 @@ import java.util.HashMap;
 public class GlobalExceptionHandler {
     /**
      * User exceptions handler
-     *
+     * |
      * handle_EmailAlreadyExistException
      * handle_EmailNotFoundException
      * handle_UsernameAlreadyExistException
      * handle_UsernameNotFoundException
      * handle_UsernameOrEmailNotFoundException
      * handle_UsernameOrEmailUsedToExistException
-     *
+     * handle_wrongRefreshPasswordTokenException
+     * handle_ExpiresRefreshPasswordTokenException
+     * |
      * handle_BadCredentialsException
      * handle_MethodArgumentNotValidException
      */
     @ExceptionHandler(EmailAlreadyExistException.class)
-    public ResponseEntity<ErrorResponse> handle_EmailAlreadyExistException(EmailAlreadyExistException e, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handle_EmailAlreadyExistException(EmailAlreadyExistException e) {
         HashMap<String, String> errors = new HashMap<>();
         errors.put("email", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
@@ -54,7 +55,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UsernameAlreadyExistException.class)
-    public ResponseEntity<ErrorResponse> handle_UsernameAlreadyExistException(UsernameAlreadyExistException e, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handle_UsernameAlreadyExistException(UsernameAlreadyExistException e) {
         HashMap<String, String> errors = new HashMap<>();
         errors.put("username", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
@@ -78,11 +79,26 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UsernameOrEmailUsedToExistException.class)
-    public ResponseEntity<ErrorResponse> handle_UsernameOrEmailUsedToExistException(UsernameOrEmailUsedToExistException e, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handle_UsernameOrEmailUsedToExistException(UsernameOrEmailUsedToExistException e) {
         HashMap<String, String> errors = new HashMap<>();
         errors.put("username", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(WrongPasswordRefreshToken.class)
+    public ResponseEntity<ErrorResponse> handle_WrongPasswordRefreshToken(WrongPasswordRefreshToken e) {
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("refreshPasswordToken", e.getMessage());
+
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ExpiredRefreshPasswordTokenException.class)
+    public ResponseEntity<ErrorResponse> handle_ExpiredRefreshPasswordTokenException(ExpiredRefreshPasswordTokenException e) {
+        ErrorResponse error = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -108,7 +124,7 @@ public class GlobalExceptionHandler {
 
     /**
      * Security exception handler
-     *
+     * |
      * handle_AuthenticationExceptions
      * handle_JwtExceptions
      * handle_AccessDeniedException
@@ -167,7 +183,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handle_AllUncaughtExceptions(Exception ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handle_AllUncaughtExceptions(Exception ex) {
         System.err.println("An unexpected error occurred: " + ex.getMessage());
         ex.printStackTrace();
 
@@ -192,7 +208,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<ErrorResponse> handle_PasswordMismatchException(PasswordMismatchException e, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handle_PasswordMismatchException(PasswordMismatchException e) {
         HashMap<String, String> errors = new HashMap<>();
         errors.put("password_confirm", "Password Tidak Sesuai.");
 

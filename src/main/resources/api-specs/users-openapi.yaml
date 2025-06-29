@@ -257,6 +257,12 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/UserSimpleResponse'
+                  - type: object
+                    properties:
+                      token:
+                        type: string
+                        description: "Token jwt untuk login"
+                        example: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
         "403":
           description: "Forbidden, anda tidak bisa melakukan operasi ini."
@@ -719,17 +725,16 @@ components:
       description: "User/blogger telah menerima reset_password_token code dan melakukan update password."
       properties:
         resetPasswordToken:
-          type: integer
-          format: int64
+          type: string
           description: "Token unik yang diterima user/blogger yang digunakan untuk memperbarui password yang nantinya akan dicocokan."
           example: '443'
-        newPassword:
+        password:
           type: string
           format: password
           minLength: 8
           description: "Password user/blogger baru yang sudah di HASH."
           example: "xxxxxxxx"
-        confirmNewPassword:
+        confirmPassword:
           type: string
           format: password
           minLength: 8
