@@ -14,30 +14,23 @@ import com.backendapp.cms.users.exception.UsernameOrEmailUsedToExistException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class UserRegistrationOperationPerformer {
     private final PasswordEncoder passwordEncoder;
     private final UserCrudRepository userCrudRepository;
     private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
     private final UserConverter userConverter;
 
-    public UserRegistrationOperationPerformer(
-            PasswordEncoder passwordEncoder,
-            UserCrudRepository userCrudRepository,
-            UserGrantedAuthorityRepository userGrantedAuthorityRepository,
-            UserConverter userConverter
-    ) {
-        this.passwordEncoder = passwordEncoder;
-        this.userCrudRepository = userCrudRepository;
-        this.userGrantedAuthorityRepository = userGrantedAuthorityRepository;
-        this.userConverter = userConverter;
-    }
-
     @Transactional
     public UserEntity registerUser(@Valid UserRegisterRequest request) {
+        log.info("Validating register request, then setting authority, encrypt password, and saved it.");
         if (userCrudRepository.existsByUsername(request.getUsername())) {
             throw new UsernameAlreadyExistException();
         }

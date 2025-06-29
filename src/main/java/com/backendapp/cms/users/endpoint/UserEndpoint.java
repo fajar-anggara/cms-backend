@@ -13,6 +13,7 @@ import com.backendapp.cms.users.service.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 public class UserEndpoint implements UserControllerApi {
     private final UserRegistrationOperationPerformer userRegistrationOperationPerformer;
     private final UserConverter userConverter;
@@ -84,7 +86,6 @@ public class UserEndpoint implements UserControllerApi {
     public ResponseEntity<GetUser200Response> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity newUser = userUpdateOperationPerformer.updateUser(authentication, userUpdateRequest);
-        String token = jwtService.generateToken(newUser);
         UserResponse userResponse = userConverter.toUserResponse(newUser);
 
         GetUser200Response response = new GetUser200Response();
@@ -142,4 +143,6 @@ public class UserEndpoint implements UserControllerApi {
 
         return ResponseEntity.ok(renewPasswordResponse);
     }
+
+
 }

@@ -6,22 +6,18 @@ import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.users.entity.UserEntity;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class UserChangePasswordOperationPerformer {
     private final UserCrudRepository userCrudRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserChangePasswordOperationPerformer(
-            UserCrudRepository userCrudRepository,
-            PasswordEncoder passwordEncoder
-    ) {
-        this.userCrudRepository = userCrudRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public void checkPassword(ChangePasswordRequest request, Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();

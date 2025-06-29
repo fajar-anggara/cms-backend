@@ -2,6 +2,8 @@ package com.backendapp.cms.users.service;
 import com.backendapp.cms.users.entity.UserEntity;
 import com.backendapp.cms.users.exception.UsernameOrEmailNotFoundException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,24 +13,20 @@ import java.util.Optional;
 // ...
 
 @Service
+@AllArgsConstructor
+@Slf4j
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserCrudRepository userCrudRepository;
 
-    public CustomUserDetailsService(UserCrudRepository userCrudRepository) {
-        this.userCrudRepository = userCrudRepository;
-    }
-
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameOrEmailNotFoundException {
-
-        // Berdasarkan username
+        log.info("Custom loadUserByUsername executed by spring security authenticating");
         Optional<UserEntity> userByUsername = userCrudRepository.findByUsername(identifier);
         if (userByUsername.isPresent()) {
             return userByUsername.get();
         }
 
-        // Jika tidak ditemukan, coba cari berdasarkan email
         Optional<UserEntity> userByEmail = userCrudRepository.findByEmail(identifier);
         if (userByEmail.isPresent()) {
             return userByEmail.get();

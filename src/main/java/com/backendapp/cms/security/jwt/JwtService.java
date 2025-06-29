@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@Slf4j
 public class JwtService {
 
     @Value("${application.security.jwt.secret-key}")
@@ -28,6 +30,7 @@ public class JwtService {
     private long expiration;
 
     public String extractUsername(String token) {
+        log.info("Try to claim subject from token");
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -37,6 +40,7 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+        log.info("Try to set user authority to userDetails");
         Map<String, Object> claims = new HashMap<>();
         Collection<? extends GrantedAuthority> authority = userDetails.getAuthorities();
         String authorityString = null;

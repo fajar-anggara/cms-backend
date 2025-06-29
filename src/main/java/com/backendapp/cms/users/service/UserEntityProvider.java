@@ -18,7 +18,6 @@ public class UserEntityProvider {
     }
 
     public UserEntity getUser(String identifier) {
-
         return userCrudRepository.findByUsername(identifier)
                 .orElseGet(() -> userCrudRepository.findByEmail(identifier)
                         .orElseThrow(UsernameOrEmailNotFoundException::new));
