@@ -4,13 +4,11 @@ import com.backendapp.cms.openapi.dto.UserLoginRequest;
 import com.backendapp.cms.security.dto.AuthenticationResponse;
 import com.backendapp.cms.security.jwt.JwtService;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.repository.UserCrudRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -31,7 +29,8 @@ public class AuthenticationOperationPerformer {
 
         var user = (UserEntity) authentication.getPrincipal();
 
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 }

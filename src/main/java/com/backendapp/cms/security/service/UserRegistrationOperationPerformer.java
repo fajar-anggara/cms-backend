@@ -8,7 +8,7 @@ import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.exception.EmailAlreadyExistException;
+import com.backendapp.cms.security.exception.EmailAlreadyExistException;
 import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
 import com.backendapp.cms.users.exception.UsernameOrEmailUsedToExistException;
 import com.backendapp.cms.users.repository.UserCrudRepository;

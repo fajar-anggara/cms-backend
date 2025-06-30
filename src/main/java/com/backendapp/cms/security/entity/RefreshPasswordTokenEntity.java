@@ -1,6 +1,8 @@
-package com.backendapp.cms.users.entity;
+package com.backendapp.cms.security.entity;
 
+import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;

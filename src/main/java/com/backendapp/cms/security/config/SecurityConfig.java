@@ -26,11 +26,13 @@ public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPointHandler jwtAuthenticationEntryPointHandler;
+    private final DeniedHandler deniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Nonaktifkan CSRF untuk API stateless (penting untuk API REST)
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(ApiConstants.SUPERUSER_PATH).hasRole(String.valueOf(Authority.ADMIN))
                         .requestMatchers(ApiConstants.AUTHOR_PATH).hasAnyRole(String.valueOf(Authority.BLOGGER), String.valueOf(Authority.ADMIN))
@@ -46,7 +48,11 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(jwtAuthenticationEntryPointHandler)
+                        .accessDeniedHandler(deniedHandler)
+                );
 
         return http.build();
     }

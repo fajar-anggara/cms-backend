@@ -1,97 +1,181 @@
 package com.backendapp.cms.security.jwt;
 
+import com.backendapp.cms.common.constant.AppConstants;
+import com.backendapp.cms.security.dto.AuthenticationResponse;
+import com.backendapp.cms.security.entity.RefreshTokenEntity;
+import com.backendapp.cms.security.repository.RefreshTokenRepository;
 import com.backendapp.cms.users.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Instant;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 public class JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
-    private String secretKey;
+    private final AppConstants appConstants;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${application.security.jwt.expiration}")
-    private long expiration;
-
-    public String extractUsername(String token) {
-        log.info("Try to claim subject from token");
-        return extractClaim(token, Claims::getSubject);
+    public String extractUsernameFromAccess(String token) {
+        log.info("Attempting to extract subject from access token, will call method extractUsernameFromAccess");
+        return extractClaimFromAccess(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
+    public String extractUsernameFromAccessIgnoreExpired(String token) {
+        log.info("Attempting to extract subject from access token ignoring the expired token, will call method extractClaimFromAccessIgnoreExpired");
+        return extractClaimFromAccessIgnoreExpired(token, Claims::getSubject);
+    }
+
+    public String extractUsernameFromRefresh(String token) {
+        log.info("Attempting to extract subject from refresh token, will call method extractClaimFromRefresh");
+        return extractClaimFromRefresh(token, Claims::getSubject);
+    }
+
+    public <T> T extractClaimFromAccess(String token, Function<Claims, T> claimsResolver) {
+        log.info("used By extractUsernameFromAccess and extractExpirationFromAccess, will call method extractClaimFromAccess");
+        final Claims claims = extractAccessTokenClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails) {
-        log.info("Try to set user authority to userDetails");
-        Map<String, Object> claims = new HashMap<>();
-        Collection<? extends GrantedAuthority> authority = userDetails.getAuthorities();
-        String authorityString = null;
-        if (authority != null && !authority.isEmpty()) {
-            authorityString = authority.iterator().next().getAuthority();
-        } else {
-            authorityString = "ROLE_ANONYMOUS";
-        }
-        if (userDetails instanceof UserEntity user) {
-            claims.put("userId", user.getId());
-        }
-        claims.put("authority", authorityString);
-        return generateToken(claims, userDetails);
+    public <T> T extractClaimFromAccessIgnoreExpired(String token, Function<Claims, T> claimsResolver) {
+        log.info("used By extractUsernameFromAccessIgnoreExpired, will call method extractAccessTokenClaimsIgnoreExpired");
+        final Claims claims = extractAccessTokenClaimsIgnoreExpired(token);
+        return claimsResolver.apply(claims);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    public <T> T extractClaimFromRefresh(String token, Function<Claims, T> claimsResolver) {
+        log.info("used By extractUsernameFromRefresh, extractExpirationFromRefresh, and validateRefreshAndAccessToken will call extractRefreshTokenClaims");
+        final Claims claims = extractRefreshTokenClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public AuthenticationResponse generateTokenAndRefreshToken(UserDetails userDetails) {
+        log.info("generating access and refresh Token");
+        String accessToken = generateAccessToken(userDetails);
+        String refreshToken = generateRefreshToken(userDetails);
+
+        return new AuthenticationResponse(accessToken, refreshToken);
+    }
+
+    public String getAuthorities(Collection<? extends GrantedAuthority> userDetailsAuthority) {
+        if (userDetailsAuthority != null && !userDetailsAuthority.isEmpty()) {
+            return userDetailsAuthority.iterator().next().getAuthority();
+        } else {
+            return "ROLE_ANONYMOUS";
+        }
+    }
+
+    public String generateAccessToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof UserEntity user) {
+            claims.put("authority", getAuthorities(user.getAuthorities()));
+            // claims.put("userId", user.getUsername());
+        }
+
         return Jwts
                 .builder()
-                .claims(extraClaims)
+                .claims(claims)
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey())
+                .issuedAt(Date.from(Instant.now()))
+                .expiration(Date.from(Instant.now().plusMillis(appConstants.JWT_ACCESS_TOKEN_EXPIRED)))
+                .signWith((SecretKey) appConstants.JWT_ACCESS_TOKEN_SECRET_KEY)
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    @Transactional
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        /*
+         * if (userDetails instanceof UserEntity user) {
+         * claims.put("userId", user.getId());
+         * }
+         */
+
+        Date issuedAt = Date.from(Instant.now());
+        Date expiration = Date.from(Instant.now().plusMillis(appConstants.JWT_REFRESH_TOKEN_EXPIRED));
+        String id = UUID.randomUUID().toString();
+
+        log.info("Savind refresh token with id {} and expiration {}", id, expiration);
+        RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
+        refreshTokenEntity.setId(id);
+        refreshTokenEntity.setUser((UserEntity) userDetails);
+        refreshTokenEntity.setExpiredTime(expiration);
+        RefreshTokenEntity refreshToken = refreshTokenRepository.save(refreshTokenEntity);
+
+        log.info("Building refresh token");
+        return Jwts.builder()
+                .claims(claims)
+                .subject(refreshToken.getUser().getUsername())
+                .issuedAt(issuedAt)
+                .expiration(refreshToken.getExpiredTime())
+                .id(refreshToken.getId())
+                .signWith(appConstants.JWT_REFRESH_TOKEN_SECRET_KEY)
+                .compact();
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public boolean isAccessTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsernameFromAccess(token);
+        return (username.equals(userDetails.getUsername())) && !isAccessTokenExpired(token);
     }
 
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public boolean isRefreshTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsernameFromRefresh(token);
+        return (username.equals(userDetails.getUsername())) && !isRefreshTokenExpired(token);
     }
 
-    private Claims extractAllClaims(String token) {
+    private boolean isAccessTokenExpired(String token) {
+        return extractExpirationFromAccess(token).before(Date.from(Instant.now()));
+    }
+
+    public boolean isRefreshTokenExpired(String token) {
+        return extractExpirationFromRefresh(token).before(Date.from(Instant.now()));
+    }
+
+    private Date extractExpirationFromAccess(String token) {
+        return extractClaimFromAccess(token, Claims::getExpiration);
+    }
+
+    private Date extractExpirationFromRefresh(String token) {
+        return extractClaimFromRefresh(token, Claims::getExpiration);
+    }
+
+    private Claims extractAccessTokenClaims(String token) {
         Jws<Claims> jwsClaims = Jwts.parser()
-                .verifyWith(getSignInKey())
+                .verifyWith((SecretKey) appConstants.JWT_ACCESS_TOKEN_SECRET_KEY)
                 .build()
                 .parseSignedClaims(token);
 
         return jwsClaims.getPayload();
     }
 
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+    private Claims extractAccessTokenClaimsIgnoreExpired(String token) {
+        Jws<Claims> jwsClaims = Jwts.parser()
+                .verifyWith(appConstants.JWT_ACCESS_TOKEN_SECRET_KEY)
+                .clockSkewSeconds(3600 * 24 * 365 * 10)
+                .build()
+                .parseSignedClaims(token);
+
+        return jwsClaims.getPayload();
     }
 
+    private Claims extractRefreshTokenClaims(String refreshToken) {
+        Jws<Claims> jwsClaims = Jwts.parser()
+                .verifyWith(appConstants.JWT_REFRESH_TOKEN_SECRET_KEY)
+                .build()
+                .parseSignedClaims(refreshToken);
+
+        return jwsClaims.getPayload();
+    }
 }
