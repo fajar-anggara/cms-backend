@@ -10,6 +10,7 @@ import io.jsonwebtoken.ExpiredJwtException; // For catching expired token during
 import io.jsonwebtoken.security.SignatureException; // For catching invalid signature
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional; // Penting untuk operasi database
@@ -59,7 +60,7 @@ public class RefreshTokenOperationPerformer {
         RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findById(refreshTokenJti)
                 .orElseThrow(RefreshTokenNotFoundException::new);
 
-        // if (jwtService.isRefreshTokenExpired(refreshToken)) { // Ini sudah benar sekarang
+        // if (jwtService.isRefreshTokenExpired(refreshToken)) {
         //     log.warn("Refresh token is expired according to internal check: {}", refreshTokenJti);
         //     throw new RefreshTokenExpiredException("Refresh token has expired.");
         // }
@@ -73,5 +74,12 @@ public class RefreshTokenOperationPerformer {
         // Setelah semuanya di cek, hapus refresh token
         refreshTokenRepository.delete(refreshTokenEntity);
         return user;
+    }
+
+    public void deleteRefreshToken(UserEntity user) {
+        log.info("deleting refresh token that associated woth user");
+        RefreshTokenEntity refreshToken = refreshTokenRepository.findByUser(user)
+                .orElseThrow(RefreshTokenNotFoundException::new);
+        refreshTokenRepository.delete(refreshToken);
     }
 }

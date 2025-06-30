@@ -12,6 +12,9 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -86,5 +89,15 @@ public class SecurityEndpoint implements SecurityControllerApi {
         TokenResponse response = new TokenResponse();
         response.setTokens(tokenResponseConverter.toTokenResponse(jwtService.generateTokenAndRefreshToken(userThatTheTokenIsValidated)));
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Success200Response> userLogout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity user = (UserEntity) authentication.getPrincipal();
+
+        refreshTokenOperationPerformer.deleteRefreshToken(user);
+        return ResponseEntity.ok(new Success200Response(true, "Berhasil logout."));
     }
 }

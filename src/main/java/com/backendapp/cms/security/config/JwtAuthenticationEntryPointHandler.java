@@ -22,12 +22,12 @@ public class JwtAuthenticationEntryPointHandler implements AuthenticationEntryPo
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         log.info("jwt authentication entry point executed");
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         final Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+        body.put("status", HttpServletResponse.SC_FORBIDDEN);
         body.put("error", "Unauthorized");
-        body.put("message", "Verifikasi diri anda, harap login kembali.");
+        body.put("message", "Harap lakukan refresh token atau login kembali.");
         body.put("path", request.getServletPath());
 
         final ObjectMapper mapper = new ObjectMapper();
