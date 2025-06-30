@@ -44,7 +44,7 @@ paths:
   /api/v1/auth/register:
     post:
       tags:
-        - UserController
+        - SecurityController
       operationId: "userRegister"
       summary: "Register user/blogger baru"
       requestBody:
@@ -64,11 +64,7 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/UserSimpleResponse'
-                  - type: object
-                    properties:
-                      token:
-                        type: string
-                        description: "Token JWT"
+                  - $ref: '#/components/schemas/TokenResponse'
 
         "400":
           description: "Pengisian field tidak sesuai."
@@ -102,7 +98,7 @@ paths:
   /api/v1/auth/login:
     post:
       tags:
-        - UserController
+        - SecurityController
       operationId: "userLogin"
       summary: "User/blogger mencoba untuk login."
       requestBody:
@@ -122,11 +118,7 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/UserSimpleResponse'
-                  - type: object
-                    properties:
-                      token:
-                        type: string
-                        description: "Token JWT"
+                  - $ref: '#/components/schemas/TokenResponse'
 
         "400":
           description: "Pengisian field tidak sesuai."
@@ -160,7 +152,7 @@ paths:
   /api/v1/auth/logout:
     get:
       tags:
-        - UserController
+        - SecurityController
       operationId: "userLogout"
       summary: "User mengirimkan permintaan logout, logout dilakukan dengan mengidentifikasi id dari cookie."
       security:
@@ -193,7 +185,7 @@ paths:
   /api/v1/auth/password:
     get:
       tags:
-        - UserController
+        - SecurityController
       operationId: "userGetRefreshPasswordToken"
       summary: "User lupa password dan ingin memperbarui password dengan meminta reset_password_token dan akan dikirimkan melalui email"
       requestBody:
@@ -234,7 +226,7 @@ paths:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
     post:
       tags:
-        - UserController
+        - SecurityController
       operationId: "userRenewThePassword"
       description: "User/blogger telah menerima token di email dan mengirimkan password baru"
       security:
@@ -257,12 +249,6 @@ paths:
                     properties:
                       data:
                         $ref: '#/components/schemas/UserSimpleResponse'
-                  - type: object
-                    properties:
-                      token:
-                        type: string
-                        description: "Token jwt untuk login"
-                        example: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
         "403":
           description: "Forbidden, anda tidak bisa melakukan operasi ini."
@@ -274,6 +260,53 @@ paths:
 
         "500":
           description: "Server Error."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
+
+  /api/v1/auth/refresh-token:
+    post:
+      tags:
+        - SecurityController
+      operationId: "getRefreshToken"
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                accessToken:
+                  type: string
+                  description: "Access token untuk membandingkan"
+                refreshToken:
+                  type: string
+                  description: "Refresh token yang dimiliki user"
+              required:
+                - accessToken
+                - refreshToken
+      responses:
+        "200":
+          description: "Berhasil memperbarui access token menggunkaan refreshToken"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/TokenResponse'
+
+        "401":
+          description: "Unauthorized, anda tidak mempunyai refresh token, herap login kembali."
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error401Response'
+
+        "500":
+          description: "Bad server"
           content:
             application/json:
               schema:
@@ -301,11 +334,7 @@ paths:
                       data:
                         allOf:
                           - $ref: '#/components/schemas/UserResponse'
-                  - type: object
-                    properties:
-                      token:
-                        type: string
-                        description: "New Jwt token"
+                  - $ref: '#/components/schemas/TokenResponse'
 
         "403":
           description: "Forbidden, anda tidak bisa melakukan operasi ini."
@@ -349,11 +378,7 @@ paths:
                       data:
                         allOf:
                           - $ref: '#/components/schemas/UserResponse'
-                  - type: object
-                    properties:
-                      token:
-                        type: string
-                        description: "New Jwt token"
+                  - $ref: '#/components/schemas/TokenResponse'
 
         "400":
           description: "Bad Request, Field tidak sesuai"
@@ -868,6 +893,21 @@ components:
                 default: false
                 example: true
 
-
-
+    TokenResponse:
+      type: object
+      properties:
+        tokens:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              description: "Jwt access token"
+              example: "eyJhbGciOiJIUzM4NCJ9.eyJhdXRob3JpdHkiOiJST0xFX0JMT0dHRVIiLCJ1c2VySWQiOjEsInN1YiI6ImFuZHJpYW5hIiwiaWF0IjoxNzUxMTA4NjY1LCJleHAiOjE3NTExOTUwNjV9.hWgV2FuAy6axTxuQ9xVNIZI51k4IP2591mwaDAWFP-A682fLQJpOmC1fVI03roqb"
+            refreshToken:
+              type: string
+              description: "Refresh token  untuk merefresh jwt access token"
+              example: "eyJhbGciOiJIUzM4NCJ9.eyJhdXRob3JpdHkiOiJST0xFX0JMT0dHRVIiLCJ1c2VySWQiOjEsInN1YiI6ImFuZHJpYW5hIiwiaWF0IjoxNzUxMTA4NjY1LCJleHAiOjE3NTExOTUwNjV9.hWgV2FuAy6axTxuQ9xVNIZI51k4IP2591mwaDAWFP-A682fLQJpOmC1fVI03roqb"
+          required:
+          - accessToken
+          - refreshToken
 

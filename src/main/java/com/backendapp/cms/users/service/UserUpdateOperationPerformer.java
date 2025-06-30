@@ -2,9 +2,8 @@ package com.backendapp.cms.users.service;
 
 import com.backendapp.cms.openapi.dto.UserUpdateRequest;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.exception.EmailAlreadyExistException;
+import com.backendapp.cms.security.exception.EmailAlreadyExistException;
 import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
-import com.backendapp.cms.users.exception.UsernameNotFoundException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;

@@ -1,12 +1,15 @@
 package com.backendapp.cms.common.exception.handler;
 
 import com.backendapp.cms.common.dto.ErrorResponse;
-import com.backendapp.cms.security.exception.PasswordMismatchException;
+import com.backendapp.cms.security.exception.*;
+import com.backendapp.cms.security.exception.RefreshTokenExpiredException;
+import com.backendapp.cms.users.exception.EmailNotFoundException;
 import com.backendapp.cms.users.exception.*;
 import com.backendapp.cms.common.exception.ResourceNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.persistence.ElementCollection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +43,8 @@ public class GlobalExceptionHandler {
      * handle_BadCredentialsException
      * handle_MethodArgumentNotValidException
      */
+
+
     @ExceptionHandler(EmailAlreadyExistException.class)
     public ResponseEntity<ErrorResponse> handle_EmailAlreadyExistException(EmailAlreadyExistException e) {
         log.warn("EmailAlreadyExistException");
@@ -139,9 +144,17 @@ public class GlobalExceptionHandler {
      * |
      * handle_AuthenticationExceptions
      * handle_JwtExceptions
+     * handle_expiredJwtException
      * handle_AccessDeniedException
      * handle_ResourceNotFoundException
      * handle_PasswordMismatchException
+     * handle_accessAndRefreshTokenMismatchException
+     * handle_refreshTokenNotFoundException
+     * handle_refreshTokenExpiresException
+     * handle_userIsDisableException
+     * handle_invalidAccessTokenException
+     * handle_invalidRefreshTokenException
+     * |
      * handle_InternalAuthenticationServiceException
      * handle_AllUncaughtExceptions
      */
@@ -166,7 +179,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             MalformedJwtException.class,
-            ExpiredJwtException.class,
             SignatureException.class
     })
     public ResponseEntity<ErrorResponse> handle_JwtExceptions(Exception ex) {
@@ -184,6 +196,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handle_ExpiredJwtException(ExpiredJwtException ex) {
+        log.warn("ExpiredJwtException");
+        ErrorResponse errorResponse = new ErrorResponse(false, "Token kadaluarsa. lakukan refresh token atau login kembali");
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handle_AccessDeniedException(AccessDeniedException ex) {
         log.warn("AccessDeniedException");
@@ -197,6 +216,80 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<ErrorResponse> handle_PasswordMismatchException(PasswordMismatchException e) {
+        log.warn("PasswordMismatchException");
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("password_confirm", "Password Tidak Sesuai.");
+
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessAndRefreshTokenMismatchException.class)
+    public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(AccessAndRefreshTokenMismatchException e) {
+        log.warn("AccessAndRefreshTokenMismatchException");
+        ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(RefreshTokenNotFoundException e) {
+        log.warn("RefreshTokenNotFoundException");
+        ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(RefreshTokenExpiredException.class)
+    public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(RefreshTokenExpiredException e) {
+        log.warn("refreshTokenExpiredException");
+        ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UserIsDisabledException.class)
+    public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(UserIsDisabledException e) {
+        log.warn("UserIsDisabledException");
+        ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidAccessTokenException.class)
+    public ResponseEntity<ErrorResponse> handle_InvalidAccessTokenException(InvalidAccessTokenException e) {
+        log.warn("InvalidAccessTokenException");
+        ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handle_InvalidRefreshTokenException(InvalidRefreshTokenException e) {
+        log.warn("InvalidRefreshTokenException");
+        ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // =================================================================================================================
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ErrorResponse> handle_InternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
@@ -213,16 +306,6 @@ public class GlobalExceptionHandler {
             message = "Authentication failed: " + ex.getMessage();
             return new ResponseEntity<>(new ErrorResponse(false, message), HttpStatus.UNAUTHORIZED);
         }
-    }
-
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<ErrorResponse> handle_PasswordMismatchException(PasswordMismatchException e) {
-        log.warn("PasswordMismatchException");
-        HashMap<String, String> errors = new HashMap<>();
-        errors.put("password_confirm", "Password Tidak Sesuai.");
-
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

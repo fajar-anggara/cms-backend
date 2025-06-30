@@ -58,17 +58,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
+            log.warn("Header null or header not start with bearer");
             return;
         }
 
         jwt = authHeader.substring(7);
-        log.info("try to get username from authHeader token, set UserDetails and validating token");
-        username = jwtService.extractUsername(jwt);
+        log.info("try to get username from authHeader token, validating malformed JWT, and its expired (sekaligus di method extractUsernameFormAccess) ");
+        username = jwtService.extractUsernameFromAccess(jwt);
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            log.info("set security context");
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if(jwtService.isTokenValid(jwt, userDetails)) {
+            if(jwtService.isAccessTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

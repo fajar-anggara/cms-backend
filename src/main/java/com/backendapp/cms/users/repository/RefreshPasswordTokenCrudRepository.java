@@ -1,7 +1,6 @@
 package com.backendapp.cms.users.repository;
 
-import com.backendapp.cms.users.entity.RefreshPasswordTokenEntity;
-import jakarta.validation.constraints.NotNull;
+import com.backendapp.cms.security.entity.RefreshPasswordTokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
