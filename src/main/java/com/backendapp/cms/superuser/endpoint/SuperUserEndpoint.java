@@ -5,23 +5,23 @@ import com.backendapp.cms.common.enums.SortBy;
 import com.backendapp.cms.common.enums.SortOrder;
 import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.openapi.superuser.api.SuperuserControllerApi;
+import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
 import com.backendapp.cms.superuser.converter.PaginationConverter;
+import com.backendapp.cms.superuser.service.SuperuserRegisterUserOperationPerformer;
 import com.backendapp.cms.superuser.service.SuperuserUserGetterOperationPerformer;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.converter.UserConverterImpl;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.repository.SuperuserCrudRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Delete;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -29,14 +29,10 @@ import java.util.stream.Collectors;
 public class SuperUserEndpoint implements SuperuserControllerApi {
 
     private final SuperuserUserGetterOperationPerformer superuserUserGetter;
-    private final SuperuserCrudRepository superuserCrudRepository;
     private final UserConverterImpl userConverterImpl;
     private final PaginationConverter paginationConverter;
-
-    @Override
-    public ResponseEntity<Success200Response> deleteSingleUser(Long id) {
-        return SuperuserControllerApi.super.deleteSingleUser(id);
-    }
+    private final SuperuserRegisterUserOperationPerformer superuserRegisterUserOperationPerformer;
+    private final UserConverter userConverter;
 
     @Override
     @PreAuthorize("isAuthenticated()")
@@ -75,12 +71,15 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
     }
 
     @Override
-    public ResponseEntity<CreateUser200Response> getSingleUser(Long id) {
-        return SuperuserControllerApi.super.getSingleUser(id);
-    }
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CreateUser200Response> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserEntity user = superuserRegisterUserOperationPerformer.registerUser(request);
 
-    @Override
-    public ResponseEntity<CreateUser200Response> updateSingleUser(Long id, UserUpdateRequest userUpdateRequest) {
-        return SuperuserControllerApi.super.updateSingleUser(id, userUpdateRequest);
+        CreateUser200Response response = new CreateUser200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasi menambahkan user");
+        response.setData(userConverter.toUserResponse(user));
+
+        return ResponseEntity.ok(response);
     }
 }

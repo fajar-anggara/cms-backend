@@ -141,7 +141,7 @@ paths:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
     post:
       tags:
-        - "AdminController"
+        - "SuperuserController"
       operationId: "createUser"
       description: "Membuat user/blogger baru"
       security:
@@ -154,7 +154,7 @@ paths:
                 - $ref: './users-openapi.yaml#/components/schemas/UserRegisterRequest'
                 - type: object
                   properties:
-                    role:
+                    authority:
                       type: string
                       description: "Role yang akan diberikan."
                       enum:
