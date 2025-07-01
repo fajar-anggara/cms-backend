@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -102,6 +103,13 @@ public class JwtService {
          * claims.put("userId", user.getId());
          * }
          */
+
+        refreshTokenRepository.findByUser((UserEntity) userDetails)
+                .ifPresent(refreshToken -> {
+                    log.info("Deleting refresh token karena sudah terdaftar");
+                    refreshTokenRepository.delete(refreshToken);
+                    refreshTokenRepository.flush();
+                });
 
         Date issuedAt = Date.from(Instant.now());
         Date expiration = Date.from(Instant.now().plusMillis(appConstants.JWT_REFRESH_TOKEN_EXPIRED));

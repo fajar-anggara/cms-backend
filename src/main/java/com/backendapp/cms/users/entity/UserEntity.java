@@ -27,7 +27,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@SQLRestriction("deleted_at IS NULL")
 public class UserEntity implements UserDetails {
 
     @Id

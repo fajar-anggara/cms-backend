@@ -13,8 +13,8 @@ public class UserEntityProvider {
     private final UserCrudRepository userCrudRepository;
 
     public UserEntity getUser(String identifier) {
-        return userCrudRepository.findByUsername(identifier)
-                .orElseGet(() -> userCrudRepository.findByEmail(identifier)
+        return userCrudRepository.findByUsernameAndDeletedAtIsNull(identifier)
+                .orElseGet(() -> userCrudRepository.findByEmailAndDeletedAtIsNull(identifier)
                         .orElseThrow(UsernameOrEmailNotFoundException::new));
     }
 }

@@ -51,7 +51,7 @@ public class UserUpdateOperationPerformer {
         if (username.equals(userBeingUpdated.getUsername())) {
             return;
         }
-        if (userCrudRepository.existsByUsername(username)) {
+        if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(username)) {
             throw new UsernameAlreadyExistException();
         }
     }
@@ -60,7 +60,7 @@ public class UserUpdateOperationPerformer {
         if (email.equals(userBeingUpdated.getEmail())) {
             return;
 
-        }        if (userCrudRepository.existsByEmail(email)) {
+        }        if (userCrudRepository.existsByEmailAndDeletedAtIsNull(email)) {
             throw new EmailAlreadyExistException();
         }
     }

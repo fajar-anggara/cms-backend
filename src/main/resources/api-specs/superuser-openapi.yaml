@@ -76,8 +76,16 @@ paths:
           description: "Jumlah user yang akan ditampilkan"
           schema:
             type: integer
-            default: "10"
-            minimum: 1
+            default: 10
+            minimum: 0
+          example: 1
+        - name: "page"
+          in: query
+          description: "sekarang page ke berapa dari user yang ditampilkan"
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
           example: 1
         - name: search
           in: query
@@ -99,13 +107,14 @@ paths:
                   - type: object
                     properties:
                       data:
-                        allOf:
-                          - $ref: './users-openapi.yaml#/components/schemas/UserListResponse'
-                          - type: object
-                            properties:
-                              pagination:
-                                allOf:
-                                  - $ref: './blogs-openapi.yaml#/components/schemas/PaginationMetadata'
+                        type: object
+                        properties:
+                          users:
+                            allOf:
+                              - $ref: './users-openapi.yaml#/components/schemas/UserListResponse'
+                          pagination:
+                            allOf:
+                              - $ref: './blogs-openapi.yaml#/components/schemas/PaginationMetadata'
 
         "401":
           description: "Unauthorized, harap login kembali."

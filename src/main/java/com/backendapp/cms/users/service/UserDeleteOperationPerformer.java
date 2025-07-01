@@ -22,7 +22,7 @@ public class UserDeleteOperationPerformer {
     @Transactional
     public void deleteUser(Authentication authentication) {
         UserDetails user = (UserDetails) authentication.getPrincipal();
-        UserEntity deletingUser = userCrudRepository.findByUsername(user.getUsername())
+        UserEntity deletingUser = userCrudRepository.findByUsernameAndDeletedAtIsNull(user.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         deletingUser.setDeletedAt(LocalDateTime.now());
         userCrudRepository.save(deletingUser);

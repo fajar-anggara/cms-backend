@@ -29,7 +29,7 @@ public class UserChangePasswordOperationPerformer {
 
     public UserEntity changePasswordUser(@Valid ChangePasswordRequest request, Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        UserEntity userThatPasswordWillBeChange = userCrudRepository.findByUsername(user.getUsername())
+        UserEntity userThatPasswordWillBeChange = userCrudRepository.findByUsernameAndDeletedAtIsNull(user.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
         String newPassword = passwordEncoder.encode(request.getNewPassword());
         userThatPasswordWillBeChange.setPassword(newPassword);

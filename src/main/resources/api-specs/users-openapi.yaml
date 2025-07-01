@@ -877,21 +877,7 @@ components:
       description: "Mengembalikan list of data user/blogger full. required id, username, profile_pictures, enabled (superuser only)"
       items:
         allOf:
-          - $ref: '#/components/schemas/UserSimpleDTO'
-          - type: object
-            properties:
-              email:
-                type: string
-                format: email
-                minLength: 1
-                maxLength: 255
-                description: "Email untuk setiap user/blogger (unique) bisa dijadikan identifier saar login."
-                example: "andriana@gmail.com"
-              is_email_verified:
-                type: boolean
-                description: "Apakah user/blogger sudah menghubungkan email nya?."
-                default: false
-                example: true
+          - $ref: '#/components/schemas/UserResponse'
 
     TokenResponse:
       type: object

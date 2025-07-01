@@ -27,7 +27,7 @@ public class SuperUserInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("Try to create default superuser");
         // Checking default superuser
-        if(!userCrudRepository.existsByUsername("superuser")) {
+        if(!userCrudRepository.existsByUsernameAndDeletedAtIsNull("superuser")) {
             String password = passwordEncoder.encode(appConstants.SUPERUSER_PASSWORD);
             UserEntity user = UserEntity.builder()
                     .username(appConstants.SUPERUSER_USERNAME)

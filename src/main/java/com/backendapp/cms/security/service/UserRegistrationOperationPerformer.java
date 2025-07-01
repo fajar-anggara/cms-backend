@@ -31,16 +31,16 @@ public class UserRegistrationOperationPerformer {
     @Transactional
     public UserEntity registerUser(@Valid UserRegisterRequest request) {
         log.info("Validating register request, then setting authority, encrypt password, and saved it.");
-        if (userCrudRepository.existsByUsername(request.getUsername())) {
+        if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(request.getUsername())) {
             throw new UsernameAlreadyExistException();
         }
-        if (existsByUsernameIncludingDeleted(request.getUsername())) {
+        if (userCrudRepository.existsByUsername(request.getUsername())) {
             throw new UsernameOrEmailUsedToExistException();
         }
-        if (userCrudRepository.existsByEmail(request.getEmail())) {
+        if (userCrudRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
             throw new EmailAlreadyExistException();
         }
-        if (existsByEmailIncludingDeleted(request.getEmail())) {
+        if (userCrudRepository.existsByEmail(request.getEmail())) {
             throw new UsernameOrEmailUsedToExistException();
         }
         if (!request.getPassword().equals(request.getConfirmPassword())) {
@@ -69,15 +69,5 @@ public class UserRegistrationOperationPerformer {
 
                     return userGrantedAuthorityRepository.save(newAuthority);
                 });
-    }
-
-    public boolean existsByUsernameIncludingDeleted(String username) {
-        Integer count = userCrudRepository.countByUsernameIncludingDeleted(username);
-        return count != null && count > 0;
-    }
-
-    public boolean existsByEmailIncludingDeleted(String email) {
-        Integer count = userCrudRepository.countByEmailIncludingDeleted(email);
-        return count != null && count > 0;
     }
 }

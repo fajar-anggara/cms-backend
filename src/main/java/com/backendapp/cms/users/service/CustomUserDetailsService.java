@@ -22,12 +22,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameOrEmailNotFoundException {
         log.info("Custom loadUserByUsername executed by spring security authenticating");
-        Optional<UserEntity> userByUsername = userCrudRepository.findByUsername(identifier);
+        Optional<UserEntity> userByUsername = userCrudRepository.findByUsernameAndDeletedAtIsNull(identifier);
         if (userByUsername.isPresent()) {
             return userByUsername.get();
         }
 
-        Optional<UserEntity> userByEmail = userCrudRepository.findByEmail(identifier);
+        Optional<UserEntity> userByEmail = userCrudRepository.findByEmailAndDeletedAtIsNull(identifier);
         if (userByEmail.isPresent()) {
             return userByEmail.get();
         }
