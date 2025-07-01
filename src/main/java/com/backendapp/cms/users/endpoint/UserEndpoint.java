@@ -86,5 +86,4 @@ public class UserEndpoint implements UserControllerApi {
         return ResponseEntity.ok(renewPasswordResponse);
     }
 
-
 }

@@ -100,4 +100,6 @@ public class SecurityEndpoint implements SecurityControllerApi {
         refreshTokenOperationPerformer.deleteRefreshToken(user);
         return ResponseEntity.ok(new Success200Response(true, "Berhasil logout."));
     }
+
+
 }

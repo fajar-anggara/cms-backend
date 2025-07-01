@@ -42,6 +42,20 @@ public class AppConstants {
         this.JWT_REFRESH_TOKEN_SECRET_KEY = getKey(REFRESH_KEY_STRING);
     }
 
+    // SUPERUSER INITIALIZER
+
+    @Value("${superuser.username}")
+    public String SUPERUSER_USERNAME;
+
+    @Value("${superuser.display-name}")
+    public String SUPERUSER_DISPLAY_NAME;
+
+    @Value("${superuser.email}")
+    public String SUPERUSER_EMAIL;
+
+    @Value("${superuser.password}")
+    public String SUPERUSER_PASSWORD;
+
     private SecretKey getKey(String secretKey) {
         if (secretKey == null || secretKey.trim().isEmpty()) {
             throw new IllegalArgumentException("JWT secret key tidak boleh kosong");

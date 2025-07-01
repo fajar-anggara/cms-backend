@@ -46,15 +46,7 @@ public class UserRegistrationOperationPerformer {
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new PasswordMismatchException();
         }
-
-        UserGrantedAuthority defaultAuthority = userGrantedAuthorityRepository.findByAuthority(UserConstants.DEFAULT_ROLE)
-                .orElseGet(() -> {
-                    UserGrantedAuthority newAuthority = UserGrantedAuthority.builder()
-                            .authority(Authority.BLOGGER)
-                            .build();
-
-                    return userGrantedAuthorityRepository.save(newAuthority);
-                });
+        UserGrantedAuthority defaultAuthority = setGrantedAuthority(UserConstants.DEFAULT_ROLE);
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
         UserEntity user = userConverter.toEntity(request);
@@ -66,6 +58,17 @@ public class UserRegistrationOperationPerformer {
         user.setEmailVerified(UserConstants.DEFAULT_EMAIL_VERIFIED);
 
         return userCrudRepository.save(user);
+    }
+
+    public UserGrantedAuthority setGrantedAuthority(Authority authority) {
+        return userGrantedAuthorityRepository.findByAuthority(authority)
+                .orElseGet(() -> {
+                    UserGrantedAuthority newAuthority = UserGrantedAuthority.builder()
+                            .authority(authority)
+                            .build();
+
+                    return userGrantedAuthorityRepository.save(newAuthority);
+                });
     }
 
     public boolean existsByUsernameIncludingDeleted(String username) {
