@@ -7,12 +7,13 @@ import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.openapi.superuser.api.SuperuserControllerApi;
 import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
 import com.backendapp.cms.superuser.converter.PaginationConverter;
-import com.backendapp.cms.superuser.service.SuperuserGetSingleUserOperationPerformer;
 import com.backendapp.cms.superuser.service.SuperuserRegisterUserOperationPerformer;
 import com.backendapp.cms.superuser.service.SuperuserUserGetterOperationPerformer;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.converter.UserConverterImpl;
 import com.backendapp.cms.users.entity.UserEntity;
+import com.backendapp.cms.users.exception.UsernameOrEmailNotFoundException;
+import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,7 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
     private final PaginationConverter paginationConverter;
     private final SuperuserRegisterUserOperationPerformer superuserRegisterUserOperationPerformer;
     private final UserConverter userConverter;
-    private final UserRegistrationOperationPerformer userRegistrationOperationPerformer;
-    private final SuperuserGetSingleUserOperationPerformer superuserGetSingleUserOperationPerformer;
+    private final UserCrudRepository userCrudRepository;
 
     @Override
     @PreAuthorize("isAuthenticated()")
@@ -89,7 +89,8 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CreateUser200Response> getSingleUser(@Valid @RequestBody Long id) {
-        UserEntity user = superuserGetSingleUserOperationPerformer.getSingleUser(id);
+        UserEntity user = userCrudRepository.findById(id)
+                .orElseThrow(UsernameOrEmailNotFoundException::new);
         UserResponse userResponse = userConverter.toUserResponse(user);
 
         CreateUser200Response response = new CreateUser200Response();
@@ -98,5 +99,13 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
         response.setData(userResponse);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<Success200Response> deleteSingleUser(Long id) {
+        UserEntity user = userCrudRepository.findById(id)
+                .orElseThrow(UsernameOrEmailNotFoundException::new);
+
+        return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus user"));
     }
 }
