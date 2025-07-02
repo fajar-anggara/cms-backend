@@ -108,4 +108,9 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
 
         return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus user"));
     }
+
+    @Override
+    public ResponseEntity<CreateUser200Response> updateSingleUser(Long id, UserUpdateRequest userUpdateRequest) {
+        return SuperuserControllerApi.super.updateSingleUser(id, userUpdateRequest);
+    }
 }

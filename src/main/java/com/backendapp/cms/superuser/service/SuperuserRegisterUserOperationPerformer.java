@@ -3,20 +3,17 @@ package com.backendapp.cms.superuser.service;
 import com.backendapp.cms.common.constant.UserConstants;
 import com.backendapp.cms.common.enums.Authority;
 import com.backendapp.cms.openapi.dto.CreateUserRequest;
+import com.backendapp.cms.security.validation.PasswordMatchValidator;
+import com.backendapp.cms.security.validation.annotation.UniqueEmail;
+import com.backendapp.cms.security.validation.annotation.UniqueUser;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
-import com.backendapp.cms.security.exception.EmailAlreadyExistException;
 import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
-import com.backendapp.cms.security.service.UserRegistrationOperationPerformer;
-import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
-import com.backendapp.cms.users.exception.UsernameOrEmailUsedToExistException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,24 +26,15 @@ public class SuperuserRegisterUserOperationPerformer {
     private final PasswordEncoder passwordEncoder;
     private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
 
-    public UserEntity registerUser(@Valid CreateUserRequest request) {
-        log.info("Validating register request, then setting authority, encrypt password, and saved it. -- this is superuser");
-        if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(request.getUsername())) {
-            throw new UsernameAlreadyExistException();
-        }
-        if (userCrudRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
-            throw new EmailAlreadyExistException();
-        }
-        if (userCrudRepository.existsByUsername(request.getUsername())) {
-            throw new UsernameOrEmailUsedToExistException();
-        }
-        if (userCrudRepository.existsByEmail(request.getEmail())) {
-            throw new UsernameOrEmailUsedToExistException();
-        }
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new PasswordMismatchException();
-        }
-        String encryptedPassword = passwordEncoder.encode(request.getPassword());
+    public UserEntity registerUser(
+            @Valid
+            @UniqueUser
+            @UniqueEmail
+            CreateUserRequest request) {
+
+        log.info("encrypt password, and saved it. -- this is superuser");
+        String matchPassword = PasswordMatchValidator.check(request.getPassword(), request.getConfirmPassword());
+        String encryptedPassword = passwordEncoder.encode(matchPassword);
 
         UserEntity user = UserEntity.builder()
                 .username(request.getUsername())

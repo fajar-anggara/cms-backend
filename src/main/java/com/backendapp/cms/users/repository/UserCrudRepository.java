@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,8 @@ public interface UserCrudRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByEmail(@NotNull @Size(min = 1, max = 255) @Email String email);
 
     Optional<UserEntity> findByEmailAndDeletedAtIsNull(String identifier);
+
+    Optional<UserEntity> findByUsername(String username);
+
+    Optional<UserEntity> findByEmail(String email);
 }

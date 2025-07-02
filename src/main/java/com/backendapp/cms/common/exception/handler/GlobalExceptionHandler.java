@@ -37,6 +37,8 @@ public class GlobalExceptionHandler {
      * handle_UsernameNotFoundException
      * handle_UsernameOrEmailNotFoundException
      * handle_UsernameOrEmailUsedToExistException
+     * handle_usernameUsedToExistsException
+     * handle_emailUsedToExistsException
      * handle_wrongRefreshPasswordTokenException
      * handle_ExpiresRefreshPasswordTokenException
      * |
@@ -93,6 +95,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameOrEmailUsedToExistException.class)
     public ResponseEntity<ErrorResponse> handle_UsernameOrEmailUsedToExistException(UsernameOrEmailUsedToExistException e) {
         log.warn("UsernameOrEmailUsedToExistException");
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("username", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UsernameUsedToExistsException.class)
+    public ResponseEntity<ErrorResponse> handle_usernameUsedToExistsException(UsernameUsedToExistsException e) {
+        log.warn("usernameUsedToExistsException");
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("username", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EmailUsedToExistsException.class)
+    public ResponseEntity<ErrorResponse> handle_emailUsedToExistsException(EmailUsedToExistsException e) {
+        log.warn("emailUsedToExistsException");
         HashMap<String, String> errors = new HashMap<>();
         errors.put("username", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
@@ -182,11 +202,9 @@ public class GlobalExceptionHandler {
             SignatureException.class
     })
     public ResponseEntity<ErrorResponse> handle_JwtExceptions(Exception ex) {
-        log.warn("MalformedJwtException || ExpiredJwtException || SignatureException");
+        log.warn("MalformedJwtException || SignatureException");
         String message = "Authentication failed: Invalid or expired token.";
-        if (ex instanceof ExpiredJwtException) {
-            message = "Authentication failed: Token has expired.";
-        } else if (ex instanceof SignatureException) {
+        if (ex instanceof SignatureException) {
             message = "Authentication failed: Invalid token signature.";
         } else if (ex instanceof MalformedJwtException) {
             message = "Authentication failed: Malformed token.";
@@ -235,7 +253,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RefreshTokenNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(RefreshTokenNotFoundException e) {
+    public ResponseEntity<ErrorResponse> handle_refreshTokenNotFoundException(RefreshTokenNotFoundException e) {
         log.warn("RefreshTokenNotFoundException");
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);

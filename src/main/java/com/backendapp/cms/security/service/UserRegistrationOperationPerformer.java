@@ -3,14 +3,14 @@ package com.backendapp.cms.security.service;
 import com.backendapp.cms.common.constant.UserConstants;
 import com.backendapp.cms.common.enums.Authority;
 import com.backendapp.cms.openapi.dto.UserRegisterRequest;
+import com.backendapp.cms.security.validation.PasswordMatchValidator;
+import com.backendapp.cms.security.validation.annotation.UniqueEmail;
+import com.backendapp.cms.security.validation.annotation.UniqueUser;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
 import com.backendapp.cms.users.converter.UserConverter;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.security.exception.EmailAlreadyExistException;
-import com.backendapp.cms.users.exception.UsernameAlreadyExistException;
-import com.backendapp.cms.users.exception.UsernameOrEmailUsedToExistException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -29,25 +29,16 @@ public class UserRegistrationOperationPerformer {
     private final UserConverter userConverter;
 
     @Transactional
-    public UserEntity registerUser(@Valid UserRegisterRequest request) {
-        log.info("Validating register request, then setting authority, encrypt password, and saved it.");
-        if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(request.getUsername())) {
-            throw new UsernameAlreadyExistException();
-        }
-        if (userCrudRepository.existsByUsername(request.getUsername())) {
-            throw new UsernameOrEmailUsedToExistException();
-        }
-        if (userCrudRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
-            throw new EmailAlreadyExistException();
-        }
-        if (userCrudRepository.existsByEmail(request.getEmail())) {
-            throw new UsernameOrEmailUsedToExistException();
-        }
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new PasswordMismatchException();
-        }
+    public UserEntity registerUser(
+            @Valid
+            @UniqueUser
+            @UniqueEmail
+            UserRegisterRequest request) {
+
+        log.info("encrypt password, and saved it.");
+        String matchPassword = PasswordMatchValidator.check(request.getPassword(), request.getConfirmPassword());
         UserGrantedAuthority defaultAuthority = setGrantedAuthority(UserConstants.DEFAULT_ROLE);
-        String encryptedPassword = passwordEncoder.encode(request.getPassword());
+        String encryptedPassword = passwordEncoder.encode(matchPassword);
 
         UserEntity user = userConverter.toEntity(request);
         user.setPassword(encryptedPassword);

@@ -5,6 +5,7 @@ import com.backendapp.cms.email.service.EmailService;
 import com.backendapp.cms.openapi.dto.RenewPasswordRequest;
 import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.entity.RefreshPasswordTokenEntity;
+import com.backendapp.cms.security.validation.PasswordMatchValidator;
 import com.backendapp.cms.users.entity.UserEntity;
 import com.backendapp.cms.security.exception.ExpiredRefreshPasswordTokenException;
 import com.backendapp.cms.users.exception.UsernameOrEmailNotFoundException;
@@ -65,10 +66,8 @@ public class UserRefreshPasswordOperationPerformer {
             throw new ExpiredRefreshPasswordTokenException();
         }
         UserEntity user = refreshPasswordTokenEntity.getUser();
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new PasswordMismatchException();
-        }
-        String password = passwordEncoder.encode(request.getPassword());
+        String matchPassword = PasswordMatchValidator.check(request.getPassword(), request.getConfirmPassword());
+        String password = passwordEncoder.encode(matchPassword);
         user.setPassword(password);
 
         return userCrudRepository.save(user);
