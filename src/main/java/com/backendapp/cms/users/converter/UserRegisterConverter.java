@@ -20,4 +20,8 @@ public interface UserRegisterConverter {
 
     @Mapping(target = "authority", source = "authority", qualifiedByName = "mapCreateUserRequestAuthorityEnumToCommonEnumAuthorityEnum")
     UserRegisterDto fromCreateUserRequestToUserRegisterDto(CreateUserRequest createUserRequest);
+
+    default Optional<String> map (String value) {
+        return Optional.ofNullable(value);
+    }
 }

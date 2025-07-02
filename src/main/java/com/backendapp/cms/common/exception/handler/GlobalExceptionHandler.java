@@ -10,6 +10,8 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.persistence.ElementCollection;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,8 +25,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
@@ -32,30 +37,18 @@ public class GlobalExceptionHandler {
     /**
      * User exceptions handler
      * |
-     * handle_EmailAlreadyExistException
      * handle_EmailNotFoundException
-     * handle_UsernameAlreadyExistException
      * handle_UsernameNotFoundException
      * handle_UsernameOrEmailNotFoundException
-     * handle_UsernameOrEmailUsedToExistException
-     * handle_usernameUsedToExistsException
-     * handle_emailUsedToExistsException
      * handle_wrongRefreshPasswordTokenException
-     * handle_ExpiresRefreshPasswordTokenException
+     * handle_expiresRefreshPasswordTokenException
+     * handle_constraintViolationException
      * |
      * handle_BadCredentialsException
      * handle_MethodArgumentNotValidException
      */
 
 
-    @ExceptionHandler(EmailAlreadyExistException.class)
-    public ResponseEntity<ErrorResponse> handle_EmailAlreadyExistException(EmailAlreadyExistException e) {
-        log.warn("EmailAlreadyExistException");
-        HashMap<String, String> errors = new HashMap<>();
-        errors.put("email", e.getMessage());
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
 
     @ExceptionHandler(EmailNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_EmailNotFoundException(EmailNotFoundException e) {
@@ -66,14 +59,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UsernameAlreadyExistException.class)
-    public ResponseEntity<ErrorResponse> handle_UsernameAlreadyExistException(UsernameAlreadyExistException e) {
-        log.warn("UsernameAlreadyExistException");
-        HashMap<String, String> errors = new HashMap<>();
-        errors.put("username", e.getMessage());
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_UsernameNotFoundException(UsernameNotFoundException e) {
@@ -93,33 +78,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UsernameOrEmailUsedToExistException.class)
-    public ResponseEntity<ErrorResponse> handle_UsernameOrEmailUsedToExistException(UsernameOrEmailUsedToExistException e) {
-        log.warn("UsernameOrEmailUsedToExistException");
-        HashMap<String, String> errors = new HashMap<>();
-        errors.put("username", e.getMessage());
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(UsernameUsedToExistsException.class)
-    public ResponseEntity<ErrorResponse> handle_usernameUsedToExistsException(UsernameUsedToExistsException e) {
-        log.warn("usernameUsedToExistsException");
-        HashMap<String, String> errors = new HashMap<>();
-        errors.put("username", e.getMessage());
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(EmailUsedToExistsException.class)
-    public ResponseEntity<ErrorResponse> handle_emailUsedToExistsException(EmailUsedToExistsException e) {
-        log.warn("emailUsedToExistsException");
-        HashMap<String, String> errors = new HashMap<>();
-        errors.put("username", e.getMessage());
-        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-    }
-
     @ExceptionHandler(WrongPasswordRefreshToken.class)
     public ResponseEntity<ErrorResponse> handle_WrongPasswordRefreshToken(WrongPasswordRefreshToken e) {
         log.warn("WrongPasswordRefreshToken");
@@ -136,6 +94,36 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
+        Map<String, String> errors = ex.getConstraintViolations().stream()
+                .collect(Collectors.toMap(
+                        violation -> {
+                            String path = violation.getPropertyPath().toString();
+                            int lastDotIndex = path.lastIndexOf('.');
+                            if (lastDotIndex > -1 && lastDotIndex < path.length() - 1) {
+                                return path.substring(lastDotIndex + 1);
+                            }
+                            return path;
+                        },
+                        ConstraintViolation::getMessage,
+                        (existingMessage, newMessage) -> existingMessage + "; " + newMessage
+                ));
+
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+
+
+
+
+
+
+    /* ============================================================================================================= */
+
+
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handle_BadCredentialsException(BadCredentialsException e) {
@@ -178,25 +166,8 @@ public class GlobalExceptionHandler {
      * |
      * handle_InternalAuthenticationServiceException
      * handle_AllUncaughtExceptions
+     * handle_dataIntegrityViolationException
      */
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        log.error("DataIntegrityViolationException: {}", ex.getMessage());
-
-        // Anda perlu memeriksa pesan exception atau SQLState untuk mengidentifikasi constraint mana yang dilanggar.
-        // SQLState '23000' adalah untuk integrity constraint violation.
-        // MySQL error code 1062 adalah untuk duplicate entry.
-        if (ex.getMessage() != null && ex.getMessage().contains("Duplicate entry") && ex.getMessage().contains("'UK6dotkott2kjsp8vw4d0m25fb7'")) {
-            // Ini adalah contoh sederhana. Anda mungkin ingin regex atau cara yang lebih robust.
-            // ID constraint 'UK6dotkott2kjsp8vw4d0m25fb7' merujuk ke UNIQUE INDEX di kolom email.
-            ErrorResponse errorResponse = new ErrorResponse(false, "Email ini sudah terdaftar.", null);
-            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT); // 409 Conflict
-        }
-        // Jika bukan duplicate entry yang spesifik, kembalikan generic error
-        ErrorResponse errorResponse = new ErrorResponse(false, "Terjadi kesalahan database.", null);
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-    }
 
     @ExceptionHandler({
             DisabledException.class,
@@ -352,5 +323,12 @@ public class GlobalExceptionHandler {
 
         ErrorResponse errorResponse = new ErrorResponse(false, "An unexpected internal server error occurred. Please try again later.");
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handle_dataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.error("DataIntegrityViolationException: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(false, "Terjadi kesalahan database.", null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
     }
 }

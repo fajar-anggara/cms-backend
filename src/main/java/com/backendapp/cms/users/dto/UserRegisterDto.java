@@ -14,16 +14,16 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserRegisterDto {
     @UniqueUser
-    private String username;
+    private Optional<String> username = Optional.empty();
 
-    private String displayName;
+    private Optional<String> displayName = Optional.empty();
 
     @UniqueEmail
-    private String email;
+    private Optional<String> email = Optional.empty();
 
-    private String password;
+    private Optional<String> password = Optional.empty();
 
-    private String confirmPassword;
+    private Optional<String> confirmPassword = Optional.empty();
 
     private Authority authority;
 

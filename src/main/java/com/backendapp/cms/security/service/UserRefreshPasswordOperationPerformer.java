@@ -60,7 +60,7 @@ public class UserRefreshPasswordOperationPerformer {
     }
 
     @Transactional
-    public UserEntity verifiedUserRefreshPassword(@Valid @NotNull RenewPasswordRequest request) {
+    public UserEntity verifiedUserRefreshPassword(RenewPasswordRequest request) {
         RefreshPasswordTokenEntity refreshPasswordTokenEntity = refreshPasswordTokenCrudRepository.findByToken(request.getResetPasswordToken())
                 .orElseThrow(WrongPasswordRefreshToken::new);
         if (refreshPasswordTokenEntity.isExpired()) {

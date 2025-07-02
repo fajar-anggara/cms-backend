@@ -11,16 +11,16 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserUpdateDto {
     @UniqueUser
-    private String username;
+    private Optional<String> username = Optional.empty();
 
-    private String displayName;
+    private Optional<String> displayName = Optional.empty();
 
     @UniqueEmail
-    private String email;
+    private Optional<String> email = Optional.empty();
 
-    private String bio;
+    private Optional<String> bio = Optional.empty();
 
-    private String profilePicture;
+    private Optional<String> profilePicture = Optional.empty();
 
     private Optional<Boolean> enabled = Optional.empty();
 

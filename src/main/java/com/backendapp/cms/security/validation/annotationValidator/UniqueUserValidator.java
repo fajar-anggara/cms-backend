@@ -13,22 +13,23 @@ import java.util.Optional;
 @Component
 @Slf4j
 @AllArgsConstructor
-public class UniqueUserValidator implements ConstraintValidator<UniqueUser, String> {
+public class UniqueUserValidator implements ConstraintValidator<UniqueUser, Optional<String>> {
 
     private final UserCrudRepository userCrudRepository;
 
     @Override
-    public boolean isValid(String username, ConstraintValidatorContext context) {
+    public boolean isValid(Optional<String> username, ConstraintValidatorContext context) {
         log.info("username validation excecuted");
-        if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(username)) {
-            log.warn("User {} already exists", username);
-            context.buildConstraintViolationWithTemplate("Email '" + username + "' sudah terdaftar.").addConstraintViolation();
-            return false; // Tidak valid
+        if (username.isEmpty()) {
+            return true;
         }
-        if (userCrudRepository.existsByUsername(username)) {
-            log.warn("User {} used to exists", username);
-            context.buildConstraintViolationWithTemplate("Email '" + username + "' sudah pernah terdaftar.").addConstraintViolation();
-            return false; // Tidak valid
+        if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(username.get())) {
+            log.warn("User {} already exists", username.get());
+            return false;
+        }
+        if (userCrudRepository.existsByUsername(username.get())) {
+            log.warn("User {} used to exists", username.get());
+            return false;
         }
 
         return true;

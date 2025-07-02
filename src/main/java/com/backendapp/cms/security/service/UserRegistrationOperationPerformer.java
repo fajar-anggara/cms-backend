@@ -23,13 +23,14 @@ import org.springframework.validation.annotation.Validated;
 @Service
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class UserRegistrationOperationPerformer {
     private final UserCrudRepository userCrudRepository;
     private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
     private final PasswordMatchValidator passwordMatchValidator;
 
     @Transactional
-    public UserEntity registerUser(@Validated UserRegisterDto request) {
+    public UserEntity registerUser(@Valid UserRegisterDto request) {
 
         log.info("encrypt password, and saved it.");
         String encryptedPassword = passwordMatchValidator.check(request.getPassword(), request.getConfirmPassword());

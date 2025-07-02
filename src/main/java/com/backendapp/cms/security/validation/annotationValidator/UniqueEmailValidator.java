@@ -13,24 +13,24 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
+public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, Optional<String>> {
 
     private final UserCrudRepository userCrudRepository;
 
     @Override
-    public boolean isValid(String email, ConstraintValidatorContext context) {
+    public boolean isValid(Optional<String> email, ConstraintValidatorContext context) {
         log.info("validating email triggered");
-        if (userCrudRepository.existsByEmailAndDeletedAtIsNull(email)) {
-            log.warn("Email {} already exists", email);
-            context.buildConstraintViolationWithTemplate("Email '" + email + "' sudah terdaftar.").addConstraintViolation();
-            return false; // Tidak valid
+        if (email.isEmpty()) {
+            return true;
         }
-        if (userCrudRepository.existsByEmail(email)) {
+        if (userCrudRepository.existsByEmailAndDeletedAtIsNull(email.get())) {
+            log.warn("Email {} already exists", email.get());
+            return false;
+        }
+        if (userCrudRepository.existsByEmail(email.get())) {
             log.warn("Email {} used to exists", email);
-            context.buildConstraintViolationWithTemplate("Email '" + email + "' sudah pernah terdaftar.").addConstraintViolation();
-            return false; // Tidak valid
+            return false;
         }
-
         return true;
     }
 

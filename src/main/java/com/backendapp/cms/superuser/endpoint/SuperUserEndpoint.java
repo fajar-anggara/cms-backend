@@ -95,10 +95,10 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
     }
 
     @Override
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<CreateUser200Response> getSingleUser(@Valid @RequestBody Long id) {
+    public ResponseEntity<CreateUser200Response> getSingleUser(Long id) {
         UserEntity user = userCrudRepository.findById(id)
                 .orElseThrow(UsernameOrEmailNotFoundException::new);
+        log.info("getting user {}", user);
         UserResponse userResponse = userResponseConverter.fromUseEntityToUserResponse(user);
 
         CreateUser200Response response = new CreateUser200Response();

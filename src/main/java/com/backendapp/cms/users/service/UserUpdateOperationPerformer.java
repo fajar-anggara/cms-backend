@@ -11,10 +11,12 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class UserUpdateOperationPerformer {
 
     private final UserCrudRepository userCrudRepository;

@@ -1,11 +1,7 @@
 package com.backendapp.cms.superuser.service;
 
-import com.backendapp.cms.common.constant.UserConstants;
 import com.backendapp.cms.common.enums.Authority;
-import com.backendapp.cms.openapi.dto.CreateUserRequest;
 import com.backendapp.cms.security.validation.PasswordMatchValidator;
-import com.backendapp.cms.security.validation.annotation.UniqueEmail;
-import com.backendapp.cms.security.validation.annotation.UniqueUser;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
 import com.backendapp.cms.users.dto.UserRegisterDto;
@@ -15,12 +11,13 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class SuperuserRegisterUserOperationPerformer {
 
     private final UserCrudRepository userCrudRepository;
