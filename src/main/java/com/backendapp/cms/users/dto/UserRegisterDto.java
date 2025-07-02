@@ -1,15 +1,18 @@
 package com.backendapp.cms.users.dto;
 
+import com.backendapp.cms.common.constant.UserConstants;
+import com.backendapp.cms.common.enums.Authority;
 import com.backendapp.cms.security.validation.annotation.UniqueEmail;
 import com.backendapp.cms.security.validation.annotation.UniqueUser;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Optional;
 
 @Data
 @AllArgsConstructor
-public class UserUpdateDto {
+public class UserRegisterDto {
     @UniqueUser
     private String username;
 
@@ -18,12 +21,13 @@ public class UserUpdateDto {
     @UniqueEmail
     private String email;
 
-    private String bio;
+    private String password;
 
-    private String profilePicture;
+    private String confirmPassword;
 
-    private Optional<Boolean> enabled = Optional.empty();
+    private Authority authority;
 
-    private Optional<Boolean> isEmailVerified = Optional.empty();
+    private Boolean enabled = UserConstants.DEFAULT_ENABLE;
 
+    private Boolean isEmailVerified = UserConstants.DEFAULT_EMAIL_VERIFIED;
 }

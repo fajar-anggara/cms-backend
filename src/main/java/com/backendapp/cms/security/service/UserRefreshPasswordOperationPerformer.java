@@ -35,6 +35,7 @@ public class UserRefreshPasswordOperationPerformer {
     private final PasswordEncoder passwordEncoder;
     private final AppConstants appConstants;
     private final UserEntityProvider userEntityProvider;
+    private final PasswordMatchValidator passwordMatchValidator;
 
     @Transactional
     public void sendRefreshPasswordTokenTo(String identifier, String generatedToken) {
@@ -66,8 +67,10 @@ public class UserRefreshPasswordOperationPerformer {
             throw new ExpiredRefreshPasswordTokenException();
         }
         UserEntity user = refreshPasswordTokenEntity.getUser();
-        String matchPassword = PasswordMatchValidator.check(request.getPassword(), request.getConfirmPassword());
-        String password = passwordEncoder.encode(matchPassword);
+        if (!request.getPassword().equals(passwordEncoder.encode(request.getPassword()))) {
+            throw new PasswordMismatchException();
+        }
+        String password = passwordEncoder.encode(request.getPassword());
         user.setPassword(password);
 
         return userCrudRepository.save(user);

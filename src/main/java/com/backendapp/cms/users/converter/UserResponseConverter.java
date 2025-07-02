@@ -10,9 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {UserAuthorityMapper.class})
-public interface UserConverter {
-
-    // UserDTO toDto(UserEntity userEntity);
+public interface UserResponseConverter {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
@@ -27,10 +25,10 @@ public interface UserConverter {
     UserEntity toEntity(UserRegisterRequest userRegisterRequest);
 
     @Mapping(source = "authority", target = "authority", qualifiedByName = "mapUserGrantedAuthorityToUserSimpleResponseAuthorityEnum")
-    UserSimpleResponse toSimpleResponse(UserEntity userEntity);
+    UserSimpleResponse fromUserEntityToSimpleResponse(UserEntity userEntity);
 
     @Mapping(source = "authority", target = "authority", qualifiedByName = "mapUserGrantedAuthorityToUserResponseAuthorityEnum")
-    UserResponse toUserResponse(UserEntity userEntity);
+    UserResponse fromUseEntityToUserResponse(UserEntity userEntity);
 }
 
 

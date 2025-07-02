@@ -7,9 +7,9 @@ import com.backendapp.cms.security.validation.PasswordMatchValidator;
 import com.backendapp.cms.security.validation.annotation.UniqueEmail;
 import com.backendapp.cms.security.validation.annotation.UniqueUser;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
-import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.security.repository.UserGrantedAuthorityRepository;
-import com.backendapp.cms.users.converter.UserConverter;
+import com.backendapp.cms.users.converter.UserResponseConverter;
+import com.backendapp.cms.users.dto.UserRegisterDto;
 import com.backendapp.cms.users.entity.UserEntity;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.transaction.Transactional;
@@ -18,29 +18,27 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class UserRegistrationOperationPerformer {
-    private final PasswordEncoder passwordEncoder;
     private final UserCrudRepository userCrudRepository;
     private final UserGrantedAuthorityRepository userGrantedAuthorityRepository;
-    private final UserConverter userConverter;
+    private final PasswordMatchValidator passwordMatchValidator;
 
     @Transactional
-    public UserEntity registerUser(
-            @Valid
-            @UniqueUser
-            @UniqueEmail
-            UserRegisterRequest request) {
+    public UserEntity registerUser(@Validated UserRegisterDto request) {
 
         log.info("encrypt password, and saved it.");
-        String matchPassword = PasswordMatchValidator.check(request.getPassword(), request.getConfirmPassword());
+        String encryptedPassword = passwordMatchValidator.check(request.getPassword(), request.getConfirmPassword());
         UserGrantedAuthority defaultAuthority = setGrantedAuthority(UserConstants.DEFAULT_ROLE);
-        String encryptedPassword = passwordEncoder.encode(matchPassword);
 
-        UserEntity user = userConverter.toEntity(request);
+        UserEntity user = new UserEntity();
+        request.getUsername().ifPresent(user::setUsername);
+        request.getDisplayName().ifPresent(user::setDisplayName);
+        request.getEmail().ifPresent(user::setEmail);
         user.setPassword(encryptedPassword);
         user.setProfilePicture(UserConstants.DEFAULT_PROFILE_PICTURE);
         user.setBio(UserConstants.DEFAULT_BIO);

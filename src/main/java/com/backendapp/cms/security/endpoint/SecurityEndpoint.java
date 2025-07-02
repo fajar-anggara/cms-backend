@@ -6,7 +6,9 @@ import com.backendapp.cms.security.dto.AuthenticationResponse;
 import com.backendapp.cms.security.jwt.JwtService;
 import com.backendapp.cms.security.service.*;
 import com.backendapp.cms.users.converter.TokenResponseConverter;
-import com.backendapp.cms.users.converter.UserConverter;
+import com.backendapp.cms.users.converter.UserRegisterConverter;
+import com.backendapp.cms.users.converter.UserResponseConverter;
+import com.backendapp.cms.users.dto.UserRegisterDto;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -25,23 +27,25 @@ import java.util.Objects;
 @Slf4j
 public class SecurityEndpoint implements SecurityControllerApi {
     private final UserRegistrationOperationPerformer userRegistrationOperationPerformer;
-    private final UserConverter userConverter;
+    private final UserResponseConverter userResponseConverter;
     private final TokenResponseConverter tokenResponseConverter;
     private final AuthenticationOperationPerformer authenticationOperationPerformer;
     private final UserEntityProvider userEntityProvider;
     private final UserRefreshPasswordOperationPerformer userRefreshPasswordOperationPerformer;
     private final JwtService jwtService;
     private final RefreshTokenOperationPerformer refreshTokenOperationPerformer;
+    private final UserRegisterConverter userRegisterConverter;
 
     @Override
     public ResponseEntity<UserRegister200Response> userRegister(@Valid @RequestBody UserRegisterRequest request) {
-        UserEntity register = userRegistrationOperationPerformer.registerUser(request);
+        UserRegisterDto userRegisterDto = userRegisterConverter.fromUserRegisterRequestToUserRegisterDto(request);
+        UserEntity register = userRegistrationOperationPerformer.registerUser(userRegisterDto);
 
         UserRegister200Response userRegister200Response = new UserRegister200Response();
         userRegister200Response.setSuccess(Boolean.TRUE);
         userRegister200Response.setMessage(register.getUsername() + " berhasil didaftarkan");
-        userRegister200Response.setData(userConverter.toSimpleResponse(register));
-        userRegister200Response.setTokens(tokenResponseConverter.toTokenResponse(jwtService.generateTokenAndRefreshToken(register)));
+        userRegister200Response.setData(userResponseConverter.fromUserEntityToSimpleResponse(register));
+        userRegister200Response.setTokens(tokenResponseConverter.fromAuthenticationResponseToTokenResponse(jwtService.generateTokenAndRefreshToken(register)));
 
         return ResponseEntity.ok(userRegister200Response);
     }
@@ -57,8 +61,8 @@ public class SecurityEndpoint implements SecurityControllerApi {
         UserRegister200Response userLogin200Response = new UserRegister200Response();
         userLogin200Response.setSuccess(Boolean.TRUE);
         userLogin200Response.setMessage(user.getUsername() + " berhasil login");
-        userLogin200Response.setData(userConverter.toSimpleResponse(user));
-        userLogin200Response.setTokens(tokenResponseConverter.toTokenResponse(token));
+        userLogin200Response.setData(userResponseConverter.fromUserEntityToSimpleResponse(user));
+        userLogin200Response.setTokens(tokenResponseConverter.fromAuthenticationResponseToTokenResponse(token));
 
         return ResponseEntity.ok(userLogin200Response);
     }
@@ -78,7 +82,7 @@ public class SecurityEndpoint implements SecurityControllerApi {
         UserRenewThePassword200Response renewPasswordResponse = new UserRenewThePassword200Response();
         renewPasswordResponse.setSuccess(Boolean.TRUE);
         renewPasswordResponse.setMessage("Berhasil mengubah password user " + updatedPasswordUser.getUsername());
-        renewPasswordResponse.setData(userConverter.toSimpleResponse(updatedPasswordUser));
+        renewPasswordResponse.setData(userResponseConverter.fromUserEntityToSimpleResponse(updatedPasswordUser));
 
         return ResponseEntity.ok(renewPasswordResponse);
     }
@@ -87,7 +91,7 @@ public class SecurityEndpoint implements SecurityControllerApi {
     public ResponseEntity<TokenResponse> getRefreshToken(@Valid @RequestBody GetRefreshTokenRequest refreshTokenRequest) {
         UserEntity userThatTheTokenIsValidated = refreshTokenOperationPerformer.validateRefreshAndAccessToken(refreshTokenRequest.getAccessToken(), refreshTokenRequest.getRefreshToken());
         TokenResponse response = new TokenResponse();
-        response.setTokens(tokenResponseConverter.toTokenResponse(jwtService.generateTokenAndRefreshToken(userThatTheTokenIsValidated)));
+        response.setTokens(tokenResponseConverter.fromAuthenticationResponseToTokenResponse(jwtService.generateTokenAndRefreshToken(userThatTheTokenIsValidated)));
         return ResponseEntity.ok(response);
     }
 

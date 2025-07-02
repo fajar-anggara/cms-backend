@@ -11,6 +11,7 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.persistence.ElementCollection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -179,6 +180,23 @@ public class GlobalExceptionHandler {
      * handle_AllUncaughtExceptions
      */
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        log.error("DataIntegrityViolationException: {}", ex.getMessage());
+
+        // Anda perlu memeriksa pesan exception atau SQLState untuk mengidentifikasi constraint mana yang dilanggar.
+        // SQLState '23000' adalah untuk integrity constraint violation.
+        // MySQL error code 1062 adalah untuk duplicate entry.
+        if (ex.getMessage() != null && ex.getMessage().contains("Duplicate entry") && ex.getMessage().contains("'UK6dotkott2kjsp8vw4d0m25fb7'")) {
+            // Ini adalah contoh sederhana. Anda mungkin ingin regex atau cara yang lebih robust.
+            // ID constraint 'UK6dotkott2kjsp8vw4d0m25fb7' merujuk ke UNIQUE INDEX di kolom email.
+            ErrorResponse errorResponse = new ErrorResponse(false, "Email ini sudah terdaftar.", null);
+            return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT); // 409 Conflict
+        }
+        // Jika bukan duplicate entry yang spesifik, kembalikan generic error
+        ErrorResponse errorResponse = new ErrorResponse(false, "Terjadi kesalahan database.", null);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+    }
 
     @ExceptionHandler({
             DisabledException.class,
