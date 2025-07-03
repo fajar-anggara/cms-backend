@@ -26,7 +26,7 @@ public class JwtAuthenticationEntryPointHandler implements AuthenticationEntryPo
 
         final Map<String, Object> body = new HashMap<>();
         body.put("status", HttpServletResponse.SC_FORBIDDEN);
-        body.put("error", "Unauthorized");
+        body.put("error", "Forbidden");
         body.put("message", "Harap lakukan refresh token atau login kembali.");
         body.put("path", request.getServletPath());
 

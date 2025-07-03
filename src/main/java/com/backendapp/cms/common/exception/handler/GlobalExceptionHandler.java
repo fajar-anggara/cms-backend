@@ -96,23 +96,24 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
-        Map<String, String> errors = ex.getConstraintViolations().stream()
+    public ResponseEntity<ErrorResponse> handle_ConstraintViolationException(ConstraintViolationException ex) {
+        HashMap<String, String> errors = ex.getConstraintViolations().stream()
                 .collect(Collectors.toMap(
                         violation -> {
                             String path = violation.getPropertyPath().toString();
                             int lastDotIndex = path.lastIndexOf('.');
-                            if (lastDotIndex > -1 && lastDotIndex < path.length() - 1) {
-                                return path.substring(lastDotIndex + 1);
-                            }
-                            return path;
+                            return (lastDotIndex > -1 && lastDotIndex < path.length() - 1)
+                                    ? path.substring(lastDotIndex + 1)
+                                    : path;
                         },
                         ConstraintViolation::getMessage,
-                        (existingMessage, newMessage) -> existingMessage + "; " + newMessage
+                        (existingMessage, newMessage) -> existingMessage + "; " + newMessage,
+                        HashMap::new
                 ));
 
+        ErrorResponse error = new ErrorResponse(false, "Validation failed", errors);
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 
