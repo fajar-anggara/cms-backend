@@ -4,6 +4,8 @@ import com.backendapp.cms.common.exception.ResourceNotFoundException;
 import com.backendapp.cms.openapi.dto.ChangePasswordRequest;
 import com.backendapp.cms.security.exception.PasswordMismatchException;
 import com.backendapp.cms.users.entity.UserEntity;
+import com.backendapp.cms.users.exception.UsernameNotFoundException;
+import com.backendapp.cms.users.exception.UsernameOrEmailNotFoundException;
 import com.backendapp.cms.users.repository.UserCrudRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -22,15 +24,18 @@ public class UserChangePasswordOperationPerformer {
     public void checkPassword(ChangePasswordRequest request, Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
         String oldPassword = passwordEncoder.encode(request.getOldPassword());
-        if(!oldPassword.equals(user.getPassword()) || !request.getNewPassword().equals(request.getConfirmNewPassword())) {
+        if(!oldPassword.equals(user.getPassword())) {
+            throw new PasswordMismatchException();
+        }
+        if(!request.getNewPassword().equals(request.getConfirmNewPassword())) {
             throw new PasswordMismatchException();
         }
     }
 
-    public UserEntity changePasswordUser(@Valid ChangePasswordRequest request, Authentication authentication) {
+    public UserEntity changePasswordUser(ChangePasswordRequest request, Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
         UserEntity userThatPasswordWillBeChange = userCrudRepository.findByUsernameAndDeletedAtIsNull(user.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan"));
+                .orElseThrow(UsernameOrEmailNotFoundException::new);
         String newPassword = passwordEncoder.encode(request.getNewPassword());
         userThatPasswordWillBeChange.setPassword(newPassword);
         return userCrudRepository.save(userThatPasswordWillBeChange);

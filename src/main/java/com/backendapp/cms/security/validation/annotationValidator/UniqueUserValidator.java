@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,6 @@ import java.util.Optional;
 public class UniqueUserValidator implements ConstraintValidator<UniqueUser, Optional<String>> {
 
     private final UserCrudRepository userCrudRepository;
-    private final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     public UniqueUserValidator(UserCrudRepository userCrudRepository) {
         this.userCrudRepository = userCrudRepository;
@@ -26,15 +26,16 @@ public class UniqueUserValidator implements ConstraintValidator<UniqueUser, Opti
 
     @Override
     public boolean isValid(Optional<String> username, ConstraintValidatorContext context) {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("username validation excecuted");
-        if(username.isEmpty()) {
+        if (username.isEmpty() || auth.getPrincipal().toString().equals("anonymousUser")) {
             return true;
         }
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            if (auth instanceof UserDetails userDetails) {
-                if (username.get().equals(userDetails.getUsername())) {
-                    return true;
-                }
+        if (auth.isAuthenticated()) {
+            log.info("auth is authenticated and not null");
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            if (username.get().equals(userDetails.getUsername())) {
+                return true;
             }
         }
         if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(username.get())) {

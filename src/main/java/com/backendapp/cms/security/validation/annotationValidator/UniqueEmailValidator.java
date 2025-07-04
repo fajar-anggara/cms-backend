@@ -21,7 +21,6 @@ import java.util.Optional;
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, Optional<String>> {
 
     private final UserCrudRepository userCrudRepository;
-    private final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
     public UniqueEmailValidator(UserCrudRepository userCrudRepository) {
         this.userCrudRepository = userCrudRepository;
@@ -29,19 +28,17 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, Op
 
     @Override
     public boolean isValid(Optional<String> email, ConstraintValidatorContext context) {
-        log.info("validating email triggered");
-        if (email.isEmpty()) {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (email.isEmpty() || auth.getPrincipal().toString().equals("anonymousUser")) {
             return true;
         }
-        if (auth != null && auth.isAuthenticated() && !(auth.getPrincipal() instanceof AnonymousAuthenticationToken)) {
-            if(auth instanceof UserDetails userDetails) {
-                UserEntity user = userCrudRepository.findByUsername(userDetails.getUsername())
-                        .orElseThrow(UsernameNotFoundException::new);
-                if (email.get().equals(user.getEmail())) {
-                    return true;
-                }
+        if (auth.isAuthenticated()) {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            UserEntity user = userCrudRepository.findByUsername(userDetails.getUsername())
+                    .orElseThrow(UsernameNotFoundException::new);
+            if (email.get().equals(user.getEmail())) {
+                return true;
             }
-
         }
         if (userCrudRepository.existsByEmailAndDeletedAtIsNull(email.get())) {
             log.warn("Email {} already exists", email.get());
