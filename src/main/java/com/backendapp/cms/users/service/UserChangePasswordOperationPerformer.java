@@ -23,8 +23,7 @@ public class UserChangePasswordOperationPerformer {
 
     public void checkPassword(ChangePasswordRequest request, Authentication authentication) {
         UserEntity user = (UserEntity) authentication.getPrincipal();
-        String oldPassword = passwordEncoder.encode(request.getOldPassword());
-        if(!oldPassword.equals(user.getPassword())) {
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new PasswordMismatchException();
         }
         if(!request.getNewPassword().equals(request.getConfirmNewPassword())) {
