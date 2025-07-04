@@ -9,7 +9,6 @@ import com.backendapp.cms.common.exception.ResourceNotFoundException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import jakarta.persistence.ElementCollection;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -23,10 +22,13 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_EmailNotFoundException(EmailNotFoundException e) {
-        log.warn("EmailNotFoundException");
+        log.warn("EmailNotFoundException, message {}", e.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         errors.put("email", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
@@ -63,7 +65,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_UsernameNotFoundException(UsernameNotFoundException e) {
-        log.warn("UsernameNotFoundException");
+        log.warn("UsernameNotFoundException, message {}", e.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         errors.put("username", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
@@ -72,7 +74,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameOrEmailNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_UsernameOrEmailNotFoundException(UsernameOrEmailNotFoundException e) {
-        log.warn("UsernameOrEmailNotFoundException");
+        log.warn("UsernameOrEmailNotFoundException, message {}", e.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         errors.put("identifier", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
@@ -81,7 +83,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(WrongPasswordRefreshToken.class)
     public ResponseEntity<ErrorResponse> handle_WrongPasswordRefreshToken(WrongPasswordRefreshToken e) {
-        log.warn("WrongPasswordRefreshToken");
+        log.warn("WrongPasswordRefreshToken, message {}", e.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         errors.put("refreshPasswordToken", e.getMessage());
 
@@ -91,13 +93,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExpiredRefreshPasswordTokenException.class)
     public ResponseEntity<ErrorResponse> handle_ExpiredRefreshPasswordTokenException(ExpiredRefreshPasswordTokenException e) {
-        log.warn("ExpiredRefreshPasswordTokenException");
+        log.warn("ExpiredRefreshPasswordTokenException, message {}", e.getMessage());
         ErrorResponse error = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handle_ConstraintViolationException(ConstraintViolationException ex) {
+        log.warn("ConstraintViolationException, message {}", ex.getMessage());
         HashMap<String, String> errors = ex.getConstraintViolations().stream()
                 .collect(Collectors.toMap(
                         violation -> {
@@ -129,7 +132,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handle_BadCredentialsException(BadCredentialsException e) {
-        log.warn("BadCredentialsException");
+        log.warn("BadCredentialsException, message {}", e.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         errors.put("username", "Username atau password salah");
         errors.put("password", "Username atau password salah");
@@ -140,7 +143,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handle_MethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        log.warn("MethodArgumentNotValidException");
+        log.warn("MethodArgumentNotValidException, message {}", ex.getMessage());
         HashMap<String, String> fieldErrors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 fieldErrors.put(error.getField(), error.getDefaultMessage()));
@@ -166,6 +169,7 @@ public class GlobalExceptionHandler {
      * handle_invalidAccessTokenException
      * handle_invalidRefreshTokenException
      * handle_mailAuthenticationException
+     * handle_noResourceFoundException
      * |
      * handle_InternalAuthenticationServiceException
      * handle_AllUncaughtExceptions
@@ -177,7 +181,7 @@ public class GlobalExceptionHandler {
             LockedException.class,
     })
     public ResponseEntity<ErrorResponse> handle_AuthenticationExceptions(Exception ex) {
-        log.warn("DisabledException || LockedException");
+        log.warn("DisabledException || LockedException, message {}", ex.getMessage());
         String message = "Authentication failed. Invalid credentials.";
         if (ex instanceof DisabledException) {
             message = "Your account is disabled.";
@@ -194,7 +198,7 @@ public class GlobalExceptionHandler {
             SignatureException.class
     })
     public ResponseEntity<ErrorResponse> handle_JwtExceptions(Exception ex) {
-        log.warn("MalformedJwtException || SignatureException");
+        log.warn("MalformedJwtException || SignatureException, message {}", ex.getMessage());
         String message = "Authentication failed: Invalid or expired token.";
         if (ex instanceof SignatureException) {
             message = "Authentication failed: Invalid token signature.";
@@ -208,28 +212,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handle_ExpiredJwtException(ExpiredJwtException ex) {
-        log.warn("ExpiredJwtException");
+        log.warn("ExpiredJwtException, message {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, "Token kadaluarsa. lakukan refresh token atau login kembali");
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handle_AccessDeniedException(AccessDeniedException ex) {
-        log.warn("AccessDeniedException");
+        log.warn("AccessDeniedException, message {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, "Access Denied. You do not have permission to access this resource.");
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_ResourceNotFoundException(ResourceNotFoundException e) {
-        log.warn("ResourceNotFoundException");
+        log.warn("ResourceNotFoundException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ErrorResponse> handle_PasswordMismatchException(PasswordMismatchException e) {
-        log.warn("PasswordMismatchException");
+        log.warn("PasswordMismatchException, message {}", e.getMessage());
         HashMap<String, String> errors = new HashMap<>();
         errors.put("password_confirm", "Password Tidak Sesuai.");
 
@@ -239,51 +243,72 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessAndRefreshTokenMismatchException.class)
     public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(AccessAndRefreshTokenMismatchException e) {
-        log.warn("AccessAndRefreshTokenMismatchException");
+        log.warn("AccessAndRefreshTokenMismatchException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(RefreshTokenNotFoundException.class)
     public ResponseEntity<ErrorResponse> handle_refreshTokenNotFoundException(RefreshTokenNotFoundException e) {
-        log.warn("RefreshTokenNotFoundException");
+        log.warn("RefreshTokenNotFoundException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(RefreshTokenExpiredException.class)
     public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(RefreshTokenExpiredException e) {
-        log.warn("refreshTokenExpiredException");
+        log.warn("refreshTokenExpiredException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UserIsDisabledException.class)
     public ResponseEntity<ErrorResponse> handle_AccessAndRefreshTokenMismatchException(UserIsDisabledException e) {
-        log.warn("UserIsDisabledException");
+        log.warn("UserIsDisabledException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(InvalidAccessTokenException.class)
     public ResponseEntity<ErrorResponse> handle_InvalidAccessTokenException(InvalidAccessTokenException e) {
-        log.warn("InvalidAccessTokenException");
+        log.warn("InvalidAccessTokenException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(InvalidRefreshTokenException.class)
     public ResponseEntity<ErrorResponse> handle_InvalidRefreshTokenException(InvalidRefreshTokenException e) {
-        log.warn("InvalidRefreshTokenException");
+        log.warn("InvalidRefreshTokenException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, e.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MailAuthenticationException.class)
     public ResponseEntity<ErrorResponse> handle_MailAuthenticationException(MailAuthenticationException e) {
-        log.warn("MailAuthenticationException");
+        log.warn("MailAuthenticationException, message {}", e.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(false, "Email service error");
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handle_noResourceFoundException(ResourceNotFoundException e) {
+        log.warn("handle_noResourceFoundException, message {}", e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(false, "Resource Not Found");
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handle_HttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        log.warn("HttpRequestMethodNotSupportedException, message {}", e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(false, "Not such method like that.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handle_MethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        log.warn("MethodArgumentTypeMismatchException, message {}", e.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(false, "Wrong path parameters");
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
 
@@ -310,7 +335,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public ResponseEntity<ErrorResponse> handle_InternalAuthenticationServiceException(InternalAuthenticationServiceException ex) {
-        log.warn("InternalAuthenticationServiceException");
+        log.warn("InternalAuthenticationServiceException, message {}", ex.getMessage());
         String message;
         HashMap<String, String> errors = null;
 
@@ -327,7 +352,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handle_AllUncaughtExceptions(Exception ex) {
-        log.warn("AllUncaughtExceptions");
+        log.warn("AllUncaughtExceptions, message {}", ex.getMessage());
         System.err.println("An unexpected error occurred: " + ex.getMessage());
         ex.printStackTrace();
 
