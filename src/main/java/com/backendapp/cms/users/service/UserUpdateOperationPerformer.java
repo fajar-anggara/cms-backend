@@ -31,7 +31,7 @@ public class UserUpdateOperationPerformer {
         updateRequest.getBio().ifPresent(userBeingUpdated::setBio);
         updateRequest.getProfilePicture().ifPresent(userBeingUpdated::setProfilePicture);
         updateRequest.getEnabled().ifPresent(userBeingUpdated::setEnabled);
-        updateRequest.getIsEmailVerified().ifPresent(userBeingUpdated::setEmailVerified);
+        updateRequest.getEmailVerified().ifPresent(userBeingUpdated::setEmailVerified);
 
         return userCrudRepository.save(userBeingUpdated);
     }

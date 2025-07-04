@@ -1,34 +1,39 @@
 package com.backendapp.cms.superuser.service;
 
-import com.backendapp.cms.users.dto.UserUpdateDto;
+import com.backendapp.cms.common.enums.Authority;
+import com.backendapp.cms.openapi.dto.UpdateSingleUserRequest;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.service.UserUpdateOperationPerformer;
-import jakarta.validation.Valid;
+import com.backendapp.cms.users.repository.UserCrudRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-@Validated
 public class SuperuserUpdateOperationPerformer {
 
-    private final UserUpdateOperationPerformer userUpdateOperationPerformer;
+    private final SuperuserRegisterUserOperationPerformer superuserRegisterUserOperationPerformer;
+    private final UserCrudRepository userCrudRepository;
 
-    public UserEntity updateUser(UserEntity userBeingUpdated, @Valid UserUpdateDto updateRequest) {
+    public UserEntity updateUser(UserEntity userBeingUpdated, UpdateSingleUserRequest updateRequest) {
 
-        /*log.info("sanitating update request by superuser");
-        updateRequest.getUsername().ifPresent(userBeingUpdated::setUsername);
-        updateRequest.getDisplayName().ifPresent(userBeingUpdated::setDisplayName);
-        updateRequest.getEmail().ifPresent(userBeingUpdated::setEmail);
-        updateRequest.getBio().ifPresent(userBeingUpdated::setBio);
-        updateRequest.getProfilePicture().ifPresent(userBeingUpdated::setProfilePicture);
-        updateRequest.getEnabled().ifPresent(userBeingUpdated::setEnabled);
-        updateRequest.getIsEmailVerified().ifPresent(userBeingUpdated::setEmailVerified);*/
+        if(updateRequest.getEnabled() != null) {
+            userBeingUpdated.setEnabled(updateRequest.getEnabled());
+        }
+        if (updateRequest.getEmailVerified() != null) {
+            userBeingUpdated.setEmailVerified(updateRequest.getEmailVerified());
+        }
+        if(updateRequest.getAuthority() != null) {
+            userBeingUpdated.setAuthority(superuserRegisterUserOperationPerformer.setGrantedAuthority(Authority.valueOf(updateRequest.getAuthority().toString())));
+        }
+        if(updateRequest.getDeletedAt() == null) {
+            userBeingUpdated.setDeletedAt(null);
+        } else if (!updateRequest.getDeletedAt().equals(userBeingUpdated.getDeletedAt())) {
+            userBeingUpdated.setDeletedAt(updateRequest.getDeletedAt().toLocalDateTime());
+        }
 
-        return userUpdateOperationPerformer.updateUser(userBeingUpdated, updateRequest);
+        return userCrudRepository.save(userBeingUpdated);
 
     }
 }

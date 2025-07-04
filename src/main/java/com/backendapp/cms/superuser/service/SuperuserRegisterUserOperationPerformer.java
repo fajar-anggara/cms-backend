@@ -36,7 +36,7 @@ public class SuperuserRegisterUserOperationPerformer {
         userRequest.getEmail().ifPresent(user::setEmail);
         user.setPassword(encryptedPassword);
         user.setEnabled(userRequest.getEnabled());
-        user.setEmailVerified(userRequest.getIsEmailVerified());
+        user.setEmailVerified(userRequest.getEmailVerified());
         user.setAuthority(setGrantedAuthority(userRequest.getAuthority()));
 
         return userCrudRepository.save(user);

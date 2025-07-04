@@ -166,7 +166,7 @@ paths:
                       description: "Apakah user/blogger langsung diaktifkan atau tidak."
                       default: true
                       example: true
-                    is_email_verified:
+                    email_verified:
                       type: boolean
                       description: "Apakah pengguna sudah menghubungkan emailnya?."
                       default: true
@@ -298,8 +298,30 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: './users-openapi.yaml#/components/schemas/UserUpdateRequest'
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                  description: "Apakah user/blogger ini telah aktif dan bisa melakukan kediatan blogging?."
+                  default: false
+                  example: true
+                authority:
+                  type: string
+                  description: "Role yang akan diberikan."
+                  enum:
+                    - "ADMIN"
+                    - "BLOGGER"
+                  default: "BLOGGER"
+                email_verified:
+                  type: boolean
+                  description: "Apakah user/blogger sudah menghubungkan email nya?."
+                  default: false
+                  example: true
+                deleted_at:
+                  type: string
+                  format: date-time
+                  description: "Kapan user/blogger ini dihapus"
+                  example: "2024-06-10T10:15:00Z"
 
       responses:
         "200":

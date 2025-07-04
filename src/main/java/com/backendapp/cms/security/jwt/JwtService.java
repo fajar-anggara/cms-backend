@@ -3,6 +3,7 @@ package com.backendapp.cms.security.jwt;
 import com.backendapp.cms.common.constant.AppConstants;
 import com.backendapp.cms.security.dto.AuthenticationResponse;
 import com.backendapp.cms.security.entity.RefreshTokenEntity;
+import com.backendapp.cms.security.exception.RefreshTokenNotFoundException;
 import com.backendapp.cms.security.repository.RefreshTokenRepository;
 import com.backendapp.cms.users.entity.UserEntity;
 import io.jsonwebtoken.Claims;
@@ -57,7 +58,6 @@ public class JwtService {
     }
 
     public <T> T extractClaimFromRefresh(String token, Function<Claims, T> claimsResolver) {
-        log.info("used By extractUsernameFromRefresh, extractExpirationFromRefresh, and validateRefreshAndAccessToken will call extractRefreshTokenClaims");
         final Claims claims = extractRefreshTokenClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -82,7 +82,6 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof UserEntity user) {
             claims.put("authority", getAuthorities(user.getAuthorities()));
-            // claims.put("userId", user.getUsername());
         }
 
         return Jwts
@@ -91,38 +90,26 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plusMillis(appConstants.JWT_ACCESS_TOKEN_EXPIRED)))
-                .signWith((SecretKey) appConstants.JWT_ACCESS_TOKEN_SECRET_KEY)
+                .signWith(appConstants.JWT_ACCESS_TOKEN_SECRET_KEY)
                 .compact();
     }
 
-    @Transactional
     public String generateRefreshToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        /*
-         * if (userDetails instanceof UserEntity user) {
-         * claims.put("userId", user.getId());
-         * }
-         */
-
-        refreshTokenRepository.findByUser((UserEntity) userDetails)
-                .ifPresent(refreshToken -> {
-                    log.info("Deleting refresh token karena sudah terdaftar");
-                    refreshTokenRepository.delete(refreshToken);
-                    refreshTokenRepository.flush();
-                });
-
+        refreshTokenRepository.findByUser((UserEntity) userDetails).ifPresent(refreshTokenRepository::delete);
+        refreshTokenRepository.flush();
         Date issuedAt = Date.from(Instant.now());
         Date expiration = Date.from(Instant.now().plusMillis(appConstants.JWT_REFRESH_TOKEN_EXPIRED));
         String id = UUID.randomUUID().toString();
 
-        log.info("Savind refresh token with id {} and expiration {}", id, expiration);
+        log.info("Saving refresh token with id {} and expiration {}", id, expiration);
         RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
         refreshTokenEntity.setId(id);
         refreshTokenEntity.setUser((UserEntity) userDetails);
         refreshTokenEntity.setExpiredTime(expiration);
         RefreshTokenEntity refreshToken = refreshTokenRepository.save(refreshTokenEntity);
 
-        log.info("Building refresh token");
+        log.info("Building new refresh token");
         return Jwts.builder()
                 .claims(claims)
                 .subject(refreshToken.getUser().getUsername())

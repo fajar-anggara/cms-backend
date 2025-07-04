@@ -24,6 +24,6 @@ public class UserUpdateDto {
 
     private Optional<Boolean> enabled = Optional.empty();
 
-    private Optional<Boolean> isEmailVerified = Optional.empty();
+    private Optional<Boolean> emailVerified = Optional.empty();
 
 }

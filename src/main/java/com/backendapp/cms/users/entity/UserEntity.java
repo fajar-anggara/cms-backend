@@ -58,8 +58,9 @@ public class UserEntity implements UserDetails {
     @Column(name = "enabled")
     private boolean enabled;
 
-    @Column(name = "is_email_verified", nullable = true)
-    private boolean isEmailVerified;
+    @Column(name = "email_verified", nullable = true)
+    private boolean emailVerified;
+
     @Column(name = "reset_password_token", nullable = true)
     private String resetPasswordToken;
 
@@ -112,6 +113,7 @@ public class UserEntity implements UserDetails {
     public boolean isEnabled() {
         return enabled; //
     }
+
 
 
     @Override

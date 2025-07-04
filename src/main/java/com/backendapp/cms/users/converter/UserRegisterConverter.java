@@ -15,7 +15,7 @@ public interface UserRegisterConverter {
 
     @Mapping(target = "authority", ignore = true)
     @Mapping(target = "enabled", ignore = true)
-    @Mapping(target = "isEmailVerified", ignore = true)
+    @Mapping(target = "emailVerified", ignore = true)
     UserRegisterDto fromUserRegisterRequestToUserRegisterDto(UserRegisterRequest userRegisterRequest);
 
     @Mapping(target = "authority", source = "authority", qualifiedByName = "mapCreateUserRequestAuthorityEnumToCommonEnumAuthorityEnum")

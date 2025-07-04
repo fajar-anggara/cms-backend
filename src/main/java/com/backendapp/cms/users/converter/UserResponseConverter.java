@@ -18,7 +18,7 @@ public interface UserResponseConverter {
     @Mapping(target = "bio", ignore = true)
     @Mapping(target = "authority", ignore = true)
     @Mapping(target = "enabled", ignore = true)
-    @Mapping(target = "isEmailVerified", ignore = true)
+    @Mapping(target = "emailVerified", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)

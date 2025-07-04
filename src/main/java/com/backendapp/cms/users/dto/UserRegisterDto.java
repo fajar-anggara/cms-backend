@@ -13,6 +13,7 @@ import java.util.Optional;
 @Data
 @AllArgsConstructor
 public class UserRegisterDto {
+
     @UniqueUser
     private Optional<String> username = Optional.empty();
 
@@ -29,5 +30,5 @@ public class UserRegisterDto {
 
     private Boolean enabled = UserConstants.DEFAULT_ENABLE;
 
-    private Boolean isEmailVerified = UserConstants.DEFAULT_EMAIL_VERIFIED;
+    private Boolean emailVerified = UserConstants.DEFAULT_EMAIL_VERIFIED;
 }

@@ -1,5 +1,6 @@
 package com.backendapp.cms.security.service;
 
+import com.backendapp.cms.security.dto.AuthenticationResponse;
 import com.backendapp.cms.security.entity.RefreshTokenEntity;
 import com.backendapp.cms.security.exception.*;
 import com.backendapp.cms.security.jwt.JwtService;
@@ -10,7 +11,6 @@ import io.jsonwebtoken.ExpiredJwtException; // For catching expired token during
 import io.jsonwebtoken.security.SignatureException; // For catching invalid signature
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional; // Penting untuk operasi database
@@ -41,6 +41,10 @@ public class RefreshTokenOperationPerformer {
             throw new InvalidRefreshTokenException();
         }
 
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findById(refreshTokenJti)
+                .orElseThrow(RefreshTokenNotFoundException::new);
+        log.info("Refresh token id in database: {}", refreshTokenEntity.getId());
+
         // Get username from both and check it
         String usernameFromAccess;
         try {
@@ -57,8 +61,7 @@ public class RefreshTokenOperationPerformer {
             log.warn("Username mismatch between access token ({}) and refresh token ({})", usernameFromAccess, usernameFromRefresh);
             throw new AccessAndRefreshTokenMismatchException();
         }
-        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findById(refreshTokenJti)
-                .orElseThrow(RefreshTokenNotFoundException::new);
+
 
         // if (jwtService.isRefreshTokenExpired(refreshToken)) {
         //     log.warn("Refresh token is expired according to internal check: {}", refreshTokenJti);
@@ -71,15 +74,21 @@ public class RefreshTokenOperationPerformer {
             throw new UserIsDisabledException();
         }
 
-        // Setelah semuanya di cek, hapus refresh token
-        refreshTokenRepository.delete(refreshTokenEntity);
         return user;
     }
 
-    public void deleteRefreshToken(UserEntity user) {
+    @Transactional
+    public void deleteRefreshTokenByUser(UserEntity user) {
         log.info("deleting refresh token that associated woth user");
         RefreshTokenEntity refreshToken = refreshTokenRepository.findByUser(user)
                 .orElseThrow(RefreshTokenNotFoundException::new);
         refreshTokenRepository.delete(refreshToken);
+        refreshTokenRepository.flush();
+    }
+
+    public void checkRefreshToken(RefreshTokenEntity refreshToken) {
+        log.info("checking refresh token {} ", refreshToken);
+        log.info("Refresh token id is {}", refreshToken.getId());
+        log.info("Refresh token username is {}", refreshToken.getUser().getUsername());
     }
 }

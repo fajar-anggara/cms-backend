@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailAuthenticationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -164,6 +165,7 @@ public class GlobalExceptionHandler {
      * handle_userIsDisableException
      * handle_invalidAccessTokenException
      * handle_invalidRefreshTokenException
+     * handle_mailAuthenticationException
      * |
      * handle_InternalAuthenticationServiceException
      * handle_AllUncaughtExceptions
@@ -277,6 +279,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(MailAuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handle_MailAuthenticationException(MailAuthenticationException e) {
+        log.warn("MailAuthenticationException");
+        ErrorResponse errorResponse = new ErrorResponse(false, "Email service error");
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
 
 
@@ -326,10 +335,5 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handle_dataIntegrityViolationException(DataIntegrityViolationException ex) {
-        log.error("DataIntegrityViolationException: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse(false, "Terjadi kesalahan database.", null);
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
-    }
+
 }

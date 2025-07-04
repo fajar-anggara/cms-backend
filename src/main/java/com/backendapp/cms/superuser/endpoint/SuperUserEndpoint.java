@@ -27,6 +27,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -55,7 +56,7 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
                 page,
                 limit
         );
-        log.info("getting user data {}", users.getContent().toString());
+        log.info("from superuser - getting user data {}", users.getContent().toString());
 
         List<UserResponse> userData = users.getContent()
                 .stream()
@@ -95,6 +96,7 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CreateUser200Response> getSingleUser(Long id) {
         UserEntity user = userCrudRepository.findById(id)
                 .orElseThrow(UsernameOrEmailNotFoundException::new);
@@ -110,20 +112,22 @@ public class SuperUserEndpoint implements SuperuserControllerApi {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Success200Response> deleteSingleUser(Long id) {
         UserEntity user = userCrudRepository.findById(id)
                 .orElseThrow(UsernameOrEmailNotFoundException::new);
-        userCrudRepository.delete(user);
+        user.setDeletedAt(LocalDateTime.now());
+        userCrudRepository.save(user);
 
         return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus user"));
     }
 
     @Override
-    public ResponseEntity<CreateUser200Response> updateSingleUser(Long id, UserUpdateRequest userUpdateRequest) {
+    public ResponseEntity<CreateUser200Response> updateSingleUser(Long id, UpdateSingleUserRequest updateSingleUserRequest) {
         UserEntity user = userCrudRepository.findById(id)
                 .orElseThrow(UsernameOrEmailNotFoundException::new);
-        UserUpdateDto userUpdateDto = userUpdateConverter.fromUserUpdateRequestToUserUpdateDto(userUpdateRequest);
-        UserEntity userUpdated = superuserUpdateOperationPerformer.updateUser(user, userUpdateDto);
+
+        UserEntity userUpdated = superuserUpdateOperationPerformer.updateUser(user, updateSingleUserRequest);
         UserResponse userResponse = userResponseConverter.fromUseEntityToUserResponse(userUpdated);
 
         CreateUser200Response response = new CreateUser200Response();

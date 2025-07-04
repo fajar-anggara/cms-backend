@@ -4,6 +4,7 @@ import com.backendapp.cms.openapi.dto.UserLoginRequest;
 import com.backendapp.cms.security.dto.AuthenticationResponse;
 import com.backendapp.cms.security.jwt.JwtService;
 import com.backendapp.cms.users.entity.UserEntity;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,12 +15,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @AllArgsConstructor
+@Transactional
 public class AuthenticationOperationPerformer {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     public AuthenticationResponse authenticate(UserLoginRequest request) {
-        log.info("Authenticating login request and convert principal toUserEntity");
+        log.info("AuthenticatingOperationPerformer called");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getIdentifier(),
@@ -27,10 +29,10 @@ public class AuthenticationOperationPerformer {
                 )
         );
 
-        var user = (UserEntity) authentication.getPrincipal();
-
-        var accessToken = jwtService.generateAccessToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        AuthenticationResponse tokens = jwtService.generateTokenAndRefreshToken((UserEntity) authentication.getPrincipal());
+        log.info("not duplicated yet");
+        AuthenticationResponse response = AuthenticationResponse.builder().accessToken(tokens.getAccessToken()).refreshToken(tokens.getRefreshToken()).build();
+        log.info("not duplicated yet - in authentication response");
+        return response;
     }
 }
