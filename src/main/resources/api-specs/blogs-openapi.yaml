@@ -158,21 +158,18 @@ components:
           type: object
           properties:
             articles:
-              type: array
-              items:
                 allOf:
                   - $ref: './blogging-openapi.yaml#/components/schemas/ListOfArticleResponses'
             pagination:
               allOf:
                 - $ref: '#/components/schemas/PaginationMetadata'
         categories:
-          description: "Menampilkan semua kategori yang tersedia"
-          type: array
-          items:
             allOf:
               - $ref: './blogging-openapi.yaml#/components/schemas/ListOfCategoryResponses'
       required:
         - user
+        - posts
+        - categories
 
     BlogSingleResponse:
       description: "Format untuk single response untuk membaca sebuah artikel."
@@ -192,9 +189,6 @@ components:
               allOf:
                 - $ref: '#/components/schemas/PaginationMetadata'
         categories:
-          description: "Menampilkan semua kategori yang tersedia"
-          type: array
-          items:
             allOf:
               - $ref: './blogging-openapi.yaml#/components/schemas/ListOfCategoryResponses'
       required:

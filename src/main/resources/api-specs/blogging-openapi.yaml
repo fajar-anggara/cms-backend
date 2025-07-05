@@ -78,11 +78,11 @@ paths:
           schema:
             type: string
             enum:
-              - "PUBLISHEDAT"
+              - "PUBLISHED"
               - "VIEWS"
               - "TITLE"
-            default: "PUBLUSHEDAT"
-          example: "published_at"
+            default: "PUBLISHED"
+          example: "PUBLISHED"
         - name: sortOrder
           in: query
           description: "Arah pengurutan"
@@ -91,6 +91,7 @@ paths:
             enum:
               - "ASC"
               - "DESC"
+            default: "ASC"
           example: "ASC"
           required: false
         - name: categorySlug
@@ -938,6 +939,12 @@ components:
           maxLength: 255
           description: "Rangkuman singkat dari postingan blog"
           example: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        categories:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/CategoriesSimpleDTO'
+          nullable: true
         featured_image_url:
           type: string
           format: uri
@@ -1115,8 +1122,11 @@ components:
           type: array
           description: "Id dari kategori baru. Front end tolong kolektikan semua id kategori nya."
           items:
-            $ref: '#/components/schemas/Id'
+            $ref: '#/components/schemas/IdRequest'
           nullable: true
+      required:
+        - title
+        - content
 
     CategoryRequest:
       type: object
@@ -1143,9 +1153,12 @@ components:
           type: array
           description: "Id dari artikel baru. Front end tolong kolektikan semua id post nya."
           items:
-            $ref: '#/components/schemas/Id'
+            $ref: '#/components/schemas/IdRequest'
           nullable: true
-    Id:
+      required:
+        - name
+
+    IdRequest:
       type: integer
       format: int64
       description: "Id post atau category"
@@ -1154,13 +1167,13 @@ components:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Id'
+          - $ref: '#/components/schemas/IdRequest'
 
     CategoriesOfArticle:
       type: array
       items:
         allOf:
-          - $ref: '#/components/schemas/Id'
+          - $ref: '#/components/schemas/IdRequest'
 
     ListOfArticleResponses:
       type: array
