@@ -49,42 +49,6 @@ public class PostSanitizer {
             .allowAttributes("id").matching(Pattern.compile("^[\\w\\-]+$")).globally()
             .toFactory();
 
-    private final PolicyFactory urlPolicy = new HtmlPolicyBuilder()
-            .allowUrlProtocols("http", "https")
-            .toFactory();
-
-    public static String sanitizeUrl(String url) {
-        if (url == null || url.trim().isEmpty()) return null;
-
-        if (!url.matches("^https?://[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]+$")) {
-            return null; // Invalid URL format
-        }
-
-        String lowerUrl = url.toLowerCase();
-        if (lowerUrl.contains("javascript:") ||
-                lowerUrl.contains("data:") ||
-                lowerUrl.contains("vbscript:") ||
-                lowerUrl.contains("onload=") ||
-                lowerUrl.contains("onerror=") ||
-                lowerUrl.contains("<script")) {
-            return null;
-        }
-        return url;
-    }
-
-    public static String sanitizeImageUrl(String imageUrl) {
-        if (imageUrl == null || imageUrl.trim().isEmpty()) return null;
-
-        String cleanUrl = sanitizeUrl(imageUrl);
-        if (cleanUrl == null) return null;
-
-        if (!cleanUrl.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif|webp|svg)(\\?.*)?$")) {
-            return null;
-        }
-
-        return cleanUrl;
-    }
-
     public PostRequestDto sanitize(PostRequestDto unSanitizedPostRequest) {
         PostRequestDto convertedPostRequest = convertToHtml(unSanitizedPostRequest);
 
@@ -97,9 +61,8 @@ public class PostSanitizer {
                 .map(contentPolicy::sanitize)
                 .orElse(unSanitizedPostRequest.getContent());
 
-        String sanitizedExcerpt = convertedPostRequest.getExcerpt()
-                .map(excerptPolicy::sanitize)
-                .orElse("");
+        Optional<String> sanitizedExcerpt = convertedPostRequest.getExcerpt()
+                .map(excerptPolicy::sanitize);
 
         Optional<String> sanitizedImageUrl = convertedPostRequest.getFeaturedImageUrl()
                 .map(plainText::sanitize);
@@ -108,7 +71,7 @@ public class PostSanitizer {
                 .title(sanitizedTitle)
                 .slug(unSanitizedPostRequest.getSlug())
                 .content(sanitizedContent)
-                .excerpt(Optional.of(sanitizedExcerpt))
+                .excerpt(sanitizedExcerpt)
                 .featuredImageUrl(sanitizedImageUrl)
                 .status(unSanitizedPostRequest.getStatus())
                 .categories(unSanitizedPostRequest.getCategories())
@@ -120,23 +83,23 @@ public class PostSanitizer {
         String convertedTitle = Optional.ofNullable(unConvertedPostRequest.getTitle())
                 .map(parser::parse)
                 .map(renderer::render)
-                .orElse("Dokumen tanpa judul.");
+                .orElse(null);
 
         String convertedContent = Optional.ofNullable(unConvertedPostRequest.getContent())
                 .map(parser::parse)
                 .map(renderer::render)
-                .orElse("Dokumen tanpa isi");
+                .orElse(null);
 
         String convertedExcerpt = unConvertedPostRequest.getExcerpt()
                 .map(parser::parse)
                 .map(renderer::render)
-                .orElse("");
+                .orElse(null);
 
         return PostRequestDto.builder()
                 .title(convertedTitle)
                 .slug(unConvertedPostRequest.getSlug())
                 .content(convertedContent)
-                .excerpt(Optional.of(convertedExcerpt))
+                .excerpt(Optional.ofNullable(convertedExcerpt))
                 .featuredImageUrl(unConvertedPostRequest.getFeaturedImageUrl())
                 .status(unConvertedPostRequest.getStatus())
                 .categories(unConvertedPostRequest.getCategories())

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PostSanitizerTest {
 
-    private PostSanitizer postSanitizer; // class yang akan di buat nanti
+    private PostSanitizer postSanitizer;
 
     @BeforeEach
     void setUp() {
@@ -32,7 +32,6 @@ class PostSanitizerTest {
         assertEquals(sanitizedPost.getSlug(), sanitizedPostRequestDto.getSlug(), "Slug Post yang disimpan harus sama");
         assertEquals(sanitizedPost.getStatus(), sanitizedPostRequestDto.getStatus(), "Status Post yang disimpan harus sama");
         assertEquals(sanitizedPost.getCategories(), sanitizedPostRequestDto.getCategories(), "Kategori Post yang disimpan harus sama");
-
     }
 
     @Test
