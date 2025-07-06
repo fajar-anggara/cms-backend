@@ -19,7 +19,7 @@ import java.util.Set;
 @ToString
 @Builder
 public class PostEntity {
-    @id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
@@ -49,7 +49,7 @@ public class PostEntity {
     @JoinTable(
             name = "posts_categories",
             joinColumns = @JoinColumn(name = "posts_id"),
-            inverseJoinColumns = @JoinColumn(name = caregories_id)
+            inverseJoinColumns = @JoinColumn(name = "categories_id")
     )
     private Set<CategoryEntity> categories;
 

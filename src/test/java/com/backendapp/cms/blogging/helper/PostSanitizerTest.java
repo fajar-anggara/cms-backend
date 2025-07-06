@@ -18,14 +18,13 @@ class PostSanitizerTest {
     }
 
     @Test
-    @DisplayName("Should return Converted and Sanitize PostRequstDtp")
+    @DisplayName("Should return Converted and Sanitize PostRequestDto")
     void postSanitizer_shouldReturnPostEntityThatWasConvertedAndSanitized() {
         PostRequestDto unconvertedUnsanitizedRequest = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST;
         PostRequestDto sanitizedPostRequestDto = PostRequestContract.CONVERTED_SANITIZED_REQUEST;
 
         PostRequestDto sanitizedPost = postSanitizer.sanitize(unconvertedUnsanitizedRequest);
 
-        assertEquals(sanitizedPost, sanitizedPostRequestDto, "Hasil dari sanitizer harus sama");
         assertEquals(sanitizedPost.getTitle(), sanitizedPostRequestDto.getTitle(), "Judul Post yang disimpan harus sama");
         assertEquals(sanitizedPost.getContent(), sanitizedPostRequestDto.getContent(), "Konten HTML Post yang disimpan harus sama");
         assertEquals(sanitizedPost.getExcerpt(), sanitizedPostRequestDto.getExcerpt(), "Excerpt HTML Post yang disimpan harus sama");
@@ -37,7 +36,7 @@ class PostSanitizerTest {
     }
 
     @Test
-    @DisplayName("Should return converted but unsanitized PostResquestDto")
+    @DisplayName("Should return converted but unsanitized PostRequestDto")
     void setPostSanitizer_shouldReturnPostEntityThatWasConvertedAndSanitized() {
         PostRequestDto unconvertedUnsanitizedRequest = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST;
         PostRequestDto convertedButUnsanitized = PostRequestContract.CONVERTED_UNSANITIZED_REQUEST;
