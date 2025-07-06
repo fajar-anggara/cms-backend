@@ -1,5 +1,5 @@
 package com.backendapp.cms.blogging.dto;
-/*
+
 
 import com.backendapp.cms.common.enums.Status;
 import lombok.AllArgsConstructor;
@@ -12,11 +12,11 @@ import java.util.Optional;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@UniqueSlug
+//@UniqueSlug
 public class CategoryRequestDto {
     Optional<String> name = Optional.empty();
     Optional<String> slug = Optional.empty();
     Optional<String> description = Optional.empty();
     Optional<List<Long>> posts = Optional.empty();
 }
-*/
+
