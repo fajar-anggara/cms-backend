@@ -1,8 +1,7 @@
-package com.backendapp.cms.blogging.user.helper;
+package com.backendapp.cms.users.helper;
 
 import com.backendapp.cms.blogging.contract.AuthenticatedUserContract;
 import com.backendapp.cms.users.entity.UserEntity;
-import com.backendapp.cms.users.helper.PrincipalProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
