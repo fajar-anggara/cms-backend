@@ -30,21 +30,21 @@ public class PostEntity {
     @Column(name = "slug", unique = true)
     private String slug;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT" , nullable = false)
     private String content;
 
-    @Column(name = "exerpt")
+    @Column(name = "excerpt")
     private String excerpt;
 
-    @Column(name = "featured_image_url")
+    @Column(name = "featured_image_url", columnDefinition = "TEXT")
     private String featuredImageUrl;
 
     @Column(name = "status")
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
-    private UserEntity author;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
@@ -58,7 +58,7 @@ public class PostEntity {
     private LocalDateTime publishedAt;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @LastModifiedDate

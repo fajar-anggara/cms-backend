@@ -13,13 +13,16 @@ import com.backendapp.cms.openapi.dto.PostRequest;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PostArticleOperationPerformer {
 
     private final PostCrudRepository postCrudRepository;
@@ -51,11 +54,12 @@ public class PostArticleOperationPerformer {
                         .orElseGet(() -> {
                             return Status.PUBLISHED;
                         }))
-                .author(user)
+                .user(user)
                 .categories(postGetCategories.byId(sanitizedRequest.getCategories(), user))
                 .publishedAt(postGenerator.getPublishedAt())
+                .createdAt(LocalDateTime.now())
                 .build();
-
+        log.info(article.getContent());
         return postCrudRepository.save(article);
     }
 }

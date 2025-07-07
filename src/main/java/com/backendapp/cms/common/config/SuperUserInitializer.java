@@ -38,7 +38,8 @@ public class SuperUserInitializer implements CommandLineRunner {
                     .password(password)
                     .build();
 
-            userCrudRepository.save(user);
+            UserEntity superuser = userCrudRepository.save(user);
+            log.info("Success creating superuser with name {}", superuser.getUsername());
         } else {
             System.out.println("Superuser already exists");
         }
