@@ -799,7 +799,6 @@ components:
           maxLength: 2048
           description: "URL untuk gambar cover"
           example: "https://www.google.com/imgres?q=images%20link&imgurl=https%3A%2F%2Fstatic.wikia.nocookie.net%2Fversus-compendium%2Fimages%2F0%2F00%2FLink_BotW.png%2Frevision%2Flatest%3Fcb%3D20181128185543&imgrefurl=https%3A%2F%2Fversus-compendium.fandom.com%2Fwiki%2FLink_(Breath_of_the_Wild)&docid=6rbDPZVj4wZe7M&tbnid=R9iU04UWo8X02M&vet=12ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA..i&w=600&h=600&hcb=2&ved=2ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA"
-          nullable: true
         status:
           type: string
           enum:
@@ -818,7 +817,6 @@ components:
           items:
             allOf:
               - $ref: '#/components/schemas/CategoriesSimpleDTO'
-          nullable: true
         created_at:
           type: string
           format: date-time
@@ -834,13 +832,11 @@ components:
           format: date-time
           description: "Kapan postingan ini di edit"
           example: "2024-06-10T10:15:00Z"
-          nullable: true
         deleted_at:
           type: string
           format: date-time
           description: "Kapan Postingan ini dihapus"
           example: "2024-06-10T10:15:00Z"
-          nullable: true
       required:
         - title
         - slug
@@ -873,7 +869,6 @@ components:
           items:
             allOf:
               - $ref: '#/components/schemas/PostSimpleDTO'
-          nullable: true
         slug:
           type: string
           minLength: 1
@@ -897,15 +892,11 @@ components:
           format: date-time
           description: "Kapan kategori ini terakhir diperbarui"
           example: "2024-06-11T14:30:00Z"
-          nullable: true
-          readOnly: true
         deleted_at:
           type: string
           format: date-time
           description: "Kapan kategori ini dihapus secara lunak"
           example: "2024-06-12T09:00:00Z"
-          nullable: true
-          readOnly: true
       required:
         - name
         - author_id
@@ -944,14 +935,12 @@ components:
           items:
             allOf:
               - $ref: '#/components/schemas/CategoriesSimpleDTO'
-          nullable: true
         featured_image_url:
           type: string
           format: uri
           maxLength: 2048
           description: "URL untuk gambar cover"
           example: "https://www.google.com/imgres?q=images%20link&imgurl=https%3A%2F%2Fstatic.wikia.nocookie.net%2Fversus-compendium%2Fimages%2F0%2F00%2FLink_BotW.png%2Frevision%2Flatest%3Fcb%3D20181128185543&imgrefurl=https%3A%2F%2Fversus-compendium.fandom.com%2Fwiki%2FLink_(Breath_of_the_Wild)&docid=6rbDPZVj4wZe7M&tbnid=R9iU04UWo8X02M&vet=12ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA..i&w=600&h=600&hcb=2&ved=2ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA"
-          nullable: true
         status:
           type: string
           enum:
@@ -1032,7 +1021,6 @@ components:
                 - id: 2
                   name: "Kecantikan dan kesehatan"
                   slug: "kecantikan-dan-kesehatan"
-              nullable: true
 
     postSimpleResponse:
       type: object
@@ -1108,7 +1096,6 @@ components:
           maxLength: 2048
           description: "URL untuk gambar cover"
           example: "https://www.google.com/imgres?q=images%20link&imgurl=https%3A%2F%2Fstatic.wikia.nocookie.net%2Fversus-compendium%2Fimages%2F0%2F00%2FLink_BotW.png%2Frevision%2Flatest%3Fcb%3D20181128185543&imgrefurl=https%3A%2F%2Fversus-compendium.fandom.com%2Fwiki%2FLink_(Breath_of_the_Wild)&docid=6rbDPZVj4wZe7M&tbnid=R9iU04UWo8X02M&vet=12ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA..i&w=600&h=600&hcb=2&ved=2ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA"
-          nullable: true
         status:
           type: string
           enum:
@@ -1122,7 +1109,6 @@ components:
           description: "Id dari kategori baru. Front end tolong kolektikan semua id kategori nya."
           items:
             $ref: '#/components/schemas/IdRequest'
-          nullable: true
       required:
         - title
         - content
@@ -1153,7 +1139,6 @@ components:
           description: "Id dari artikel baru. Front end tolong kolektikan semua id post nya."
           items:
             $ref: '#/components/schemas/IdRequest'
-          nullable: true
       required:
         - name
 

@@ -6,6 +6,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public class CategoriesResponseConverter {
-
-     fromCategoriesMuchEntityToCategorySimpleResponse(Category category) {}
+//
+//     fromCategoriesMuchEntityToCategorySimpleResponse(Category category) {}
 }

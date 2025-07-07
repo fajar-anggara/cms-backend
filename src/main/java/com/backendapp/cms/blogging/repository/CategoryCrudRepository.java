@@ -13,5 +13,5 @@ import java.util.Set;
 public interface CategoryCrudRepository extends JpaRepository<CategoryEntity, Long> {
     List<CategoryEntity> findAllByUser(UserEntity user);
 
-    Set<CategoryEntity> findAllByIdInAndAuthor(Collection<Long> ids, UserEntity author);
+    Set<CategoryEntity> findAllByIdInAndUser(Collection<Long> ids, UserEntity user);
 }

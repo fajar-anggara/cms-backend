@@ -27,8 +27,8 @@ public class CategoryEntity {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
-    private UserEntity author;
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     private Set<PostEntity> posts;
