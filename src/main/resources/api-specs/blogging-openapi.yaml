@@ -1105,7 +1105,6 @@ components:
           example: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
         featured_image_url:
           type: string
-          format: uri
           maxLength: 2048
           description: "URL untuk gambar cover"
           example: "https://www.google.com/imgres?q=images%20link&imgurl=https%3A%2F%2Fstatic.wikia.nocookie.net%2Fversus-compendium%2Fimages%2F0%2F00%2FLink_BotW.png%2Frevision%2Flatest%3Fcb%3D20181128185543&imgrefurl=https%3A%2F%2Fversus-compendium.fandom.com%2Fwiki%2FLink_(Breath_of_the_Wild)&docid=6rbDPZVj4wZe7M&tbnid=R9iU04UWo8X02M&vet=12ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA..i&w=600&h=600&hcb=2&ved=2ahUKEwiD9MWtr-uNAxVe4jgGHWUnPH8QM3oECGgQAA"
