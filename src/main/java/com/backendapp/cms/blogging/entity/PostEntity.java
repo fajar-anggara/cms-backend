@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -33,7 +34,7 @@ public class PostEntity {
     private String content;
 
     @Column(name = "exerpt")
-    private String exerpt;
+    private String excerpt;
 
     @Column(name = "featured_image_url")
     private String featuredImageUrl;
@@ -51,7 +52,7 @@ public class PostEntity {
             joinColumns = @JoinColumn(name = "posts_id"),
             inverseJoinColumns = @JoinColumn(name = "categories_id")
     )
-    private Set<CategoryEntity> categories;
+    private Set<CategoryEntity> categories = new HashSet<>();
 
     @Column(name = "published_at", nullable = false)
     private LocalDateTime publishedAt;

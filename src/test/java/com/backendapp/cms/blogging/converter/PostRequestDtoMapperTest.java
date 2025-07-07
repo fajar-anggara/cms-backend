@@ -4,12 +4,11 @@ package com.backendapp.cms.blogging.converter;
 import com.backendapp.cms.blogging.contract.PostRequestContract;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.openapi.dto.PostRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class PostRequestDtoMapperTest {

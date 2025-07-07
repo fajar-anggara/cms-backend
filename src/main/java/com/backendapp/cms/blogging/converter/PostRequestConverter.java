@@ -1,11 +1,9 @@
 package com.backendapp.cms.blogging.converter;
 
-import com.backendapp.cms.blogging.converter.mapper.PostStatusMapper;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.common.enums.Status;
 import com.backendapp.cms.openapi.dto.PostRequest;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.util.List;
