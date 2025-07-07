@@ -13,7 +13,7 @@ import java.util.UUID;
 public class PostGenerator {
 
     private final PostCrudRepository postCrudRepository;
-    private static final int DEFAULT_EXCERPT_LENGTH = 150;
+    private static final int DEFAULT_EXCERPT_LENGTH = 200;
 
     /**
      * Generate unique slug from title
@@ -21,10 +21,6 @@ public class PostGenerator {
      * @return unique slug
      */
     public String generateSlug(String title) {
-        if (!StringUtils.hasText(title)) {
-            throw new IllegalArgumentException("Title cannot be null or empty");
-        }
-
         String baseSlug = baseSlug(title);
         if (!postCrudRepository.existsBySlug(baseSlug)) {
             return baseSlug;
@@ -32,25 +28,22 @@ public class PostGenerator {
 
         String uniqueSlug;
         do {
-            uniqueSlug = baseSlug + "-" + UUID.randomUUID().toString().substring(0, 8);
+            uniqueSlug = baseSlug + "-" + UUID.randomUUID();
         } while (postCrudRepository.existsBySlug(uniqueSlug));
 
         return uniqueSlug;
     }
 
+    /**
+     * Generare excerpt from content
+     * @param content the post content
+     * @return excerpt
+     */
     public String generateExcerpt(String content) {
         return generateExcerpt(content, DEFAULT_EXCERPT_LENGTH);
     }
 
     public String generateExcerpt(String content, int maxLength) {
-        if (!StringUtils.hasText(content)) {
-            return "";
-        }
-
-        if (maxLength <= 0) {
-            throw new IllegalArgumentException("Max length must be positive");
-        }
-
         String cleanContent = content
                 .replaceAll("<[^>]*>", "")  // Remove HTML tags
                 .replaceAll("\\s+", " ")    // Replace multiple spaces with single space
@@ -68,14 +61,14 @@ public class PostGenerator {
         return cleanContent.substring(0, maxLength) + "...";
     }
 
+    /**
+     * Generating date now for default published at
+     * @return local date time now
+     */
     public LocalDateTime getPublishedAt() {
         return LocalDateTime.now();
     }
     private static String baseSlug(String title) {
-        if (!StringUtils.hasText(title)) {
-            return "";
-        }
-
         return title.toLowerCase()
                 .replaceAll("[^a-z0-9\\s-]", "") // Remove non-alphanumeric chars except spaces and hyphens
                 .replaceAll("\\s+", "-")         // Replace spaces with hyphens

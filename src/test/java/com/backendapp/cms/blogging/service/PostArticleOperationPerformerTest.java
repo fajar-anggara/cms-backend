@@ -15,7 +15,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 public class PostArticleOperationPerformerTest {
 
     PostSanitizer postSanitizer = new PostSanitizer();
-    PostGenerator postGenerator = new PostGenerator();
 
     @MockitoBean
     UserEntity userEntity;
