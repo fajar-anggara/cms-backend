@@ -32,9 +32,9 @@ public class PostRequestContract {
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setSlug("judul-test");
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setContent(rawRequestContent);
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setExcerpt(rawRequestExcerpt);
-        UNCONVERTED_UNSANITIZED_RAWREQUEST.setFeaturedImageUrl(JsonNullable.of(rawRequestImageUrl));
+        UNCONVERTED_UNSANITIZED_RAWREQUEST.setFeaturedImageUrl(rawRequestImageUrl);
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setStatus(PostRequest.StatusEnum.DRAFT);
-        UNCONVERTED_UNSANITIZED_RAWREQUEST.setCategories(JsonNullable.of(List.of(1L, 2L)));
+        UNCONVERTED_UNSANITIZED_RAWREQUEST.setCategories(List.of(1L, 2L));
 
 
         // --- Data Dummy untuk UNCONVERTED_UNSANITIZED_REQUEST ---
