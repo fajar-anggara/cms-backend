@@ -19,11 +19,43 @@ Ini merupakan apikasi REST API untuk fitur basic CMS yang saya buat sembari bela
 - **Authentication**: JWT access token dan refresh token rotation
 - **Authorization**: Akses aplikasi tesedia utuk dua role (SuperUser, Blogger) dan public akan diberi anonymous
 - **API Documentation**: Api documentation menggunakan Swagger/Open Api.
+- **Post Create, Sanitizing and Convert to HTML**: Sudah bisa create post dan find or create category jika kategori post tidak ada di database
 
 ### Sedang dikerjakan
 
-- **Content Management**: CRUD post dan Categories dengan sanitasi, menerima markdown sebagai request.
+- **Content Management**: Menyelesaikan CRUD post dan Categories dengan sanitasi, menerima markdown sebagai request.
 - **UnitTest Coverage**: Sedang meningkatkan coverage unit test dan akan menggunakan Test Driven Development mulai dari sekarang.
+- 
+## Current Status
+
+Yang sudah terimplementasi dan di test mengguakan postman:
+- CRUD user
+- CRUD user by superuser
+- JWT token handling
+- API documentation
+- Create post and find ot create category if not exists in database.
+
+## Testing
+
+Run tests with:
+```bash
+mvn test
+```
+
+Test coverage sekarang:
+UnitTest:
+- PrincipalProvider
+- CategoryGeneratorTest
+- CategorySanitizerTest
+- PostGeneratorTest
+- PostSanitizerTest
+
+Postman:
+All endpoint of:
+- /api/v1/auth/register, login, logout, refresh-password, refresh-token
+- /api/v1/superuser/login, CRUD user
+- /api/v1/admin/posts (posting artikel)
+
 
 ## Tech Stack
 
@@ -146,26 +178,6 @@ Once running, you can access:
     - Global exception handling
     - Separation Of Concern
 
-## Current Status
-
-This is a work-in-progress learning project. Currently implemented:
-- CRUD user
-- CRUD user by superuser
-- JWT token handling
-- Basic API documentation
-- Unit tests for user module
-- Post management (in development)
-- Public reading API (planned)
-
-## Testing
-
-Run tests with:
-```bash
-mvn test
-```
-
-Test coverage sekarang:
-- Helper layer dari Post Article
 
 ## What's Next
 
