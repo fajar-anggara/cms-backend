@@ -2,9 +2,11 @@ package com.backendapp.cms.blogging.contract;
 
 import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.common.enums.Status;
+import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.openapi.dto.PostRequest;
 import org.openapitools.jackson.nullable.JsonNullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +17,7 @@ public class PostRequestContract {
     public static final PostRequestDto UNCONVERTED_UNSANITIZED_REQUEST;
     public static final PostRequestDto CONVERTED_UNSANITIZED_REQUEST;
     public static final PostRequestDto CONVERTED_SANITIZED_REQUEST;
+    public static final CategoriesSimpleDTO sdfgx = new CategoriesSimpleDTO();
 
     static {
         String rawRequestTitle = "Judul <script>alert('XSS di title!');</script> *Test*";
@@ -26,6 +29,14 @@ public class PostRequestContract {
                         "Ini Markdown:\n* Item 1\n* Item 2";
         String rawRequestExcerpt = "Excerpt pendek <img src=\"non-existent\" onload=\"alert('XSS');\"> *test*.";
         String rawRequestImageUrl = "http://evil.com/image.jpg?param=<script>alert('url-xss')</script>";
+        CategoriesSimpleDTO cat1 = new CategoriesSimpleDTO();
+        cat1.setName("cat1");
+        CategoriesSimpleDTO cat2 = new CategoriesSimpleDTO();
+        cat2.setName("cat2");
+        CategoriesSimpleDTO cat3 = new CategoriesSimpleDTO();
+        cat3.setName("cat3");
+        List<CategoriesSimpleDTO> categories = List.of(cat1, cat2, cat3);
+
 
         UNCONVERTED_UNSANITIZED_RAWREQUEST = new PostRequest();
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setTitle(rawRequestTitle);
@@ -34,7 +45,7 @@ public class PostRequestContract {
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setExcerpt(rawRequestExcerpt);
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setFeaturedImageUrl(rawRequestImageUrl);
         UNCONVERTED_UNSANITIZED_RAWREQUEST.setStatus(PostRequest.StatusEnum.DRAFT);
-        UNCONVERTED_UNSANITIZED_RAWREQUEST.setCategories(List.of(1L, 2L));
+        UNCONVERTED_UNSANITIZED_RAWREQUEST.setCategories(categories);
 
 
         // --- Data Dummy untuk UNCONVERTED_UNSANITIZED_REQUEST ---
@@ -55,7 +66,7 @@ public class PostRequestContract {
                 .excerpt(Optional.of(rawMarkdownExcerpt))
                 .featuredImageUrl(Optional.of(rawImageUrl))
                 .status(Optional.of(Status.DRAFT))
-                .categories(Optional.of(List.of(1L, 2L)))
+                .categories(Optional.of(categories))
                 .build();
 
         // --- Data Dummy untuk CONVERTED_UNSANITIZED_REQUEST ---
@@ -78,7 +89,7 @@ public class PostRequestContract {
                 .excerpt(Optional.of(convertedHtmlExcerpt))
                 .featuredImageUrl(Optional.of(convertedImageUrl))
                 .status(Optional.of(Status.DRAFT))
-                .categories(Optional.of(List.of(1L, 2L)))
+                .categories(Optional.of(categories))
                 .build();
 
 
@@ -94,7 +105,7 @@ public class PostRequestContract {
                 )) // <--- KOREKSI DI SINI: src="null" alt="" diubah menjadi <img />
                 .featuredImageUrl(Optional.of("http://evil.com/image.jpg?param&#61;")) // Tetap seperti ini (asumsi masalah URL sudah beres, lihat bawah)
                 .status(Optional.of(Status.DRAFT))
-                .categories(Optional.of(List.of(1L, 2L)))
+                .categories(Optional.of(categories))
                 .build();
     }
 }

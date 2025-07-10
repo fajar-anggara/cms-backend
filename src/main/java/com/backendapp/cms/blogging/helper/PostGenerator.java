@@ -2,17 +2,21 @@ package com.backendapp.cms.blogging.helper;
 
 import com.backendapp.cms.blogging.repository.PostCrudRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class PostGenerator {
 
     private final PostCrudRepository postCrudRepository;
+    private final CategorySanitizer categorySanitizer;
     private static final int DEFAULT_EXCERPT_LENGTH = 200;
 
     /**
@@ -20,18 +24,14 @@ public class PostGenerator {
      * @param title the post title
      * @return unique slug
      */
-    public String generateSlug(String title) {
-        String baseSlug = baseSlug(title);
-        if (!postCrudRepository.existsBySlug(baseSlug)) {
-            return baseSlug;
+    public String generateSlug(Optional<String> slug, String title) {
+        if (slug.isPresent() && !postCrudRepository.existsBySlug(categorySanitizer.sanitizeSlug(slug.get()))) {
+            return categorySanitizer.sanitizeSlug(slug.get());
         }
-
-        String uniqueSlug;
-        do {
-            uniqueSlug = baseSlug + "-" + UUID.randomUUID();
-        } while (postCrudRepository.existsBySlug(uniqueSlug));
-
-        return uniqueSlug;
+        if (title != null && !postCrudRepository.existsBySlug(categorySanitizer.sanitizeSlug(title))) {
+            return categorySanitizer.sanitizeSlug(title);
+        }
+        return UUID.randomUUID().toString();
     }
 
     /**
@@ -67,12 +67,5 @@ public class PostGenerator {
      */
     public LocalDateTime getPublishedAt() {
         return LocalDateTime.now();
-    }
-    private static String baseSlug(String title) {
-        return title.toLowerCase()
-                .replaceAll("[^a-z0-9\\s-]", "") // Remove non-alphanumeric chars except spaces and hyphens
-                .replaceAll("\\s+", "-")         // Replace spaces with hyphens
-                .replaceAll("-+", "-")           // Replace multiple hyphens with single hyphen
-                .replaceAll("^-|-$", "");        // Remove leading/trailing hyphens
     }
 }

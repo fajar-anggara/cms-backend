@@ -985,9 +985,7 @@ components:
           description: "URL friendly nama kategori"
           example: "teknologi-informasi"
       required:
-        - id
         - name
-        - slug
 
     PostResponse:
       type: object
@@ -1099,7 +1097,7 @@ components:
           type: array
           description: "Id dari kategori baru. Front end tolong kolektikan semua id kategori nya."
           items:
-            $ref: '#/components/schemas/IdRequest'
+            $ref: '#/components/schemas/CategoriesSimpleDTO'
       required:
         - title
         - content

@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -24,10 +26,10 @@ public class PostGeneratorTest {
     @Test
     @DisplayName("Post generator. generateSlug should functional")
     public void generateSlug_shouldFunctional() {
-        when(postCrudRepository.existsBySlug(PostGeneratorContract.GENERATED_SLUG))
+        when(postCrudRepository.existsBySlug(PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE))
                 .thenReturn(false);
 
-        String generatedSlug = postGenerator.generateSlug(PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE);
+        String generatedSlug = postGenerator.generateSlug(Optional.of(PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE), PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE);
 
         assertEquals(PostGeneratorContract.GENERATED_SLUG, generatedSlug, "Generated slug nya harus sama");
     }

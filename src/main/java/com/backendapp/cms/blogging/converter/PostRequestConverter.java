@@ -1,28 +1,21 @@
 package com.backendapp.cms.blogging.converter;
 
+import com.backendapp.cms.blogging.converter.mapper.PostRequestMapper;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
-import com.backendapp.cms.common.enums.Status;
 import com.backendapp.cms.openapi.dto.PostRequest;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-import java.util.List;
-import java.util.Optional;
-
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = PostRequestMapper.class)
 public interface PostRequestConverter {
 
+    @Mapping(source = "slug", target = "slug", qualifiedByName = "mapFromStringToOptionalString")
+    @Mapping(source = "excerpt", target = "excerpt", qualifiedByName = "mapFromStringToOptionalString")
+    @Mapping(source = "featuredImageUrl", target = "featuredImageUrl", qualifiedByName = "mapFromStringToOptionalString")
+    @Mapping(source = "status", target = "status", qualifiedByName = "mapFromStatusEnumToStatusEnum")
+    @Mapping(source = "categories", target = "categories", qualifiedByName = "mapFromListOfCategoriesSimpleDtoToOptionalListOfCategoriesSimpleDto")
     PostRequestDto fromPostRequestToPostRequestDto(PostRequest postRequest);
 
-    default Optional<String> map1(String value) {
-        return Optional.ofNullable(value);
-    }
-
-    default Optional<List<Long>> map2(List<Long> value) {
-        return Optional.ofNullable(value);
-    }
-
-    default Optional<Status> mapPostRequestStatusEnumToPostRequestDtoStatusEnum(PostRequest.StatusEnum status) {
-        return Optional.of(Status.valueOf(status.name()));
-    }
 
 }

@@ -2,7 +2,6 @@ package com.backendapp.cms.blogging.helper;
 
 import com.backendapp.cms.blogging.contract.PostRequestContract;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,7 +32,7 @@ class PostSanitizerTest {
 
     @Test
     @DisplayName("Should return converted but unsanitized PostRequestDto")
-    void setPostSanitizer_shouldReturnPostEntityThatWasConvertedAndSanitized() {
+    void setPostSanitizer_shouldReturnPostEntityThatWasConvertedAndUnSanitized() {
         PostRequestDto unconvertedUnsanitizedRequest = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST;
         PostRequestDto convertedButUnsanitized = PostRequestContract.CONVERTED_UNSANITIZED_REQUEST;
 

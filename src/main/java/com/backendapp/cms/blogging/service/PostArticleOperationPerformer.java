@@ -2,13 +2,15 @@ package com.backendapp.cms.blogging.service;
 
 import com.backendapp.cms.blogging.converter.PostRequestConverter;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
+import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
+import com.backendapp.cms.blogging.helper.CategorySanitizer;
 import com.backendapp.cms.blogging.helper.PostGenerator;
-import com.backendapp.cms.blogging.helper.PostGetCategories;
+import com.backendapp.cms.blogging.helper.CategoryGenerator;
 import com.backendapp.cms.blogging.helper.PostSanitizer;
-import com.backendapp.cms.blogging.repository.CategoryCrudRepository;
 import com.backendapp.cms.blogging.repository.PostCrudRepository;
 import com.backendapp.cms.common.enums.Status;
+import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.openapi.dto.PostRequest;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.transaction.Transactional;
@@ -17,8 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -26,22 +29,32 @@ import java.util.List;
 public class PostArticleOperationPerformer {
 
     private final PostCrudRepository postCrudRepository;
-    private final PostGetCategories postGetCategories;
+    private final CategoryGenerator categoryGenerator;
     private final PostRequestConverter postRequestConverter;
     private final PostGenerator postGenerator;
     private final PostSanitizer postSanitizer;
+    private final CategorySanitizer categorySanitizer;
 
     @Transactional
     public PostEntity post(UserEntity user, PostRequest request) {
         PostRequestDto mappedRequest = postRequestConverter.fromPostRequestToPostRequestDto(request);
         PostRequestDto sanitizedRequest = postSanitizer.sanitize(mappedRequest);
 
+        // prepare categories
+        Set<CategoryEntity> categories = new HashSet<>();
+        if (request.getCategories() != null || !request.getCategories().isEmpty()) {
+            List<String> sanitizedCategories = request.getCategories()
+                    .stream()
+                    .map(CategoriesSimpleDTO::getName)
+                    .map(categorySanitizer::sanitizeName)
+                    .toList();
+
+            categories = categoryGenerator.findOrCreateByName(sanitizedCategories, user);
+        }
+
         PostEntity article = PostEntity.builder()
                 .title(sanitizedRequest.getTitle())
-                .slug(sanitizedRequest.getSlug()
-                        .orElseGet(() -> {
-                            return postGenerator.generateSlug(sanitizedRequest.getTitle());
-                        }))
+                .slug(postGenerator.generateSlug(sanitizedRequest.getSlug(), sanitizedRequest.getTitle()))
                 .content(sanitizedRequest.getContent())
                 .excerpt(sanitizedRequest.getExcerpt()
                         .orElseGet(() -> {
@@ -55,11 +68,11 @@ public class PostArticleOperationPerformer {
                             return Status.PUBLISHED;
                         }))
                 .user(user)
-                .categories(postGetCategories.byId(sanitizedRequest.getCategories(), user))
+                .categories(categories)
                 .publishedAt(postGenerator.getPublishedAt())
                 .createdAt(LocalDateTime.now())
                 .build();
-        log.info(article.getContent());
+
         return postCrudRepository.save(article);
     }
 }

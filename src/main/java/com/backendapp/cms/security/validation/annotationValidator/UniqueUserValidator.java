@@ -29,6 +29,14 @@ public class UniqueUserValidator implements ConstraintValidator<UniqueUser, Opti
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("username validation excecuted");
         if (username.isEmpty() || auth.getPrincipal().toString().equals("anonymousUser")) {
+            if (userCrudRepository.existsByUsernameAndDeletedAtIsNull(username.get())) {
+                log.warn("User {} already exists", username.get());
+                return false;
+            }
+            if (userCrudRepository.existsByUsername(username.get())) {
+                log.warn("User {} used to exists", username.get());
+                return false;
+            }
             return true;
         }
         if (auth.isAuthenticated()) {

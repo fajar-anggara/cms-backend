@@ -22,7 +22,7 @@ import java.util.Set;
 public class PostEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(name = "title")
     private String title;

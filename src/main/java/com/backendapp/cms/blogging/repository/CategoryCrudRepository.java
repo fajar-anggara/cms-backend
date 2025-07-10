@@ -1,17 +1,16 @@
 package com.backendapp.cms.blogging.repository;
 
 import com.backendapp.cms.blogging.entity.CategoryEntity;
+import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.users.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public interface CategoryCrudRepository extends JpaRepository<CategoryEntity, Long> {
-    List<CategoryEntity> findAllByUser(UserEntity user);
+    Set<CategoryEntity> findAllByNameInAndUser(Collection<String> name, UserEntity user);
 
-    Set<CategoryEntity> findAllByIdInAndUser(Collection<Long> ids, UserEntity user);
 }

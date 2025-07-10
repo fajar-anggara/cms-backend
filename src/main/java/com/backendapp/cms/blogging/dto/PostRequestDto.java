@@ -2,6 +2,7 @@ package com.backendapp.cms.blogging.dto;
 
 
 import com.backendapp.cms.common.enums.Status;
+import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import lombok.*;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class PostRequestDto {
     Optional<String> excerpt = Optional.empty();
     Optional<String> featuredImageUrl = Optional.empty();
     Optional<Status> status = Optional.empty();
-    Optional<List<Long>> categories = Optional.empty();
+    Optional<List<CategoriesSimpleDTO>> categories = Optional.empty();
 
 }
 

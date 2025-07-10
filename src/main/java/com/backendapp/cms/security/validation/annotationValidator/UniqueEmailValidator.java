@@ -28,11 +28,21 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, Op
 
     @Override
     public boolean isValid(Optional<String> email, ConstraintValidatorContext context) {
+        log.info("email validation executed");
         final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (email.isEmpty() || auth.getPrincipal().toString().equals("anonymousUser")) {
+            if (userCrudRepository.existsByEmailAndDeletedAtIsNull(email.get())) {
+                log.warn("Email {} already exists", email.get());
+                return false;
+            }
+            if (userCrudRepository.existsByEmail(email.get())) {
+                log.warn("Email {} used to exists", email);
+                return false;
+            }
             return true;
         }
         if (auth.isAuthenticated()) {
+            log.info("email validation exceeded registeres");
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
             UserEntity user = userCrudRepository.findByUsername(userDetails.getUsername())
                     .orElseThrow(UsernameNotFoundException::new);

@@ -6,22 +6,22 @@ import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.openapi.dto.PostRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-public class PostRequestDtoMapperTest {
+public class PostRequestConverterTest {
 
-    private final PostRequestConverter postRequestConverter = new PostRequestConverterImpl();
+    @Autowired
+    PostRequestConverter postRequestConverter;
 
     @Test
     @DisplayName("Should map from postRequest to PostRequestDto")
     void PostRequestConverter_shouldMapFromPostRequestToPostRequestDto() {
         PostRequest rawPostRequest = PostRequestContract.UNCONVERTED_UNSANITIZED_RAWREQUEST;
-        PostRequestDto postRequestDto = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST;
-
-        PostRequestDto mappedPostRequestDto = postRequestConverter.fromPostRequestToPostRequestDto(rawPostRequest);
+        PostRequestDto postRequestDto = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST; PostRequestDto mappedPostRequestDto = postRequestConverter.fromPostRequestToPostRequestDto(rawPostRequest);
 
         assertEquals(mappedPostRequestDto, postRequestDto, "Harus ter mapped dengan baik");
     }

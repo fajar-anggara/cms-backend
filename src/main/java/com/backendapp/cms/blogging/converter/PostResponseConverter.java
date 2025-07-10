@@ -1,32 +1,20 @@
 package com.backendapp.cms.blogging.converter;
 
 
-import com.backendapp.cms.blogging.entity.CategoryEntity;
+import com.backendapp.cms.blogging.converter.mapper.PostResponseMapper;
 import com.backendapp.cms.blogging.entity.PostEntity;
-import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.openapi.dto.PostSimpleResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Set;
-
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = PostResponseMapper.class)
 public interface PostResponseConverter {
 
+    @Mapping(source = "categories", target = "categories", qualifiedByName = "mapFromSetCategoriesEntityToListCategoriesSimpleDto")
+    @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapFromLocalDateTimeToOffsetDateTime")
+    @Mapping(source = "publishedAt", target = "publishedAt", qualifiedByName = "mapFromLocalDateTimeToOffsetDateTime")
+    @Mapping(source = "user", target = "user", ignore = true)
     PostSimpleResponse fromPostEntityToPostSimpleResponse(PostEntity postEntity);
 
-    default List<CategoriesSimpleDTO> fromSetCategoriesEntityToListCategoriesSimpleDto(Set<CategoryEntity> categoryEntities) {
-        CategoriesResponseConverter categoriesResponseConverter = new CategoriesResponseConverterImpl();
-        return categoryEntities.stream()
-                .map(categoriesResponseConverter::fromCategoriesEntityToCategorySimpleDto)
-                .toList();
-    }
-
-    default OffsetDateTime fromLocalDateTimeToOffsetDateTime(LocalDateTime localDateTime) {
-        return localDateTime.atOffset(ZoneOffset.UTC);
-    }
 }
