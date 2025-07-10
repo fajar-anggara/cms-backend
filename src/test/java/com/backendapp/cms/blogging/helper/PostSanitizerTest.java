@@ -1,6 +1,6 @@
 package com.backendapp.cms.blogging.helper;
 
-import com.backendapp.cms.blogging.contract.PostRequestContract;
+import com.backendapp.cms.blogging.contract.PostSanitizerContract;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,8 +16,8 @@ class PostSanitizerTest {
     @Test
     @DisplayName("Should return Converted and Sanitize PostRequestDto")
     void postSanitizer_shouldReturnPostEntityThatWasConvertedAndSanitized() {
-        PostRequestDto unconvertedUnsanitizedRequest = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST;
-        PostRequestDto sanitizedPostRequestDto = PostRequestContract.CONVERTED_SANITIZED_REQUEST;
+        PostRequestDto unconvertedUnsanitizedRequest = PostSanitizerContract.UNCONVERTED_UNSANITIZED_REQUEST;
+        PostRequestDto sanitizedPostRequestDto = PostSanitizerContract.CONVERTED_SANITIZED_REQUEST;
 
         PostRequestDto sanitizedPost = postSanitizer.sanitize(unconvertedUnsanitizedRequest);
 
@@ -33,8 +33,8 @@ class PostSanitizerTest {
     @Test
     @DisplayName("Should return converted but unsanitized PostRequestDto")
     void setPostSanitizer_shouldReturnPostEntityThatWasConvertedAndUnSanitized() {
-        PostRequestDto unconvertedUnsanitizedRequest = PostRequestContract.UNCONVERTED_UNSANITIZED_REQUEST;
-        PostRequestDto convertedButUnsanitized = PostRequestContract.CONVERTED_UNSANITIZED_REQUEST;
+        PostRequestDto unconvertedUnsanitizedRequest = PostSanitizerContract.UNCONVERTED_UNSANITIZED_REQUEST;
+        PostRequestDto convertedButUnsanitized = PostSanitizerContract.CONVERTED_UNSANITIZED_REQUEST;
 
         PostRequestDto sanitizedPost = postSanitizer.convertToHtml(unconvertedUnsanitizedRequest);
 

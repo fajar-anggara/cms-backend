@@ -4,14 +4,11 @@ import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.common.enums.Status;
 import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.openapi.dto.PostRequest;
-import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-public class PostRequestContract {
+public class PostSanitizerContract {
 
     public static final PostRequest UNCONVERTED_UNSANITIZED_RAWREQUEST;
     public static final PostRequestDto UNCONVERTED_UNSANITIZED_REQUEST;

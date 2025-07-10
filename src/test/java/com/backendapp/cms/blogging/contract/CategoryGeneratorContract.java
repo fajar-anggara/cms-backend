@@ -1,14 +1,11 @@
 package com.backendapp.cms.blogging.contract;
 
+import com.backendapp.cms.blogging.dto.CategoryRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CategoryGeneratorContract {
     public static List<String> LIST_OF_CATEGORIES_NAME;
@@ -17,6 +14,9 @@ public class CategoryGeneratorContract {
     public static Set<CategoryEntity> SET_OF_UNAVAILABLE_UNSAVED_CATEGORIES;
     public static List<CategoryEntity> LIST_OF_UNAVAILABLE_SAVED_CATEGORIES;
     public static Set<CategoryEntity> SET_OF_CATEGORY_AVAILABLE_AND_UNAVAILABLE_SAVED;
+
+    public static CategoryRequestDto CATEGORY_REQUEST_ASK_FOR_SAVED;
+    public static CategoryEntity SAVED_CATEGORY;
 
     static {
         CategoriesSimpleDTO cat1 = new CategoriesSimpleDTO();
@@ -77,5 +77,13 @@ public class CategoryGeneratorContract {
         SET_OF_CATEGORY_AVAILABLE_AND_UNAVAILABLE_SAVED.add(catEntity1);
         SET_OF_CATEGORY_AVAILABLE_AND_UNAVAILABLE_SAVED.add(catEntity2);
         SET_OF_CATEGORY_AVAILABLE_AND_UNAVAILABLE_SAVED.add(catEntity3);
+
+        CATEGORY_REQUEST_ASK_FOR_SAVED = new CategoryRequestDto();
+        CATEGORY_REQUEST_ASK_FOR_SAVED.setName(Optional.of(catEntity1.getName()));
+        CATEGORY_REQUEST_ASK_FOR_SAVED.setSlug(Optional.of(catEntity1.getSlug()));
+        CATEGORY_REQUEST_ASK_FOR_SAVED.setDescription(Optional.of(catEntity1.getDescription()));
+        CATEGORY_REQUEST_ASK_FOR_SAVED.setPosts(Optional.empty());
+
+        SAVED_CATEGORY = catEntity1;
     }
 }

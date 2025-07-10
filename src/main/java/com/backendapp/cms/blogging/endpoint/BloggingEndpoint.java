@@ -4,10 +4,7 @@ import com.backendapp.cms.blogging.converter.PostResponseConverter;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.blogging.service.PostArticleOperationPerformer;
 import com.backendapp.cms.openapi.blogging.api.BloggingControllerApi;
-import com.backendapp.cms.openapi.dto.PostArticle200Response;
-import com.backendapp.cms.openapi.dto.PostRequest;
-import com.backendapp.cms.openapi.dto.PostSimpleResponse;
-import com.backendapp.cms.openapi.dto.UserSimpleResponse;
+import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.users.converter.UserResponseConverter;
 import com.backendapp.cms.users.entity.UserEntity;
 import lombok.AllArgsConstructor;
@@ -38,8 +35,16 @@ public class BloggingEndpoint implements BloggingControllerApi {
         response.setSuccess(true);
         response.setMessage("Berhasil memposting sebuah artikel");
         response.setData(postSimpleResponse);
-        log.info("article {}" , article);
-        log.info(String.valueOf(postSimpleResponse));
         return ResponseEntity.ok(response);
     }
+
+    @Override
+    public ResponseEntity<CategoriesSimpleDTO> createCategory(CategoryRequest categoryRequest) {
+        return BloggingControllerApi.super.createCategory(categoryRequest);
+    }
+
+    // mapper to categoryRequestDto
+    // operation
+    // mapper to response
+    // build response
 }
