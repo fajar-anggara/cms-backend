@@ -77,58 +77,187 @@ All endpoint of:
 ## Project Structure
 
 ```
-src/
-└── main/
-    ├── java/
-    │   └── com/
-    │       └── backendapp/
-    │           └── cms/
-    │               ├── blogging/
-    │               │   ├── dto/
-    │               │   ├── endpoint/
-    │               │   ├── entity/
-    │               │   ├── helper/
-    │               │   └── repository/
-    │               ├── blogs/
-    │               ├── common/
-    │               │   ├── config/
-    │               │   ├── constant/
-    │               │   ├── dto/
-    │               │   ├── enums/
-    │               │   └── exception/
-    │               │       └── handler/
-    │               ├── email/
-    │               │   └── service/
-    │               ├── security/
-    │               │   ├── config/
-    │               │   ├── dto/
-    │               │   ├── endpoint/
-    │               │   ├── entity/
-    │               │   ├── exception/
-    │               │   ├── jwt/
-    │               │   ├── repository/
-    │               │   ├── service/
-    │               │   └── validation/
-    │               │       ├── annotation/
-    │               │       └── annotationValidator/
-    │               ├── superuser/
-    │               │   ├── converter/
-    │               │   ├── endpoint/
-    │               │   └── service/
-    │               └── users/
-    │                   ├── converter/
-    │                   │   └── mapper/
-    │                   ├── dto/
-    │                   ├── endpoint/
-    │                   ├── entity/
-    │                   ├── exception/
-    │                   ├── helper/
-    │                   ├── repository/
-    │                   └── service/
-    └── resources/
-        ├── api-specs/
-        ├── static/
-        └── templates/
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── backendapp
+│   │   │           └── cms
+│   │   │               ├── CmsApplication.java
+│   │   │               ├── blogging
+│   │   │               │   ├── converter
+│   │   │               │   │   ├── CategoriesResponseConverter.java
+│   │   │               │   │   ├── PostRequestConverter.java
+│   │   │               │   │   ├── PostResponseConverter.java
+│   │   │               │   │   └── mapper
+│   │   │               │   │       ├── PostRequestMapper.java
+│   │   │               │   │       └── PostResponseMapper.java
+│   │   │               │   ├── dto
+│   │   │               │   │   ├── CategoryRequestDto.java
+│   │   │               │   │   └── PostRequestDto.java
+│   │   │               │   ├── endpoint
+│   │   │               │   │   └── BloggingEndpoint.java
+│   │   │               │   ├── entity
+│   │   │               │   │   ├── CategoryEntity.java
+│   │   │               │   │   └── PostEntity.java
+│   │   │               │   ├── helper
+│   │   │               │   │   ├── CategoryGenerator.java
+│   │   │               │   │   ├── CategorySanitizer.java
+│   │   │               │   │   ├── PostGenerator.java
+│   │   │               │   │   └── PostSanitizer.java
+│   │   │               │   ├── repository
+│   │   │               │   │   ├── CategoryCrudRepository.java
+│   │   │               │   │   └── PostCrudRepository.java
+│   │   │               │   └── service
+│   │   │               │       └── PostArticleOperationPerformer.java
+│   │   │               ├── blogs
+│   │   │               ├── common
+│   │   │               │   ├── config
+│   │   │               │   │   ├── SuperUserInitializer.java
+│   │   │               │   │   └── ValidationConfig.java
+│   │   │               │   ├── constant
+│   │   │               │   │   ├── ApiConstants.java
+│   │   │               │   │   ├── AppConstants.java
+│   │   │               │   │   └── UserConstants.java
+│   │   │               │   ├── dto
+│   │   │               │   │   └── ErrorResponse.java
+│   │   │               │   ├── enums
+│   │   │               │   │   ├── Authority.java
+│   │   │               │   │   ├── Deleted.java
+│   │   │               │   │   ├── SortBy.java
+│   │   │               │   │   ├── SortOrder.java
+│   │   │               │   │   └── Status.java
+│   │   │               │   └── exception
+│   │   │               │       ├── ResourceNotFoundException.java
+│   │   │               │       └── handler
+│   │   │               │           └── GlobalExceptionHandler.java
+│   │   │               ├── email
+│   │   │               │   └── service
+│   │   │               │       └── EmailService.java
+│   │   │               ├── security
+│   │   │               │   ├── config
+│   │   │               │   │   ├── ApplicationConfig.java
+│   │   │               │   │   ├── DeniedHandler.java
+│   │   │               │   │   ├── JwtAuthenticationEntryPointHandler.java
+│   │   │               │   │   └── SecurityConfig.java
+│   │   │               │   ├── dto
+│   │   │               │   │   └── AuthenticationResponse.java
+│   │   │               │   ├── endpoint
+│   │   │               │   │   └── SecurityEndpoint.java
+│   │   │               │   ├── entity
+│   │   │               │   │   ├── RefreshPasswordTokenEntity.java
+│   │   │               │   │   ├── RefreshTokenEntity.java
+│   │   │               │   │   └── UserGrantedAuthority.java
+│   │   │               │   ├── exception
+│   │   │               │   │   ├── AccessAndRefreshTokenMismatchException.java
+│   │   │               │   │   ├── ExpiredRefreshPasswordTokenException.java
+│   │   │               │   │   ├── InvalidAccessTokenException.java
+│   │   │               │   │   ├── InvalidRefreshTokenException.java
+│   │   │               │   │   ├── PasswordMismatchException.java
+│   │   │               │   │   ├── RefreshTokenExpiredException.java
+│   │   │               │   │   ├── RefreshTokenNotFoundException.java
+│   │   │               │   │   ├── UnauthorizedException.java
+│   │   │               │   │   └── UserIsDisabledException.java
+│   │   │               │   ├── jwt
+│   │   │               │   │   ├── JwtAuthenticationFilter.java
+│   │   │               │   │   └── JwtService.java
+│   │   │               │   ├── repository
+│   │   │               │   │   ├── RefreshTokenRepository.java
+│   │   │               │   │   └── UserGrantedAuthorityRepository.java
+│   │   │               │   ├── service
+│   │   │               │   │   ├── AuthenticationOperationPerformer.java
+│   │   │               │   │   ├── RefreshTokenOperationPerformer.java
+│   │   │               │   │   ├── UserEntityProvider.java
+│   │   │               │   │   ├── UserRefreshPasswordOperationPerformer.java
+│   │   │               │   │   └── UserRegistrationOperationPerformer.java
+│   │   │               │   └── validation
+│   │   │               │       ├── annotation
+│   │   │               │       │   ├── UniqueEmail.java
+│   │   │               │       │   └── UniqueUser.java
+│   │   │               │       └── annotationValidator
+│   │   │               │           ├── UniqueEmailValidator.java
+│   │   │               │           └── UniqueUserValidator.java
+│   │   │               ├── superuser
+│   │   │               │   ├── converter
+│   │   │               │   │   └── PaginationConverter.java
+│   │   │               │   ├── endpoint
+│   │   │               │   │   └── SuperUserEndpoint.java
+│   │   │               │   └── service
+│   │   │               │       ├── SuperuserRegisterUserOperationPerformer.java
+│   │   │               │       ├── SuperuserUpdateOperationPerformer.java
+│   │   │               │       └── SuperuserUserGetterOperationPerformer.java
+│   │   │               └── users
+│   │   │                   ├── converter
+│   │   │                   │   ├── TokenResponseConverter.java
+│   │   │                   │   ├── UserRegisterConverter.java
+│   │   │                   │   ├── UserResponseConverter.java
+│   │   │                   │   ├── UserUpdateConverter.java
+│   │   │                   │   └── mapper
+│   │   │                   │       ├── UserAuthorityMapper.java
+│   │   │                   │       └── UserRegisterMapper.java
+│   │   │                   ├── dto
+│   │   │                   │   ├── UserRegisterDto.java
+│   │   │                   │   └── UserUpdateDto.java
+│   │   │                   ├── endpoint
+│   │   │                   │   └── UserEndpoint.java
+│   │   │                   ├── entity
+│   │   │                   │   └── UserEntity.java
+│   │   │                   ├── exception
+│   │   │                   │   ├── EmailNotFoundException.java
+│   │   │                   │   ├── UsernameNotFoundException.java
+│   │   │                   │   ├── UsernameOrEmailNotFoundException.java
+│   │   │                   │   └── WrongPasswordRefreshToken.java
+│   │   │                   ├── helper
+│   │   │                   │   └── PrincipalProvider.java
+│   │   │                   ├── repository
+│   │   │                   │   ├── RefreshPasswordTokenCrudRepository.java
+│   │   │                   │   ├── SuperuserCrudRepository.java
+│   │   │                   │   └── UserCrudRepository.java
+│   │   │                   └── service
+│   │   │                       ├── CustomUserDetailsService.java
+│   │   │                       ├── UserChangePasswordOperationPerformer.java
+│   │   │                       ├── UserDeleteOperationPerformer.java
+│   │   │                       └── UserUpdateOperationPerformer.java
+│   │   └── resources
+│   │       ├── CustomValidationMessages.properties
+│   │       ├── api-specs
+│   │       │   ├── blogging-openapi.yaml
+│   │       │   ├── blogs-openapi.yaml
+│   │       │   ├── general-responses-openapi.yaml
+│   │       │   ├── superuser-openapi.yaml
+│   │       │   └── users-openapi.yaml
+│   │       ├── application.properties
+│   │       ├── static
+│   │       └── templates
+│   └── test
+│       └── java
+│           └── com
+│               └── backendapp
+│                   └── cms
+│                       ├── CmsApplicationTests.java
+│                       ├── blogging
+│                       │   ├── contract
+│                       │   │   ├── AuthenticatedUserContract.java
+│                       │   │   ├── CategoryGeneratorContract.java
+│                       │   │   ├── CategorySanitizerContract.java
+│                       │   │   ├── PostGeneratorContract.java
+│                       │   │   └── PostRequestContract.java
+│                       │   ├── converter
+│                       │   │   ├── PostRequestConverterTest.java
+│                       │   │   └── PostResponseConverterTest.java
+│                       │   ├── endpoint
+│                       │   │   └── BloggingEndpointTest.java
+│                       │   ├── helper
+│                       │   │   ├── CategoryGeneratorTest.java
+│                       │   │   ├── CategorySanitizerTest.java
+│                       │   │   ├── PostGeneratorTest.java
+│                       │   │   └── PostSanitizerTest.java
+│                       │   └── service
+│                       │       └── PostArticleOperationPerformerTest.java
+│                       └── users
+│                           ├── endpoint
+│                           └── helper
+│                               └── PrincipalProviderBloggerTest.java
 ```
 
 ## API Documentation
