@@ -85,9 +85,7 @@ public class PostBuilder {
         this.featuredImageUrl = "http://example.com/images/default-featured.jpg";
         this.status = Status.PUBLISHED;
         this.user = new UserBuilder().withDefault().build();
-        this.categories = new HashSet<>(
-                new CategoryBuilder().withDefault().buildList(1)
-        );
+        this.categories = new CategoryBuilder().withDefault().buildSet(1);
         this.publishedAt = LocalDateTime.of(2024, 7, 12, 10, 0, 0);
         this.createdAt = LocalDateTime.of(2024, 7, 11, 15, 30, 0);
         this.updatedAt = LocalDateTime.of(2024, 7, 12, 10, 0, 0);

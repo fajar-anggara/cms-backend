@@ -1,7 +1,6 @@
 package com.backendapp.cms.blogging.dto;
 
 
-import com.backendapp.cms.common.enums.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

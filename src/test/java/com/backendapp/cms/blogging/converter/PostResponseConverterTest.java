@@ -1,29 +1,37 @@
 package com.backendapp.cms.blogging.converter;
 
 import com.backendapp.cms.blogging.contract.PostBuilder;
-import com.backendapp.cms.blogging.contract.bonded.AuthenticatedUserDummy;
-import com.backendapp.cms.blogging.entity.CategoryEntity;
+import com.backendapp.cms.blogging.converter.mapper.PostResponseMapper;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.openapi.dto.PostSimpleResponse;
-import com.backendapp.cms.openapi.dto.UserSimpleResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 public class PostResponseConverterTest {
 
     private final PostBuilder postBuilder = new PostBuilder();
-    private PostResponseConverter postResponseConverter = new PostResponseConverterImpl();
+
+    @Autowired
+    private PostResponseConverter postResponseConverter;
 
     @Test
     @DisplayName("Should return PostSimpleResponse with correct value")
     void fromPostEntityToPostSimpleResponse_shouldReturnCorrectPostSimpleResponse() {
         PostEntity post = postBuilder.withDefault().build();
+        System.out.println(post);
         PostSimpleResponse postToSendToResponse = postBuilder.withDefault().buildPostSimpleResponse();
+        System.out.println(postToSendToResponse);
 
+        PostSimpleResponse actual = postResponseConverter.fromPostEntityToPostSimpleResponse(post);
 
-
+        assertEquals(actual, postToSendToResponse);
     }
 
 }

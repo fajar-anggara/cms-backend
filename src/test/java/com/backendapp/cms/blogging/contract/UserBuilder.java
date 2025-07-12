@@ -88,7 +88,7 @@ public class UserBuilder {
         userSimpleResponse.setDisplayName(displayName);
         userSimpleResponse.setProfilePicture(profilePicture);
         userSimpleResponse.setBio(bio);
-        userSimpleResponse.setAuthority(UserSimpleResponse.AuthorityEnum.valueOf(authority.getAuthority()));
+        userSimpleResponse.setAuthority(UserSimpleResponse.AuthorityEnum.valueOf(authority.getAuthority().substring(5)));
         userSimpleResponse.setEnabled(enabled);
 
         return userSimpleResponse;

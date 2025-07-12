@@ -14,7 +14,7 @@ public interface PostResponseConverter {
     @Mapping(source = "categories", target = "categories", qualifiedByName = "mapFromSetCategoriesEntityToListCategoriesSimpleDto")
     @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "mapFromLocalDateTimeToOffsetDateTime")
     @Mapping(source = "publishedAt", target = "publishedAt", qualifiedByName = "mapFromLocalDateTimeToOffsetDateTime")
-    @Mapping(source = "user", target = "user", ignore = true)
+    @Mapping(source = "user.authority", target = "user.authority", qualifiedByName = "mapFromPostEntityUserAuthorityToPostSimpleResponseUserAuthorityEnum")
     PostSimpleResponse fromPostEntityToPostSimpleResponse(PostEntity postEntity);
 
 }

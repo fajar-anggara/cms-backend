@@ -5,6 +5,7 @@ import com.backendapp.cms.blogging.converter.CategoriesResponseConverterImpl;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.openapi.dto.UserSimpleResponse;
+import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import com.backendapp.cms.users.converter.UserResponseConverter;
 import com.backendapp.cms.users.converter.UserResponseConverterImpl;
 import com.backendapp.cms.users.entity.UserEntity;
@@ -38,5 +39,10 @@ public abstract class PostResponseMapper {
     public OffsetDateTime mapFromLocalDateTimeToOffsetDateTime(LocalDateTime localDateTime) {
         ZoneId jakartaZone = ZoneId.of("Asia/Jakarta");
         return localDateTime.atZone(jakartaZone).toOffsetDateTime();
+    }
+
+    @Named("mapFromPostEntityUserAuthorityToPostSimpleResponseUserAuthorityEnum")
+    public UserSimpleResponse.AuthorityEnum mapFromPostEntityUserAuthorityToPostSimpleResponseUserAuthorityEnum(UserGrantedAuthority authority) {
+        return UserSimpleResponse.AuthorityEnum.valueOf(authority.getAuthority().substring(5));
     }
 }
