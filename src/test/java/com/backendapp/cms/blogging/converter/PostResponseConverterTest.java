@@ -25,9 +25,7 @@ public class PostResponseConverterTest {
     @DisplayName("Should return PostSimpleResponse with correct value")
     void fromPostEntityToPostSimpleResponse_shouldReturnCorrectPostSimpleResponse() {
         PostEntity post = postBuilder.withDefault().build();
-        System.out.println(post);
         PostSimpleResponse postToSendToResponse = postBuilder.withDefault().buildPostSimpleResponse();
-        System.out.println(postToSendToResponse);
 
         PostSimpleResponse actual = postResponseConverter.fromPostEntityToPostSimpleResponse(post);
 

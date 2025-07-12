@@ -1,17 +1,19 @@
 package com.backendapp.cms.blogging.contract;
 
+import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.common.enums.Status;
+import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
+import com.backendapp.cms.openapi.dto.PostRequest;
 import com.backendapp.cms.openapi.dto.PostSimpleResponse;
 import com.backendapp.cms.users.entity.UserEntity;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class PostBuilder {
@@ -215,5 +217,32 @@ public class PostBuilder {
         postSimpleResponse.setCreatedAt(this.createdAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
 
         return postSimpleResponse;
+    }
+
+    public PostRequest buildPostRequest() {
+        PostRequest postRequest = new PostRequest();
+        postRequest.setTitle(this.title);
+        postRequest.setSlug(this.slug);
+        postRequest.setContent(this.content);
+        postRequest.setExcerpt(this.excerpt);
+        postRequest.setFeaturedImageUrl(this.featuredImageUrl);
+        postRequest.setStatus(PostRequest.StatusEnum.valueOf(this.status.toString()));
+        postRequest.setCategories(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1));
+
+        return postRequest;
+    }
+
+    public PostRequestDto buildPostRequestDto() {
+        return PostRequestDto
+                .builder()
+                .title(this.title)
+                .slug(Optional.of(this.slug))
+                .content(this.content)
+                .excerpt(Optional.of(this.excerpt))
+                .featuredImageUrl(Optional.of(this.featuredImageUrl))
+                .status(Optional.of(this.status))
+                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
+                .build();
+
     }
 }
