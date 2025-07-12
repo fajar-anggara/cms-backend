@@ -1,6 +1,5 @@
 package com.backendapp.cms.blogging.converter;
 
-import com.backendapp.cms.blogging.contract.CategoryRequestConverterContract;
 import com.backendapp.cms.blogging.dto.CategoryRequestDto;
 import com.backendapp.cms.openapi.dto.CategoryRequest;
 import org.junit.jupiter.api.DisplayName;

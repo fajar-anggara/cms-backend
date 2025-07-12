@@ -1,6 +1,5 @@
 package com.backendapp.cms.blogging.helper;
 
-import com.backendapp.cms.blogging.contract.PostSanitizerContract;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

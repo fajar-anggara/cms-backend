@@ -1,7 +1,6 @@
 package com.backendapp.cms.blogging.contract;
 
-public class PostGeneratorContract {
-
+public class PostGeneratingDummy {
     public static final String UNGENERATED_SLUG_FROM_TITLE;
     public static final String UNGENERATED_EXCERPT_FROM_CONTENT;
 

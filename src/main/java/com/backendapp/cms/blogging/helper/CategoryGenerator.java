@@ -23,6 +23,7 @@ public class CategoryGenerator {
                 .stream()
                 .map(CategoryEntity::getName)
                 .collect(Collectors.toSet());
+
         // Unavailable categories
         Set<CategoryEntity> unAvailableCategories = categoryNames
                 .stream()
@@ -41,7 +42,7 @@ public class CategoryGenerator {
                 .builder()
                 .name(name)
                 .user(user)
-                .slug(categorySanitizer.sanitizeSlug(name) + "-" + System.currentTimeMillis())
+                .slug(categorySanitizer.sanitizeSlug(name))
                 .build();
     }
 }

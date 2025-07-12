@@ -1,6 +1,5 @@
 package com.backendapp.cms.blogging.helper;
 
-import com.backendapp.cms.blogging.contract.CategorySanitizerContract;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,11 +13,11 @@ public class CategorySanitizerTest {
 
     @Test
     @DisplayName("Category name sanitizer should be functional")
-    void sanitizeName_shouldBeFunctional() {
+    void toPlainText_shouldBeFunctional() {
         String unSanitizedName = CategorySanitizerContract.UNSANITIZED_NAME;
         String sanitizedName = CategorySanitizerContract.SANITIZED_NAME;
 
-        String actual = categorySanitizer.sanitizeName(unSanitizedName);
+        String actual = categorySanitizer.toPlainText(unSanitizedName);
 
         assertEquals(actual, sanitizedName);
     }

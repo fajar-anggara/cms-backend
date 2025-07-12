@@ -1,6 +1,6 @@
 package com.backendapp.cms.blogging.contract;
 
-public class CategorySanitizerContract {
+public class CategorySanitizingDummy {
 
     public static String UNSANITIZED_NAME;
     public static String UNSANITIZED_SLUG;

@@ -46,7 +46,7 @@ public class PostArticleOperationPerformer {
             List<String> sanitizedCategories = request.getCategories()
                     .stream()
                     .map(CategoriesSimpleDTO::getName)
-                    .map(categorySanitizer::sanitizeName)
+                    .map(categorySanitizer::toPlainText)
                     .toList();
 
             categories = categoryGenerator.findOrCreateByName(sanitizedCategories, user);

@@ -9,7 +9,7 @@ public class CategorySanitizer {
 
     private final PolicyFactory plainText = new HtmlPolicyBuilder().toFactory();
 
-    public String sanitizeName(String name) {
+    public String toPlainText(String name) {
         return plainText.sanitize(name);
     }
 

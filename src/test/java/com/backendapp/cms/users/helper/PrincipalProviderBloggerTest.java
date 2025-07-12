@@ -1,6 +1,6 @@
 package com.backendapp.cms.users.helper;
 
-import com.backendapp.cms.blogging.contract.AuthenticatedUserContract;
+import com.backendapp.cms.blogging.contract.bonded.AuthenticatedUserDummy;
 import com.backendapp.cms.users.entity.UserEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ import static org.mockito.Mockito.*;
 class PrincipalProviderBloggerTest {
 
     private final PrincipalProvider principalProvider = new PrincipalProvider();
-    private final UserEntity user = AuthenticatedUserContract.BLOGGER_USER;
-    private final UserEntity userByPrincipal = AuthenticatedUserContract.BLOGGER_USER;
+    private final UserEntity user = AuthenticatedUserDummy.BLOGGER_USER;
+    private final UserEntity userByPrincipal = AuthenticatedUserDummy.BLOGGER_USER;
 
     @Test
     @DisplayName("getPrincipal should return the authenticated UserEntity from SecurityContext")

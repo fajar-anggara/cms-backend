@@ -1,7 +1,6 @@
 package com.backendapp.cms.blogging.converter;
 
 
-import com.backendapp.cms.blogging.contract.PostSanitizerContract;
 import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.openapi.dto.PostRequest;
 import org.junit.jupiter.api.DisplayName;

@@ -1,12 +1,13 @@
-package com.backendapp.cms.blogging.contract;
+package com.backendapp.cms.blogging.contract.bonded;
 
 import com.backendapp.cms.common.enums.Authority;
+import com.backendapp.cms.openapi.dto.UserSimpleResponse;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
 import com.backendapp.cms.users.entity.UserEntity;
 
 import java.time.LocalDateTime;
 
-public class AuthenticatedUserContract {
+public class AuthenticatedUserDummy {
     // common data
     private static final String password = "encodedPassword";
     private static final String profilePicture = "/avatar";
@@ -19,6 +20,7 @@ public class AuthenticatedUserContract {
     private static final LocalDateTime deletedAt = null;
 
     public static final UserEntity BLOGGER_USER;
+    public static final UserSimpleResponse USER_SIMPLE_RESPONSE_BLOGGER;
     public static final UserEntity ADMIN_USER;
     public static final UserEntity DELETED_USER;
     public static final UserEntity DISABLED_USER;
@@ -40,6 +42,15 @@ public class AuthenticatedUserContract {
                 .updatedAt(updatedAt)
                 .deletedAt(deletedAt)
                 .build();
+
+        USER_SIMPLE_RESPONSE_BLOGGER = new UserSimpleResponse();
+        USER_SIMPLE_RESPONSE_BLOGGER.setId(BLOGGER_USER.getId());
+        USER_SIMPLE_RESPONSE_BLOGGER.setUsername(BLOGGER_USER.getUsername());
+        USER_SIMPLE_RESPONSE_BLOGGER.setDisplayName(BLOGGER_USER.getDisplayName());
+        USER_SIMPLE_RESPONSE_BLOGGER.setBio(BLOGGER_USER.getBio());
+        USER_SIMPLE_RESPONSE_BLOGGER.setAuthority(UserSimpleResponse.AuthorityEnum.BLOGGER);
+        USER_SIMPLE_RESPONSE_BLOGGER.setEnabled(BLOGGER_USER.isEnabled());
+        USER_SIMPLE_RESPONSE_BLOGGER.setProfilePicture(BLOGGER_USER.getProfilePicture());
 
         ADMIN_USER = UserEntity.builder()
                 .id(2L)

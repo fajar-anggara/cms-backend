@@ -1,6 +1,5 @@
 package com.backendapp.cms.blogging.helper;
 
-import com.backendapp.cms.blogging.contract.PostGeneratorContract;
 import com.backendapp.cms.blogging.repository.PostCrudRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
