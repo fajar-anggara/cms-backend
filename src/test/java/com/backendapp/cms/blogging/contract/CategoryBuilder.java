@@ -1,8 +1,10 @@
 package com.backendapp.cms.blogging.contract;
 
+import com.backendapp.cms.blogging.dto.CategoryRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
+import com.backendapp.cms.openapi.dto.CategoryRequest;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.persistence.ManyToOne;
 
@@ -150,6 +152,26 @@ public class CategoryBuilder {
         categoriesDTO.setSlug(this.slug);
 
         return categoriesDTO;
+    }
+
+    public CategoryRequest buildCategoryRequest() {
+        CategoryRequest categoryRequest = new CategoryRequest();
+        categoryRequest.setName(this.name);
+        categoryRequest.setSlug(this.slug);
+        categoryRequest.setDescription(this.description);
+        // untuk nanti kedepannya tambahkan POST
+
+        return categoryRequest;
+    }
+
+    public CategoryRequestDto buildCategoryRequestDto() {
+        CategoryRequestDto categoryRequestDto = new CategoryRequestDto();
+        categoryRequestDto.setName(Optional.of(this.name));
+        categoryRequestDto.setSlug(Optional.of(this.slug));
+        categoryRequestDto.setDescription(Optional.of(this.description));
+        // nanti kedepannya tambahkan POST
+
+        return categoryRequestDto;
     }
 
     /**

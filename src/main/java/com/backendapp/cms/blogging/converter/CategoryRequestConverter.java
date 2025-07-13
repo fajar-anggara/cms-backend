@@ -5,6 +5,7 @@ import com.backendapp.cms.openapi.dto.CategoryRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,6 +19,10 @@ public interface CategoryRequestConverter {
     }
 
     default Optional<List<Long>> mapFromListOfLongToOptionalListOfLong(List<Long> input) {
-        return Optional.ofNullable(input);
+        if (input.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(input);
+        }
     }
 }
