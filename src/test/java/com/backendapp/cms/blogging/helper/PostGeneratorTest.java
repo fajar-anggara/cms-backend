@@ -1,44 +1,135 @@
-//package com.backendapp.cms.blogging.helper;
-//
-//import com.backendapp.cms.blogging.repository.PostCrudRepository;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.test.context.bean.override.mockito.MockitoBean;
-//
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.mockito.Mockito.when;
-//
-//
-//@SpringBootTest
-//public class PostGeneratorTest {
-//
-//    @MockitoBean
-//    private PostCrudRepository postCrudRepository;
-//
-//    @Autowired
-//    private PostGenerator postGenerator;
-//
-//    @Test
-//    @DisplayName("Post generator. generateSlug should functional")
-//    public void generateSlug_shouldFunctional() {
-//        when(postCrudRepository.existsBySlug(PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE))
-//                .thenReturn(false);
-//
-//        String generatedSlug = postGenerator.generateSlug(Optional.of(PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE), PostGeneratorContract.UNGENERATED_SLUG_FROM_TITLE);
-//
-//        assertEquals(PostGeneratorContract.GENERATED_SLUG, generatedSlug, "Generated slug nya harus sama");
-//    }
-//
-//    @Test
-//    @DisplayName("Post generator.generateExcerpt shoud functional")
-//    public void generateExcerpt_shouldFunctional() {
-//
-//        String generatedExcerpt = postGenerator.generateExcerpt(PostGeneratorContract.UNGENERATED_EXCERPT_FROM_CONTENT);
-//
-//        assertEquals(generatedExcerpt, PostGeneratorContract.GENERATED_EXCERPT, "This should generated excerpt");
-//    }
-//}
+package com.backendapp.cms.blogging.helper;
+
+import com.backendapp.cms.blogging.contract.PostBuilder;
+import com.backendapp.cms.blogging.entity.PostEntity;
+import com.backendapp.cms.blogging.repository.PostCrudRepository;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+@SpringBootTest
+public class PostGeneratorTest {
+
+    @MockitoBean
+    private PostCrudRepository postCrudRepository;
+
+    @Autowired
+    private PostGenerator postGenerator;
+
+    private String escapeRegex(String input) {
+        // Escape special regex characters untuk MySQL
+        return input.replaceAll("([\\[\\](){}*+?^$|\\\\.])", "\\\\$1");
+    }
+
+    @Test
+    @DisplayName("Should return valid slug when given valid slug and valid title")
+    void generateSlug_shouldReturnValidSlugWhenGivenValidSlugAndValidTitle() {
+
+        PostEntity postEntity = new PostBuilder()
+                .withDefault()
+                .build();
+        String regexPattern = "^" + escapeRegex(postEntity.getSlug()) + "(-[0-9]+)?$";
+        when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
+                .thenReturn(new ArrayList<>());
+
+        String actual = postGenerator.generateSlug(Optional.of(postEntity.getSlug()), postEntity.getTitle());
+
+        assertEquals(actual, postEntity.getSlug());
+    }
+
+    @Test
+    @DisplayName("Should return valid slug when given null slug and valid title")
+    void generateSlug_shouldReturnValidSlugWhenGivenNullSlugAndValidTitle() {
+        PostEntity postEntity = new PostBuilder()
+                .withDefault()
+                .build();
+        String regexPattern = "^" + escapeRegex(postEntity.getSlug()) + "(-[0-9]+)?$";
+        when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
+                .thenReturn(new ArrayList<>());
+
+        String actual = postGenerator.generateSlug(Optional.empty(), postEntity.getTitle());
+
+        assertEquals(actual, postEntity.getSlug());
+    }
+
+    @Test
+    @DisplayName("Should return valid slug when given null slug and null title")
+    void generateSlug_shouldReturnValidSlugWhenGivenNullSlugAndNullTitle() {
+
+        String actual = postGenerator.generateSlug(Optional.empty(),null);
+
+        assertNotNull(actual);
+    }
+
+    @Test
+    @DisplayName("Should return valid slug when given xss title")
+    void generateSlug_shouldReturnValidSlugWhenGivenXssSlug() {
+        PostEntity postEntity = new PostBuilder()
+                .withDefault()
+                .withXss()
+                .build();
+        String regexPattern = "^" + escapeRegex(postEntity.getSlug()) + "(-[0-9]+)?$";
+        when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
+                .thenReturn(new ArrayList<>());
+
+        String actual = postGenerator.generateSlug(Optional.empty(), postEntity.getTitle());
+
+        assertEquals(actual, "my-title");
+    }
+
+    @Test
+    @DisplayName("Should return slug plus repo count when there is slug on repo")
+    void generatedSlug_shouldReturnValidSlugWhenGivenRepoCountIsMoreThan0() {
+        PostEntity postEntity = new PostBuilder()
+                .withDefault()
+                .build();
+
+        List<PostEntity> listOfPosts = new ArrayList<>();
+        listOfPosts.add(postEntity);
+
+        String regexPattern = "^" + escapeRegex(postEntity.getSlug()) + "(-[0-9]+)?$";
+        when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
+                .thenReturn(listOfPosts);
+
+        String actual = postGenerator.generateSlug(Optional.of(postEntity.getSlug()), postEntity.getTitle());
+
+        assertEquals(actual, (postEntity.getSlug() + "-" + 2));
+    }
+
+    @Test
+    @DisplayName("Should return valid excerpt when given 100 length content")
+    void genrateExcerpt_shouldReturnValidExcerptWhenGiven100LengthContent() {
+        PostEntity postEntity = new PostBuilder()
+                .withDefault()
+                .withContent("Melangkah tenang di tengah bising dunia, membawa makna tanpa perlu suara")
+                .build();
+
+        String actual = postGenerator.generateExcerpt(postEntity.getContent());
+
+        assertEquals(actual, "Melangkah tenang di tengah bising dunia, membawa makna tanpa perlu suara");
+    }
+
+    @Test
+    @DisplayName("Should return valid excerpt when given more than 100 length content")
+    void generateExcerpt_shouldReturnValidExcerptWhenGivenMoreThan100LengthContent() {
+        PostEntity postEntity = new PostBuilder()
+                .withDefault()
+                .withContent("Dalam sunyi pikiran, manusia sering menyusun makna dari serpihan realitas yang tidak pernah sepenuhnya jujur; namun justru di sanalah muncul keberanian untuk memahami, bukan untuk menilai.")
+                .build();
+
+        String actual = postGenerator.generateExcerpt(postEntity.getContent());
+
+        assertEquals(actual, "Dalam sunyi pikiran, manusia sering menyusun makna dari serpihan realitas yang tidak pernah...");
+    }
+}

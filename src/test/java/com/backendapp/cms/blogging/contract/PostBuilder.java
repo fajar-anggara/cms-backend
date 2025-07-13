@@ -73,6 +73,11 @@ public class PostBuilder {
         return this;
     }
 
+    public PostBuilder withContent(String content) {
+        this.content = content;
+        return this;
+    }
+
     public PostBuilder withDeletedAt(LocalDateTime deletedAt) {
         this.deletedAt = deletedAt;
         return this;
