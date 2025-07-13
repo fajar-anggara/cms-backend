@@ -1,49 +1,111 @@
-//package com.backendapp.cms.blogging.helper;
-//
-//import com.backendapp.cms.blogging.dto.PostRequestDto;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.context.SpringBootTest;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//
-//@SpringBootTest
-//class PostSanitizerTest {
-//
-//    private final PostSanitizer postSanitizer = new PostSanitizer();
-//
-//    @Test
-//    @DisplayName("Should return Converted and Sanitize PostRequestDto")
-//    void postSanitizer_shouldReturnPostEntityThatWasConvertedAndSanitized() {
-//        PostRequestDto unconvertedUnsanitizedRequest = PostSanitizerContract.UNCONVERTED_UNSANITIZED_REQUEST;
-//        PostRequestDto sanitizedPostRequestDto = PostSanitizerContract.CONVERTED_SANITIZED_REQUEST;
-//
-//        PostRequestDto sanitizedPost = postSanitizer.sanitize(unconvertedUnsanitizedRequest);
-//
-//        assertEquals(sanitizedPost.getTitle(), sanitizedPostRequestDto.getTitle(), "Judul Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getContent(), sanitizedPostRequestDto.getContent(), "Konten HTML Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getExcerpt(), sanitizedPostRequestDto.getExcerpt(), "Excerpt HTML Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getFeaturedImageUrl(), sanitizedPostRequestDto.getFeaturedImageUrl(), "URL Gambar Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getSlug(), sanitizedPostRequestDto.getSlug(), "Slug Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getStatus(), sanitizedPostRequestDto.getStatus(), "Status Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getCategories(), sanitizedPostRequestDto.getCategories(), "Kategori Post yang disimpan harus sama");
-//    }
-//
-//    @Test
-//    @DisplayName("Should return converted but unsanitized PostRequestDto")
-//    void setPostSanitizer_shouldReturnPostEntityThatWasConvertedAndUnSanitized() {
-//        PostRequestDto unconvertedUnsanitizedRequest = PostSanitizerContract.UNCONVERTED_UNSANITIZED_REQUEST;
-//        PostRequestDto convertedButUnsanitized = PostSanitizerContract.CONVERTED_UNSANITIZED_REQUEST;
-//
-//        PostRequestDto sanitizedPost = postSanitizer.convertToHtml(unconvertedUnsanitizedRequest);
-//
-//        assertEquals(sanitizedPost, convertedButUnsanitized, "Hasil dari sanitizer harus sama");
-//        assertEquals(sanitizedPost.getTitle(), convertedButUnsanitized.getTitle(), "Judul Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getContent(), convertedButUnsanitized.getContent(), "Konten HTML Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getExcerpt(), convertedButUnsanitized.getExcerpt(), "Excerpt HTML Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getFeaturedImageUrl(), convertedButUnsanitized.getFeaturedImageUrl(), "URL Gambar Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getSlug(), convertedButUnsanitized.getSlug(), "Slug Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getStatus(), convertedButUnsanitized.getStatus(), "Status Post yang disimpan harus sama");
-//        assertEquals(sanitizedPost.getCategories(), convertedButUnsanitized.getCategories(), "Kategori Post yang disimpan harus sama");
-//    }
-//}
+package com.backendapp.cms.blogging.helper;
+
+import com.backendapp.cms.blogging.contract.PostBuilder;
+import com.backendapp.cms.blogging.dto.PostRequestDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class PostSanitizerTest {
+
+    private final PostSanitizer postSanitizer = new PostSanitizer();
+
+    @Test
+    @DisplayName("Should return HTML by converting from PostRequestDto")
+    void convertToHtml_shouldReturnHtmlByConvertingFromPostRequestDto() {
+        PostRequestDto unconvertedRequest = new PostBuilder()
+                .withDefault()
+                .withMarkDown()
+                .buildPostRequestDto();
+
+        PostRequestDto convertedRequest = new PostBuilder()
+                .withDefault()
+                .withMarkDown()
+                .buildConvertedToHtml();
+
+        PostRequestDto actual = postSanitizer.convertToHtml(unconvertedRequest);
+
+        assertEquals(
+                actual.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""),
+                convertedRequest.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""));
+    }
+
+    @Test
+    @DisplayName("Should ignore unsupported MarkDown sintaks")
+    void convertToHtml_shouldReturnUnsupportedMarkdownSintaks() {
+        PostRequestDto unconvertedRequest = new PostBuilder()
+                .withDefault()
+                .withUnsupportedMarkDown()
+                .buildPostRequestDto();
+
+        PostRequestDto convertedRequest = new PostBuilder()
+                .withDefault()
+                .withUnsupportedMarkDown()
+                .buildConvertedToHtmlUnsupportedMarkdown();
+
+        PostRequestDto actual = postSanitizer.convertToHtml(unconvertedRequest);
+
+        assertEquals(
+                actual.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""),
+                convertedRequest.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""));
+    }
+
+    @Test
+    @DisplayName("Should remove all xss sintaks from html")
+    void sanitize_shouldRemoveAllXssSintaksFromHtml() {
+        PostRequestDto xssRequest = new PostBuilder()
+                .withDefault()
+                .withXss()
+                .buildPostRequestDto();
+
+        PostRequestDto sanitizedXssRequest = new PostBuilder()
+                .withDefault()
+                .withXss()
+                .buildXssExpectedResult();
+
+        PostRequestDto actual = postSanitizer.sanitize(xssRequest);
+
+        assertEquals(
+                actual.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""),
+                sanitizedXssRequest.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""));
+    }
+
+    @Test
+    @DisplayName("Should return sanitized normal Html when given normal html")
+    void sanitize_shouldReturnNormalHtmlWhenGivenNormalHtml() {
+        PostRequestDto markdownRequest = new PostBuilder()
+                .withDefault()
+                .withMarkDown()
+                .buildPostRequestDto();
+
+        PostRequestDto sanitizedMarkdownRequest = new PostBuilder()
+                .withDefault()
+                .withMarkDown()
+                .buildSanitizedHtml();
+
+        PostRequestDto actual = postSanitizer.sanitize(markdownRequest);
+
+        assertEquals(
+                actual.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""),
+                sanitizedMarkdownRequest.toString()
+                        .trim()
+                        .replace("\r", "").replace("\n", ""));
+    }
+}

@@ -193,4 +193,20 @@ public class CategoryBuilder {
 
         return categories;
     }
+
+    public Set<CategoriesSimpleDTO> buildSetCategoriesSimpleDTO(int count) {
+        Long currId = this.id;
+        Set<CategoriesSimpleDTO> categories = new HashSet<>();
+        for (int i = 0; i < count; i++) {
+            CategoriesSimpleDTO category = new CategoriesSimpleDTO();
+            category.setId(currId);
+            category.setName(this.name + i);
+            category.setSlug(this.slug != null ? this.slug : null);
+            currId++;
+
+            categories.add(category);
+        }
+
+        return categories;
+    }
 }

@@ -1,6 +1,7 @@
 package com.backendapp.cms.blogging.helper;
 
 import com.backendapp.cms.blogging.dto.PostRequestDto;
+import com.backendapp.cms.common.constant.BloggingConstant;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.owasp.html.HtmlPolicyBuilder;
@@ -16,44 +17,29 @@ public class PostSanitizer {
     private final Parser parser = Parser.builder().build();
     private final HtmlRenderer renderer = HtmlRenderer.builder().build();
     private final PolicyFactory plainText = new HtmlPolicyBuilder().toFactory();
-    private final PolicyFactory titlePolicy = new HtmlPolicyBuilder()
-            .allowElements("em", "strong", "i", "b") // Hanya basic formatting
-            .toFactory();
-
-    private final PolicyFactory excerptPolicy = new HtmlPolicyBuilder()
-            .allowElements("p", "em", "strong", "i", "b", "br")
-            .toFactory();
+    private static final Pattern safeImageUrl = Pattern.compile(
+            "^https?://[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]+\\.(jpg|jpeg|png|gif|webp|svg)$",
+    Pattern.CASE_INSENSITIVE
+    );
 
     private final PolicyFactory contentPolicy = new HtmlPolicyBuilder()
-            .allowElements("p", "br", "div")
-            .allowElements("strong", "em", "b", "i", "u", "s", "small", "mark")
-            .allowElements("sub", "sup", "abbr", "cite", "code", "pre")
-            .allowElements("h1", "h2", "h3", "h4", "h5", "h6")
-            .allowElements("ul", "ol", "li", "dl", "dt", "dd")
-            .allowElements("blockquote", "q")
-            .allowElements("a")
-            .allowAttributes("href").matching(
-                    Pattern.compile("^(?:https?://[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*|/[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*|[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*)$")
-            ).onElements("a")
-            .allowAttributes("title").onElements("a")
+            // Allowed tags and attributes explicitly
+            .allowElements("p", "b", "i", "ul", "ol", "li", "code", "pre", "strong", "em", "h1", "h2", "h3")
+            .allowUrlProtocols("https", "mailto")
             .allowElements("img")
-            .allowAttributes("src").matching(
-                    Pattern.compile("^https?://[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*\\.(jpg|jpeg|png|gif|webp|svg)(?:\\?[\\w\\-._~:/?#\\[\\]@!$&'()*+,;=]*)?$", Pattern.CASE_INSENSITIVE)
-            ).onElements("img")
-            .allowAttributes("alt", "title").onElements("img")
-            .allowAttributes("width", "height").matching(Pattern.compile("^[0-9]+$")).onElements("img")
-            .allowElements("table", "thead", "tbody", "tfoot", "tr", "td", "th")
-            .allowAttributes("colspan", "rowspan").matching(Pattern.compile("^[0-9]+$")).onElements("td", "th")
-            .allowElements("hr", "span")
-            .allowAttributes("class").matching(Pattern.compile("^[\\w\\-\\s]+$")).globally()
-            .allowAttributes("id").matching(Pattern.compile("^[\\w\\-]+$")).globally()
+            .allowElements("blockquote")
+            .allowAttributes("src").matching(Pattern.compile("^https?://.*\\.(jpg|jpeg|png|gif|webp|svg)$", Pattern.CASE_INSENSITIVE)).onElements("img")
+            .allowAttributes("alt", "title", "width", "height").onElements("img")
+            .allowElements("a")
+            .allowAttributes("href").matching(Pattern.compile("^(https?://|mailto:)[^\\s]+$")).onElements("a")
+            .allowAttributes("title").onElements("a")
             .toFactory();
 
     public PostRequestDto sanitize(PostRequestDto unSanitizedPostRequest) {
         PostRequestDto convertedPostRequest = convertToHtml(unSanitizedPostRequest);
 
         String sanitizedTitle = Optional.of(convertedPostRequest.getTitle())
-                .map(titlePolicy::sanitize)
+                .map(plainText::sanitize)
                 .map(String::trim)
                 .orElse(unSanitizedPostRequest.getTitle());
 
@@ -62,10 +48,10 @@ public class PostSanitizer {
                 .orElse(unSanitizedPostRequest.getContent());
 
         Optional<String> sanitizedExcerpt = convertedPostRequest.getExcerpt()
-                .map(excerptPolicy::sanitize);
+                .map(plainText::sanitize);
 
         Optional<String> sanitizedImageUrl = convertedPostRequest.getFeaturedImageUrl()
-                .map(plainText::sanitize);
+                .map(this::isImageSave);
 
         return PostRequestDto.builder()
                 .title(sanitizedTitle)
@@ -104,5 +90,12 @@ public class PostSanitizer {
                 .status(unConvertedPostRequest.getStatus())
                 .categories(unConvertedPostRequest.getCategories())
                 .build();
+    }
+
+    public String isImageSave(String imageUrl) {
+        if (safeImageUrl.matcher(imageUrl).matches()) {
+            return imageUrl;
+        }
+        return BloggingConstant.POST_IMAGE_DEFAULT;
     }
 }

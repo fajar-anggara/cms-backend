@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,5 +28,24 @@ public class PostRequestDto {
     Optional<Status> status = Optional.empty();
     Optional<List<CategoriesSimpleDTO>> categories = Optional.empty();
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostRequestDto that = (PostRequestDto) o;
+        return Objects.equals(title, that.title) &&
+                Objects.equals(slug, that.slug) &&
+                Objects.equals(content, that.content) &&
+                Objects.equals(excerpt, that.excerpt) &&
+                Objects.equals(featuredImageUrl, that.featuredImageUrl) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(categories, that.categories);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, slug, content, excerpt, featuredImageUrl, status, categories);
+    }
 }
 

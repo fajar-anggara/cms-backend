@@ -84,7 +84,7 @@ public class PostBuilder {
         this.slug = "my-first-blog-post";
         this.content = "This is the **amazing** content of my first blog post.";
         this.excerpt = "A short summary of the post.";
-        this.featuredImageUrl = "http://example.com/images/default-featured.jpg";
+        this.featuredImageUrl = "https://example.com/images/default-featured.jpg";
         this.status = Status.PUBLISHED;
         this.user = new UserBuilder().withDefault().build();
         this.categories = new CategoryBuilder().withDefault().buildSet(1);
@@ -101,6 +101,32 @@ public class PostBuilder {
         this.excerpt = "<link rel='stylesheet' href='evil.css' onload='alert(\"XSS Excerpt\");'>";
         this.featuredImageUrl = "javascript:alert('XSS URL');"; // Contoh XSS di URL
         this.slug = "xss-post-slug"; // Slug juga bisa disanitasi
+        return this;
+    }
+
+    public PostBuilder withMarkDown() {
+        this.title = "Post with Basic Markdown Content";
+        this.slug = "post-with-basic-markdown";
+        this.content = "# Heading 1\n\nThis is a paragraph with **bold** and *italic* text.\n\n" +
+                "- List item 1\n" +
+                "- List item 2\n" +
+                "  - Nested list item\n\n" +
+                "> This is a blockquote.\n\n" +
+                "Strikethrough text and a [link](https://example.com).";
+        this.excerpt = "A short summary with *basic* Markdown and `code`.";
+        return this;
+    }
+
+    public PostBuilder withUnsupportedMarkDown() {
+        this.title = "Post with Unsupported Markdown";
+        this.slug = "post-with-unsupported-markdown";
+        this.content = "This is a paragraph.\n\n" +
+                "[[Internal Link]]\n\n" + // Not standard Markdown
+                "{::comment}This is a comment{:/comment}\n\n" + // Not standard Markdown
+                "==Highlight Text==\n\n" + // Not standard Markdown
+                "[TOC]\n\n" + // Not standard Markdown
+                "This is *standard* Markdown after unsupported syntax.";
+        this.excerpt = "Summary with ==highlight== and [[link]].";
         return this;
     }
 
@@ -149,26 +175,115 @@ public class PostBuilder {
                 .build();
     }
 
-    public PostEntity buildXssExpectedResult() {String expectedSanitizedTitle = "My Title";
+    public PostRequestDto buildXssExpectedResult() {
+        String expectedSanitizedTitle = "My Title";
         String expectedSanitizedSlug = "xss-post-slug";
-        String expectedSanitizedContent = "Hello <b>World</b>!";
+        String expectedSanitizedContent = "<p>&lt;img src&#61;x onerror&#61;alert(&#39;XSS Content&#39;);&gt;Hello <b>World</b>!</p>";
         String expectedSanitizedExcerpt = "";
-        String expectedSanitizedFeaturedImageUrl = "";
 
-        return PostEntity.builder()
-                .id(this.id)
+        return PostRequestDto.builder()
                 .title(expectedSanitizedTitle)
-                .slug(expectedSanitizedSlug)
+                .slug(Optional.of(expectedSanitizedSlug))
                 .content(expectedSanitizedContent)
-                .excerpt(expectedSanitizedExcerpt)
-                .featuredImageUrl(expectedSanitizedFeaturedImageUrl)
-                .status(this.status)
-                .user(this.user)
-                .categories(this.categories)
-                .publishedAt(this.publishedAt)
-                .updatedAt(this.updatedAt)
-                .createdAt(this.createdAt)
-                .deletedAt(this.deletedAt)
+                .excerpt(Optional.of(expectedSanitizedExcerpt))
+                .featuredImageUrl(Optional.of("/default.jpg"))
+                .status(Optional.of(Status.valueOf(this.status.toString())))
+                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
+                .build();
+    }
+
+    public PostRequestDto buildConvertedToHtml() {
+        String expectedTitle = "<p>Post with Basic Markdown Content</p>";
+        String expectedHtmlContent = "<h1>Heading 1</h1>\n" +
+                "<p>This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>\n" +
+                "<ul>\n" +
+                "<li>List item 1</li>\n" +
+                "<li>List item 2\n" + //
+                "<ul>\n" +
+                "<li>Nested list item</li>\n" +
+                "</ul>\n" +
+                "</li>\n" +
+                "</ul>\n" +
+                "<blockquote>\n" +
+                "<p>This is a blockquote.</p>\n" +
+                "</blockquote>\n" +
+                "<p>Strikethrough text and a <a href=\"https://example.com\">link</a>.</p>\n";
+
+        String expectedHtmlExcerpt = "<p>A short summary with <em>basic</em> Markdown and <code>code</code>.</p>\n";
+
+        return PostRequestDto.builder()
+                .title(expectedTitle)
+                .slug(Optional.of("post-with-basic-markdown"))
+                .content(expectedHtmlContent)
+                .excerpt(Optional.of(expectedHtmlExcerpt))
+                .featuredImageUrl(Optional.of(this.featuredImageUrl))
+                .status(Optional.of(this.status))
+                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
+                .build();
+    }
+
+    public PostRequestDto buildSanitizedHtml() {
+        String expectedTitle = "Post with Basic Markdown Content";
+        String expectedHtmlContent = "<h1>Heading 1</h1>\n" +
+                "<p>This is a paragraph with <strong>bold</strong> and <em>italic</em> text.</p>\n" +
+                "<ul>\n" +
+                "<li>List item 1</li>\n" +
+                "<li>List item 2\n" + //
+                "<ul>\n" +
+                "<li>Nested list item</li>\n" +
+                "</ul>\n" +
+                "</li>\n" +
+                "</ul>\n" +
+                "<blockquote>\n" +
+                "<p>This is a blockquote.</p>\n" +
+                "</blockquote>\n" +
+                "<p>Strikethrough text and a <a href=\"https://example.com\">link</a>.</p>\n";
+
+        String expectedHtmlExcerpt = "A short summary with basic Markdown and code.";
+
+        return PostRequestDto.builder()
+                .title(expectedTitle)
+                .slug(Optional.of("post-with-basic-markdown"))
+                .content(expectedHtmlContent)
+                .excerpt(Optional.of(expectedHtmlExcerpt))
+                .featuredImageUrl(Optional.of(this.featuredImageUrl))
+                .status(Optional.of(this.status))
+                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
+                .build();
+    }
+
+    public PostRequestDto buildConvertedToHtmlUnsupportedMarkdown() {
+        String expectedTitle = "<p>Post with Unsupported Markdown</p>";
+        String expectedHtmlContent = "<p>This is a paragraph.</p>\n" +
+                "<p>[[Internal Link]]</p>\n" +
+                "<p>{::comment}This is a comment{:/comment}</p>\n" +
+                "<p>==Highlight Text==</p>\n" +
+                "<p>[TOC]</p>\n" +
+                "<p>This is <em>standard</em> Markdown after unsupported syntax.</p>\n";
+
+        String expectedHtmlExcerpt = "<p>Summary with ==highlight== and [[link]].</p>\n";
+
+        return PostRequestDto.builder()
+                .title(expectedTitle)
+                .slug(Optional.ofNullable(this.slug))
+                .content(expectedHtmlContent)
+                .excerpt(Optional.of(expectedHtmlExcerpt))
+                .featuredImageUrl(Optional.ofNullable(this.featuredImageUrl))
+                .status(Optional.ofNullable(this.status))
+                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
+                .build();
+    }
+
+    public PostRequestDto buildPostRequestDto() {
+        return PostRequestDto
+                .builder()
+                .title(this.title)
+                .slug(Optional.of(this.slug))
+                .content(this.content)
+                .excerpt(Optional.of(this.excerpt))
+                .featuredImageUrl(Optional.of(this.featuredImageUrl))
+                .status(Optional.of(this.status))
+                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
                 .build();
     }
 
@@ -232,17 +347,4 @@ public class PostBuilder {
         return postRequest;
     }
 
-    public PostRequestDto buildPostRequestDto() {
-        return PostRequestDto
-                .builder()
-                .title(this.title)
-                .slug(Optional.of(this.slug))
-                .content(this.content)
-                .excerpt(Optional.of(this.excerpt))
-                .featuredImageUrl(Optional.of(this.featuredImageUrl))
-                .status(Optional.of(this.status))
-                .categories(Optional.of(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1)))
-                .build();
-
-    }
 }
