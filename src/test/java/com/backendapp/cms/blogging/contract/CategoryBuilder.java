@@ -41,6 +41,11 @@ public class CategoryBuilder {
         return this;
     }
 
+    public CategoryBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
+
     public CategoryBuilder withEmptySlug() {
         this.slug = "";
         return this;

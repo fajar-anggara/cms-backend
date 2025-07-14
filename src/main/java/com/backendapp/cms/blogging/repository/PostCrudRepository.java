@@ -13,7 +13,7 @@ public interface PostCrudRepository extends JpaRepository<PostEntity, Long> {
 
     boolean existsBySlug(String slug);
 
-    Optional<PostEntity> findSlug(String slug);
+//    Optional<PostEntity> findBySlug(String slug);
 
     @Query(value = "SELECT * FROM posts WHERE slug = ?1 OR slug REGEXP ?2",
             nativeQuery = true)

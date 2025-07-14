@@ -17,6 +17,11 @@ public class CategoryGenerator {
     private final CategoryCrudRepository categoryCrudRepository;
     private final CategorySanitizer categorySanitizer;
 
+    /**
+     * @param categoryNames Sudah di sanitasi di service, tidak akan null karena sudah di cek
+     * @param user UserEntity dari securityContextHolder
+     * @return
+     */
     public Set<CategoryEntity> findOrCreateByName(List<String> categoryNames, UserEntity user) {
         Set<CategoryEntity> availableCategories = categoryCrudRepository.findAllByNameInAndUser(categoryNames, user);
         Set<String> nameOfAvailableCategories = availableCategories
@@ -42,7 +47,7 @@ public class CategoryGenerator {
                 .builder()
                 .name(name)
                 .user(user)
-                .slug(categorySanitizer.sanitizeSlug(name))
+                .slug(categorySanitizer.toSlugFormat(name))
                 .build();
     }
 }

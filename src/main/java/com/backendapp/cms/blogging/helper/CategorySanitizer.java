@@ -13,7 +13,7 @@ public class CategorySanitizer {
         return plainText.sanitize(name);
     }
 
-    public String sanitizeSlug(String slug) {
+    public String toSlugFormat(String slug) {
         return slug.toLowerCase()
                 .replaceAll("\\s+", "-")
                 .replaceAll("[^a-z0-9-]", "")
