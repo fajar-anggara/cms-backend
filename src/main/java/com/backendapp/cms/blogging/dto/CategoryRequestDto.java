@@ -1,6 +1,7 @@
 package com.backendapp.cms.blogging.dto;
 
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +16,8 @@ import java.util.Optional;
 //@UniqueSlug
 @Builder
 public class CategoryRequestDto {
-    Optional<String> name = Optional.empty();
+    @NotBlank(message = "Nama kategori tidak boleh kosong")
+    String name;
     Optional<String> slug = Optional.empty();
     Optional<String> description = Optional.empty();
     Optional<List<Long>> posts = Optional.empty();

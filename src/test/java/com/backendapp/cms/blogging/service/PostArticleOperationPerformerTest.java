@@ -28,6 +28,9 @@
 //import static org.junit.jupiter.api.Assertions.*;
 //import static org.mockito.ArgumentMatchers.*;
 //import static org.mockito.Mockito.*;
+
+
+// contraint validation exception CEEEEEEEEEEEEEEEEEEEEK
 //
 //@ExtendWith(MockitoExtension.class)
 //class PostArticleOperationPerformerTest {

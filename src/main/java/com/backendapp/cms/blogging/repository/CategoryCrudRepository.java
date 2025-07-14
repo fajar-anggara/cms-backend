@@ -13,4 +13,5 @@ import java.util.*;
 public interface CategoryCrudRepository extends JpaRepository<CategoryEntity, Long> {
     Set<CategoryEntity> findAllByNameInAndUser(Collection<String> name, UserEntity user);
 
+    Optional<CategoryEntity> findByNameAndUser(String name, UserEntity user);
 }

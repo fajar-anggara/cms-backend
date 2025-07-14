@@ -4,6 +4,7 @@ package com.backendapp.cms.blogging.helper;
 import com.backendapp.cms.blogging.contract.CategoryBuilder;
 import com.backendapp.cms.blogging.contract.UserBuilder;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
+import com.backendapp.cms.blogging.exception.CategoryAlreadyExistsException;
 import com.backendapp.cms.blogging.repository.CategoryCrudRepository;
 import com.backendapp.cms.users.entity.UserEntity;
 import org.junit.jupiter.api.DisplayName;
@@ -16,10 +17,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -136,5 +139,17 @@ public class CategoryGeneratorTest {
         CategoryEntity actual = categoryGenerator.generateCategoryByName(categoryEntities.getName(), user);
 
         assertEquals(actual.getName(), categoryEntities.getName());
+    }
+
+    @Test
+    @DisplayName("Should return exception CategoryAlteadyExistsException when there is already category in database")
+    void checkOrCreate_shouldReturnExceptionCategoryAlreadyExistsExceptionWhenThereIsAlreadyCategoryInDatabase() {
+        UserEntity user = new UserBuilder().withDefault().build();
+        CategoryEntity category = new CategoryBuilder().withDefault().build();
+
+        when(categoryCrudRepository.findByNameAndUser(category.getName(), user))
+                .thenReturn(Optional.of(category));
+
+        assertThrowsExactly(CategoryAlreadyExistsException.class, () -> categoryGenerator.checkOrCreate(category.getName(), user));
     }
 }

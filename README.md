@@ -39,8 +39,8 @@ Yang sudah terimplementasi dan di test mengguakan postman:
 ## API Documentation
 
 Once running, you can access:
-- **Swagger UI**: `http://31.97.110.252:8080/swagger-ui/index.html#/`
-- **OpenAPI JSON**: `http://31.97.110.252:8080/v3/api-docs`
+- **Swagger UI**: http://31.97.110.252:8080/swagger-ui/index.html#/
+- **OpenAPI JSON**: http://31.97.110.252:8080/v3/api-docs
 
 ## Testing
 
@@ -153,76 +153,6 @@ All endpoint of:
                     └───users
                         ├───endpoint
                         └───helper
-├───main
-│   ├───java
-│   │   └───com
-│   │       └───backendapp
-│   │           └───cms
-│   │               ├───blogging
-│   │               │   ├───converter
-│   │               │   │   └───mapper
-│   │               │   ├───dto
-│   │               │   ├───endpoint
-│   │               │   ├───entity
-│   │               │   ├───exeption
-│   │               │   ├───helper
-│   │               │   ├───repository
-│   │               │   └───service
-│   │               ├───blogs
-│   │               ├───common
-│   │               │   ├───config
-│   │               │   ├───constant
-│   │               │   ├───dto
-│   │               │   ├───enums
-│   │               │   └───exception
-│   │               │       └───handler
-│   │               ├───email
-│   │               │   └───service
-│   │               ├───security
-│   │               │   ├───config
-│   │               │   ├───dto
-│   │               │   ├───endpoint
-│   │               │   ├───entity
-│   │               │   ├───exception
-│   │               │   ├───jwt
-│   │               │   ├───repository
-│   │               │   ├───service
-│   │               │   └───validation
-│   │               │       ├───annotation
-│   │               │       └───annotationValidator
-│   │               ├───superuser
-│   │               │   ├───converter
-│   │               │   ├───endpoint
-│   │               │   └───service
-│   │               └───users
-│   │                   ├───converter
-│   │                   │   └───mapper
-│   │                   ├───dto
-│   │                   ├───endpoint
-│   │                   ├───entity
-│   │                   ├───exception
-│   │                   ├───helper
-│   │                   ├───repository
-│   │                   └───service
-│   └───resources
-│       ├───api-specs
-│       └───templates
-└───test
-    └───java
-        └───com
-            └───backendapp
-                └───cms
-                    ├───blogging
-                    │   ├───contract
-                    │   │   └───bonded
-                    │   ├───converter
-                    │   ├───endpoint
-                    │   ├───helper
-                    │   └───service
-                    └───users
-                        ├───endpoint
-                        └───helper
-
 ```
 
 ## Getting Started

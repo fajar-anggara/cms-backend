@@ -1,14 +1,11 @@
 package com.backendapp.cms.blogging.converter.mapper;
 
-import com.backendapp.cms.blogging.converter.CategoriesResponseConverter;
-import com.backendapp.cms.blogging.converter.CategoriesResponseConverterImpl;
+import com.backendapp.cms.blogging.converter.CategoryResponseConverter;
+import com.backendapp.cms.blogging.converter.CategoryResponseConverterImpl;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
 import com.backendapp.cms.openapi.dto.UserSimpleResponse;
 import com.backendapp.cms.security.entity.UserGrantedAuthority;
-import com.backendapp.cms.users.converter.UserResponseConverter;
-import com.backendapp.cms.users.converter.UserResponseConverterImpl;
-import com.backendapp.cms.users.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
@@ -16,8 +13,6 @@ import org.mapstruct.Named;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -25,13 +20,13 @@ import java.util.Set;
 @AllArgsConstructor
 public abstract class PostResponseMapper {
 
-    private final CategoriesResponseConverter categoriesResponseConverter = new CategoriesResponseConverterImpl();
+    private final CategoryResponseConverter categoryResponseConverter = new CategoryResponseConverterImpl();
 
     @Named("mapFromSetCategoriesEntityToListCategoriesSimpleDto")
     public List<CategoriesSimpleDTO> mapFromSetCategoriesEntityToListCategoriesSimpleDto (Set<CategoryEntity> set) {
         return set
                 .stream()
-                .map(categoriesResponseConverter::fromCategoriesEntityToCategorySimpleDto)
+                .map(categoryResponseConverter::fromCategoriesEntityToCategorySimpleDto)
                 .toList();
     }
 

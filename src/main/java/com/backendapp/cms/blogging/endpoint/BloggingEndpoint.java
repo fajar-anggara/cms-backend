@@ -1,12 +1,18 @@
 package com.backendapp.cms.blogging.endpoint;
 
+import com.backendapp.cms.blogging.converter.CategoryRequestConverter;
+import com.backendapp.cms.blogging.converter.CategoryResponseConverter;
 import com.backendapp.cms.blogging.converter.PostResponseConverter;
+import com.backendapp.cms.blogging.dto.CategoryRequestDto;
+import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
+import com.backendapp.cms.blogging.service.CreateCategoryOperationPerformer;
 import com.backendapp.cms.blogging.service.PostArticleOperationPerformer;
 import com.backendapp.cms.openapi.blogging.api.BloggingControllerApi;
 import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.users.converter.UserResponseConverter;
 import com.backendapp.cms.users.entity.UserEntity;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,29 +28,40 @@ public class BloggingEndpoint implements BloggingControllerApi {
     private final PostArticleOperationPerformer postArticleOperationPerformer;
     private final PostResponseConverter postResponseConverter;
     private final UserResponseConverter userResponseConverter;
+    private final CategoryRequestConverter categoryRequestConverter;
+    private final CategoryResponseConverter categoryResponseConverter;
+    private final CreateCategoryOperationPerformer createCategoryOperationPerformer;
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<PostArticle200Response> postArticle(PostRequest postRequest) {
+    public ResponseEntity<PostArticle200Response> postArticle(@Valid PostRequest postRequest) {
         UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserSimpleResponse userSimpleResponse = userResponseConverter.fromUserEntityToSimpleResponse(user);
         PostEntity article = postArticleOperationPerformer.post(user, postRequest);
+
+        UserSimpleResponse userSimpleResponse = userResponseConverter.fromUserEntityToSimpleResponse(user);
         PostSimpleResponse postSimpleResponse = postResponseConverter.fromPostEntityToPostSimpleResponse(article);
         postSimpleResponse.setUser(userSimpleResponse);
+
         PostArticle200Response response = new PostArticle200Response();
         response.setSuccess(true);
         response.setMessage("Berhasil memposting sebuah artikel");
         response.setData(postSimpleResponse);
+
         return ResponseEntity.ok(response);
     }
 
     @Override
-    public ResponseEntity<CategoriesSimpleDTO> createCategory(CategoryRequest categoryRequest) {
-        return BloggingControllerApi.super.createCategory(categoryRequest);
-    }
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CreateCategory200Response> createCategory(CategoryRequest categoryRequest) {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CategoryRequestDto category = categoryRequestConverter.fromCategoryRequestToCategoryRequestDto(categoryRequest);
+        CategoryEntity savedCategory = createCategoryOperationPerformer.createCategory(category, user);
+        CategoriesSimpleDTO mappedCategory = categoryResponseConverter.fromCategoriesEntityToCategorySimpleDto(savedCategory);
 
-    // mapper to categoryRequestDto
-    // operation
-    // mapper to response
-    // build response
+        CreateCategory200Response response = new CreateCategory200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasil membuat kategori");
+        response.setData(mappedCategory);
+        return ResponseEntity.ok(response);
+    }
 }

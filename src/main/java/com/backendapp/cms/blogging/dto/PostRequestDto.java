@@ -18,10 +18,10 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode
 public class PostRequestDto {
-    @NotBlank
+    @NotBlank(message = "Judul tidak boleh kosong")
     String title;
     Optional<String> slug = Optional.empty();
-    @NotBlank
+    @NotBlank(message = "Content tidak boleh kosong")
     String content;
     Optional<String> excerpt = Optional.empty();
     Optional<String> featuredImageUrl = Optional.empty();

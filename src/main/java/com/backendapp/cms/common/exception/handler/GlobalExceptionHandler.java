@@ -1,5 +1,6 @@
 package com.backendapp.cms.common.exception.handler;
 
+import com.backendapp.cms.blogging.exception.CategoryAlreadyExistsException;
 import com.backendapp.cms.common.dto.ErrorResponse;
 import com.backendapp.cms.security.exception.*;
 import com.backendapp.cms.security.exception.RefreshTokenExpiredException;
@@ -121,7 +122,22 @@ public class GlobalExceptionHandler {
     }
 
 
+    /**
+     * Blogging exception handler
+     * |
+     * handle_categoryAlreadyExistsException
+     */
 
+
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handle_CategoryAlreadyExistsException(CategoryAlreadyExistsException e) {
+        log.warn("CategoryAlreadyExistsException, message {}", e.getMessage());
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("name", e.getMessage());
+
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
 
 

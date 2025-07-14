@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 public class CategoryResponseConverterTest {
 
-    private final CategoriesResponseConverter categoriesResponseConverter = new CategoriesResponseConverterImpl();
+    private final CategoryResponseConverter categoryResponseConverter = new CategoryResponseConverterImpl();
 
     @Test
     @DisplayName("Should return CategorySimpleDto when received categoryEntity")
@@ -20,7 +20,7 @@ public class CategoryResponseConverterTest {
         CategoryEntity categoryEntity = new CategoryBuilder().withDefault().build();
         CategoriesSimpleDTO categoriesSimpleDTO = new CategoryBuilder().withDefault().buildCategoriesSimpleDTO();
 
-        CategoriesSimpleDTO actual = categoriesResponseConverter.fromCategoriesEntityToCategorySimpleDto(categoryEntity);
+        CategoriesSimpleDTO actual = categoryResponseConverter.fromCategoriesEntityToCategorySimpleDto(categoryEntity);
 
         assertEquals(actual, categoriesSimpleDTO);
     }

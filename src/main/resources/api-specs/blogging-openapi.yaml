@@ -515,7 +515,13 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/CategoriesSimpleDTO'
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - $ref: '#/components/schemas/CategoriesSimpleDTO'
 
         "400":
           description: "Bad request"
