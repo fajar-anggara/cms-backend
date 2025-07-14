@@ -33,9 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("executing shouldNotFilter with URI: {}", requestURI);
         List<String> whiteList = Arrays.asList(
                 "/v3/api-docs",
-                "/swagger-ui",
+                "/swagger-ui/",
                 "/swagger-resources",
-                "/webjars",
+                "/webjars/",
                 ApiConstants.AUTH_PATH,
                 ApiConstants.PUBLIC_PATH
         );

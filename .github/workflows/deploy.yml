@@ -31,7 +31,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            script: |
               cd /root/cms-deploy
               git fetch --all
               git reset --hard origin/main
