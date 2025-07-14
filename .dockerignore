@@ -1,0 +1,17 @@
+# Maven build
+target/
+*.log
+
+# IDE settings
+*.iml
+.idea/
+.vscode/
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Docker artifacts
+*.jar
+.env
+docker-compose.override.yml
