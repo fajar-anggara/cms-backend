@@ -33,7 +33,9 @@ info:
 
 servers:
   - url: "http://localhost:8080"
-    description: "Development Server"
+    description: "Development server"
+  - url: "http://http://31.97.110.252:8080"
+    description: "Production server"
 
 tags:
   - name: UserController
