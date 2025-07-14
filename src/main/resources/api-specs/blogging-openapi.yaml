@@ -458,7 +458,7 @@ paths:
     get:
       tags:
         - BloggingController
-      operationId: "categoriesDashboard"
+      operationId: "getAllCategories"
       security:
         - BearerAuth: [ ]
       responses:
@@ -467,8 +467,6 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
                   allOf:
                     - $ref: '#/components/schemas/ListOfCategoryResponses'
 

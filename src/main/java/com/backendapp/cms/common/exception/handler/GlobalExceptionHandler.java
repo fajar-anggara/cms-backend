@@ -1,6 +1,8 @@
 package com.backendapp.cms.common.exception.handler;
 
 import com.backendapp.cms.blogging.exception.CategoryAlreadyExistsException;
+import com.backendapp.cms.blogging.exception.NoCategoryException;
+import com.backendapp.cms.blogging.exception.NoPostsException;
 import com.backendapp.cms.common.dto.ErrorResponse;
 import com.backendapp.cms.security.exception.*;
 import com.backendapp.cms.security.exception.RefreshTokenExpiredException;
@@ -126,6 +128,7 @@ public class GlobalExceptionHandler {
      * Blogging exception handler
      * |
      * handle_categoryAlreadyExistsException
+     * handle_noPostsException
      */
 
 
@@ -136,9 +139,28 @@ public class GlobalExceptionHandler {
         errors.put("name", e.getMessage());
 
         ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(NoPostsException.class)
+    public ResponseEntity<ErrorResponse> handle_NoPostsException(NoPostsException e) {
+        log.warn("NoPostsException, message {}", e.getMessage());
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("posts", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(NoCategoryException.class)
+    public ResponseEntity<ErrorResponse> handle_noCategoriesException(NoCategoryException e) {
+        log.warn("NoCategories, message {}", e.getMessage());
+        HashMap<String, String> errors = new HashMap<>();
+        errors.put("name", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage(), errors);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    // TODO Create resource not found handler
 
 
 
