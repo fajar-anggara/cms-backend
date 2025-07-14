@@ -35,6 +35,13 @@ Yang sudah terimplementasi dan di test mengguakan postman:
 - API documentation
 - Create post and find ot create category if not exists in database.
 
+
+## API Documentation
+
+Once running, you can access:
+- **Swagger UI**: `http://31.97.110.252:8080/swagger-ui/index.html#/`
+- **OpenAPI JSON**: `http://31.97.110.252:8080/v3/api-docs`
+
 ## Testing
 
 Run tests with:
@@ -217,12 +224,6 @@ All endpoint of:
                         └───helper
 
 ```
-
-## API Documentation
-
-Once running, you can access:
-- **Swagger UI**: `http://31.97.110.252:8080/swagger-ui/index.html#/`
-- **OpenAPI JSON**: `http://31.97.110.252:8080/v3/api-docs`
 
 ## Getting Started
 
