@@ -40,7 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 ApiConstants.PUBLIC_PATH
         );
         return whiteList.stream().anyMatch(requestURI::startsWith) ||
-                requestURI.equals("/swagger-ui.html");
+                requestURI.equals("/swagger-ui.html") || requestURI.equals("/swagger-ui/index.htm");
     }
 
     @Override
