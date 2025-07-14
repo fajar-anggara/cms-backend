@@ -8,7 +8,8 @@ COPY . .
 
 # Build aplikasi dengan profil prod dan tanpa skip test (untuk reliability)
 RUN mvn versions:set-property -Dproperty=project.version -DnewVersion=1.0.0 && \
-    mvn clean package -Pprod
+    mvn clean package -DskipTests
+
 
 # ---------- Stage 2: Jalankan aplikasi ----------
 FROM eclipse-temurin:21-jdk-alpine

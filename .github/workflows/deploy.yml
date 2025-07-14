@@ -31,8 +31,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            cd /path/to/deployment/folder
-            git pull origin main
-            docker compose down
-            docker compose build
-            docker compose up -d
+            script: |
+              cd /root/cms-deploy
+              git fetch --all
+              git reset --hard origin/main
+              docker compose down
+              docker compose build
+              docker compose up -d
