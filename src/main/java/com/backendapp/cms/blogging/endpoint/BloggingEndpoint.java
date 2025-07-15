@@ -24,6 +24,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 // TODO get all categories
@@ -110,18 +112,67 @@ public class BloggingEndpoint implements BloggingControllerApi {
         return ResponseEntity.ok(response);
     }
 
-//    @Override
-//    public ResponseEntity<GetSingleCategory200Response> getSingleCategory(Long id) {
-//        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        CategoryEntity category = categoryCrudRepository.findByIdAndUser(id, user).orElseThrow(NoCategoryException::new);
-//        CategoryResponse postResponse = categoryResponseConverter.fromCategoryEntityToCategoryResponse(category);
-//
-//
-//        GetSingleArticle200Response response = new GetSingleArticle200Response();
-//        response.setSuccess(true);
-//        response.setMessage("Berhasil memuat data artikel");
-//        response.setData(postResponse);
-//
-//        return ResponseEntity.ok(response);
-//    }
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetAllCategories200Response> getAllCategories() {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<GetAllCategories200ResponseAllOfData> listOfCategory = categoryCrudRepository.findAllByUserAndDeletedAtIsNull(user)
+                .orElse(new ArrayList<>())
+                .stream()
+                .map(categoryResponseConverter::fromCategoryEntityToGetAllCategories200ResponseAllOfData)
+                .toList();
+
+        GetAllCategories200Response response = new GetAllCategories200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasil memuat data kategori");
+        response.setData(listOfCategory);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetSingleCategory200Response> getSingleCategory(Long id) {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CategoryEntity category = categoryCrudRepository.findByIdAndUser(id, user).orElseThrow(NoCategoryException::new);
+        List<CategoryResponseAllOfPosts> posts = new ArrayList<>();
+        if (!category.getPosts().isEmpty()) {
+            posts = category.getPosts()
+                .stream()
+                    .map(categoryResponseConverter::mapFromPostEntityToCategoryResponseAllOfPost)
+                    .toList();
+        }
+        CategoryResponse categoryResponse = categoryResponseConverter.fromCategoryEntityToCategoryResponse(category);
+        categoryResponse.setPosts(posts);
+
+        GetSingleCategory200Response response = new GetSingleCategory200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasil memuat data kategori");
+        response.setData(categoryResponse);
+
+        return ResponseEntity.ok(response);
+    }
+
+
+    //TODO perdeletan harus diletakan juga di getSingle dibawah ini.
+    // TODO Paginating di get All
+    @Override
+    public ResponseEntity<Success200Response> deleteSingleCategory(Long id) {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CategoryEntity category = categoryCrudRepository.findByIdAndUser(id, user).orElseThrow(NoCategoryException::new);
+        category.setDeletedAt(LocalDateTime.now());
+        categoryCrudRepository.save(category);
+
+        return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus kategori"));
+    }
+
+    @Override
+    public ResponseEntity<Success200Response> deleteSingleArticle(Long id) {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PostEntity post = postCrudRepository.findByIdAndUser(id, user).orElseThrow(NoPostsException::new);
+        post.setDeletedAt(LocalDateTime.now());
+        postCrudRepository.save(post);
+
+        return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus artikel"));
+    }
 }

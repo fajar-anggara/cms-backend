@@ -1,3 +1,4 @@
+
 openapi: 3.0.3
 
 info:
@@ -27,7 +28,7 @@ info:
     
     /api/v1/admin/categories
     get
-      categoriesDashboard
+      getAllCategories
     post
       createCategories
     /api/v1/admin/categories/{id}
@@ -39,7 +40,7 @@ info:
       editSingleCategoryArticles
     delete
       deleteSingleCategories
-    
+  
 
   contact:
     name: "Moh. Fajar Anggara"
@@ -453,7 +454,7 @@ paths:
               schema:
                 allOf:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
-  
+
   /api/v1/admin/categories:
     get:
       tags:
@@ -467,8 +468,15 @@ paths:
           content:
             application/json:
               schema:
-                  allOf:
-                    - $ref: '#/components/schemas/ListOfCategoryResponses'
+                allOf:
+                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: "#/components/schemas/categorySimpleResponse"
 
         "401":
           description: "Unauthorized"

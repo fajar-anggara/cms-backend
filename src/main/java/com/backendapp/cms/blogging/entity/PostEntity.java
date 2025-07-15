@@ -4,8 +4,10 @@ import com.backendapp.cms.common.enums.Status;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -13,6 +15,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "posts")
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
@@ -52,6 +55,7 @@ public class PostEntity {
             joinColumns = @JoinColumn(name = "posts_id"),
             inverseJoinColumns = @JoinColumn(name = "categories_id")
     )
+    @SQLRestriction("deleted_at IS NULL")
     private Set<CategoryEntity> categories = new HashSet<>();
 
     @Column(name = "published_at", nullable = false)

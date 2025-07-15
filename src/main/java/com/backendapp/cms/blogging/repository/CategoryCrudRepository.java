@@ -16,4 +16,6 @@ public interface CategoryCrudRepository extends JpaRepository<CategoryEntity, Lo
     Optional<CategoryEntity> findByNameAndUser(String name, UserEntity user);
 
     Optional<CategoryEntity> findByIdAndUser(Long id, UserEntity user);
+
+    Optional<List<CategoryEntity>> findAllByUserAndDeletedAtIsNull(UserEntity user);
 }
