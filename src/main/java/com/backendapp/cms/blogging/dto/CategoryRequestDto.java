@@ -18,7 +18,6 @@ import java.util.Optional;
 public class CategoryRequestDto {
     @NotBlank(message = "Nama kategori tidak boleh kosong")
     String name;
-    Optional<String> slug = Optional.empty();
     Optional<String> description = Optional.empty();
     Optional<List<Long>> posts = Optional.empty();
 }

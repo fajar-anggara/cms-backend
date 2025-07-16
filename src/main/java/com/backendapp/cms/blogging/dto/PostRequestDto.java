@@ -20,7 +20,6 @@ import java.util.Set;
 public class PostRequestDto {
     @NotBlank(message = "Judul tidak boleh kosong")
     String title;
-    Optional<String> slug = Optional.empty();
     @NotBlank(message = "Content tidak boleh kosong")
     String content;
     Optional<String> excerpt = Optional.empty();
@@ -35,7 +34,6 @@ public class PostRequestDto {
         if (o == null || getClass() != o.getClass()) return false;
         PostRequestDto that = (PostRequestDto) o;
         return Objects.equals(title, that.title) &&
-                Objects.equals(slug, that.slug) &&
                 Objects.equals(content, that.content) &&
                 Objects.equals(excerpt, that.excerpt) &&
                 Objects.equals(featuredImageUrl, that.featuredImageUrl) &&
@@ -45,7 +43,7 @@ public class PostRequestDto {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, slug, content, excerpt, featuredImageUrl, status, categories);
+        return Objects.hash(title, content, excerpt, featuredImageUrl, status, categories);
     }
 }
 

@@ -4,14 +4,13 @@ import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.common.enums.Status;
-import com.backendapp.cms.openapi.dto.*;
+import com.backendapp.cms.openapi.dto.CategoryResponseAllOfPosts;
+import com.backendapp.cms.openapi.dto.PostRequest;
+import com.backendapp.cms.openapi.dto.PostResponse;
+import com.backendapp.cms.openapi.dto.PostSimpleResponse;
 import com.backendapp.cms.users.entity.UserEntity;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -188,7 +187,6 @@ public class PostBuilder {
 
         return PostRequestDto.builder()
                 .title(expectedSanitizedTitle)
-                .slug(Optional.of(expectedSanitizedSlug))
                 .content(expectedSanitizedContent)
                 .excerpt(Optional.of(expectedSanitizedExcerpt))
                 .featuredImageUrl(Optional.of("/default.jpg"))
@@ -218,7 +216,6 @@ public class PostBuilder {
 
         return PostRequestDto.builder()
                 .title(expectedTitle)
-                .slug(Optional.of("post-with-basic-markdown"))
                 .content(expectedHtmlContent)
                 .excerpt(Optional.of(expectedHtmlExcerpt))
                 .featuredImageUrl(Optional.of(this.featuredImageUrl))
@@ -248,7 +245,6 @@ public class PostBuilder {
 
         return PostRequestDto.builder()
                 .title(expectedTitle)
-                .slug(Optional.of("post-with-basic-markdown"))
                 .content(expectedHtmlContent)
                 .excerpt(Optional.of(expectedHtmlExcerpt))
                 .featuredImageUrl(Optional.of(this.featuredImageUrl))
@@ -270,7 +266,6 @@ public class PostBuilder {
 
         return PostRequestDto.builder()
                 .title(expectedTitle)
-                .slug(Optional.ofNullable(this.slug))
                 .content(expectedHtmlContent)
                 .excerpt(Optional.of(expectedHtmlExcerpt))
                 .featuredImageUrl(Optional.ofNullable(this.featuredImageUrl))
@@ -283,7 +278,6 @@ public class PostBuilder {
         return PostRequestDto
                 .builder()
                 .title(this.title)
-                .slug(Optional.of(this.slug))
                 .content(this.content)
                 .excerpt(Optional.of(this.excerpt))
                 .featuredImageUrl(Optional.of(this.featuredImageUrl))
@@ -359,7 +353,6 @@ public class PostBuilder {
     public PostRequest buildPostRequest() {
         PostRequest postRequest = new PostRequest();
         postRequest.setTitle(this.title);
-        postRequest.setSlug(this.slug);
         postRequest.setContent(this.content);
         postRequest.setExcerpt(this.excerpt);
         postRequest.setFeaturedImageUrl(this.featuredImageUrl);

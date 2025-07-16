@@ -2,17 +2,17 @@ package com.backendapp.cms.blogging.endpoint;
 
 import com.backendapp.cms.blogging.converter.CategoryRequestConverter;
 import com.backendapp.cms.blogging.converter.CategoryResponseConverter;
+import com.backendapp.cms.blogging.converter.PostRequestConverter;
 import com.backendapp.cms.blogging.converter.PostResponseConverter;
 import com.backendapp.cms.blogging.dto.CategoryRequestDto;
+import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.blogging.exception.NoCategoryException;
 import com.backendapp.cms.blogging.exception.NoPostsException;
 import com.backendapp.cms.blogging.repository.CategoryCrudRepository;
 import com.backendapp.cms.blogging.repository.PostCrudRepository;
-import com.backendapp.cms.blogging.service.CreateCategoryOperationPerformer;
-import com.backendapp.cms.blogging.service.GetAllArticleOperationPerformer;
-import com.backendapp.cms.blogging.service.PostArticleOperationPerformer;
+import com.backendapp.cms.blogging.service.*;
 import com.backendapp.cms.common.enums.Deleted;
 import com.backendapp.cms.common.enums.SortBy;
 import com.backendapp.cms.common.enums.SortOrder;
@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 // TODO get all categories
 // TODO check all transaction in services
@@ -52,6 +53,9 @@ public class BloggingEndpoint implements BloggingControllerApi {
     private final CategoryCrudRepository categoryCrudRepository;
     private final GetAllArticleOperationPerformer getAllArticleOperationPerformer;
     private final PaginationConverter paginationConverter;
+    private final PostRequestConverter postRequestConverter;
+    private final UpdateSingleCategoryOperationPerformer updateSingleCategoryOperationPerformer;
+    private final UpdateSingleArticleOperationPerformer updateSingleArticleOperationPerformer;
 
     @Override
     @PreAuthorize("isAuthenticated()")
@@ -219,14 +223,36 @@ public class BloggingEndpoint implements BloggingControllerApi {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<GetSingleArticle200Response> editSingleArticleCategories(Long id, List<PostRequest> postRequest) {
-        return BloggingControllerApi.super.editSingleArticleCategories(id, postRequest);
+    public ResponseEntity<EditSingleCategory200Response> editSingleCategory(Long id, CategoryRequest categoryRequest) {
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CategoryRequestDto category = categoryRequestConverter.fromCategoryRequestToCategoryRequestDto(categoryRequest);
+
+        CategoryEntity updateCategory = updateSingleCategoryOperationPerformer.update(id, category, user);
+        CategoriesSimpleDTO data = categoryResponseConverter.fromCategoriesEntityToCategorySimpleDto(updateCategory);
+
+        EditSingleCategory200Response response = new EditSingleCategory200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasil mengedit kategori");
+        response.setData(data);
+
+        return ResponseEntity.ok(response);
     }
 
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostArticle200Response> updateSingleArticle(Long id, PostRequest postRequest) {
-        return BloggingControllerApi.super.updateSingleArticle(id, postRequest);
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PostRequestDto article = postRequestConverter.fromPostRequestToPostRequestDto(postRequest);
+
+        PostEntity updatedArticle = updateSingleArticleOperationPerformer.update(id, article, user);
+        PostSimpleResponse data = postResponseConverter.fromPostEntityToPostSimpleResponse(updatedArticle);
+
+        PostArticle200Response response = new PostArticle200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasil mengedit data artikel");
+        response.setData(data);
+
+        return ResponseEntity.ok(response);
     }
 
     @Override

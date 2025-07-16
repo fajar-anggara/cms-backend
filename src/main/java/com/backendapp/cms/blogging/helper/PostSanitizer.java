@@ -55,7 +55,6 @@ public class PostSanitizer {
 
         return PostRequestDto.builder()
                 .title(sanitizedTitle)
-                .slug(unSanitizedPostRequest.getSlug())
                 .content(sanitizedContent)
                 .excerpt(sanitizedExcerpt)
                 .featuredImageUrl(sanitizedImageUrl)
@@ -83,7 +82,6 @@ public class PostSanitizer {
 
         return PostRequestDto.builder()
                 .title(convertedTitle)
-                .slug(unConvertedPostRequest.getSlug())
                 .content(convertedContent)
                 .excerpt(Optional.ofNullable(convertedExcerpt))
                 .featuredImageUrl(unConvertedPostRequest.getFeaturedImageUrl())

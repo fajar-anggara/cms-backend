@@ -1238,12 +1238,6 @@ components:
           maxLength: 255
           description: "Judul postingan."
           example: "Cara membuat aplikasi cms dengan springboot"
-        slug:
-          type: string
-          minLength: 1
-          maxLength: 255
-          description: "URL Friendly dari judul."
-          example: "cara-membuat-aplikasi-cms-dengan-springboot"
         content:
           type: string
           minLength: 1
@@ -1287,12 +1281,6 @@ components:
           maxLength: 225
           description: "Nama kategori"
           example: "Teknologi Informasi"
-        slug:
-          type: string
-          minLength: 1
-          maxLength: 225
-          description: "URL friendly nama kategori"
-          example: "teknologi-informasi"
         description:
           type: string
           minLength: 1

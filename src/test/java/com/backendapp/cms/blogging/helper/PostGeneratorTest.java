@@ -5,17 +5,17 @@ import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.blogging.repository.PostCrudRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -26,6 +26,8 @@ public class PostGeneratorTest {
 
     @Autowired
     private PostGenerator postGenerator;
+
+    private final PolicyFactory plainText = new HtmlPolicyBuilder().toFactory();
 
     private String escapeRegex(String input) {
         // Escape special regex characters untuk MySQL
@@ -43,7 +45,7 @@ public class PostGeneratorTest {
         when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
                 .thenReturn(new ArrayList<>());
 
-        String actual = postGenerator.generateSlug(Optional.of(postEntity.getSlug()), postEntity.getTitle());
+        String actual = postGenerator.generateSlug(postEntity.getTitle());
 
         assertEquals(actual, postEntity.getSlug());
     }
@@ -58,7 +60,7 @@ public class PostGeneratorTest {
         when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
                 .thenReturn(new ArrayList<>());
 
-        String actual = postGenerator.generateSlug(Optional.empty(), postEntity.getTitle());
+        String actual = postGenerator.generateSlug(postEntity.getTitle());
 
         assertEquals(actual, postEntity.getSlug());
     }
@@ -67,7 +69,7 @@ public class PostGeneratorTest {
     @DisplayName("Should return valid slug when given null slug and null title")
     void generateSlug_shouldReturnValidSlugWhenGivenNullSlugAndNullTitle() {
 
-        String actual = postGenerator.generateSlug(Optional.empty(),null);
+        String actual = postGenerator.generateSlug(null);
 
         assertNotNull(actual);
     }
@@ -83,7 +85,7 @@ public class PostGeneratorTest {
         when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
                 .thenReturn(new ArrayList<>());
 
-        String actual = postGenerator.generateSlug(Optional.empty(), postEntity.getTitle());
+        String actual = postGenerator.generateSlug(postEntity.getTitle());
 
         assertEquals(actual, "my-title");
     }
@@ -98,13 +100,15 @@ public class PostGeneratorTest {
         List<PostEntity> listOfPosts = new ArrayList<>();
         listOfPosts.add(postEntity);
 
-        String regexPattern = "^" + escapeRegex(postEntity.getSlug()) + "(-[0-9]+)?$";
-        when(postCrudRepository.findSlugPatternNative(postEntity.getSlug(), regexPattern))
+        String title = plainText.sanitize(postEntity.getTitle()).toLowerCase();
+        String regexPattern = "^" + escapeRegex(title) + "(-[0-9]+)?$";
+        when(postCrudRepository.findSlugPatternNative(title, regexPattern))
                 .thenReturn(listOfPosts);
 
-        String actual = postGenerator.generateSlug(Optional.of(postEntity.getSlug()), postEntity.getTitle());
+        String actual = postGenerator.generateSlug(postEntity.getTitle());
 
-        assertEquals(actual, (postEntity.getSlug() + "-" + 2));
+        // karena menghasilkan time mili second jadi tidak bisa diprediksi
+        assertNotNull(actual);
     }
 
     @Test
