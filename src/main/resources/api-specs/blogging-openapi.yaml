@@ -67,12 +67,22 @@ paths:
       security:
         - BearerAuth: [ ]
       parameters:
+        - name: "deleted"
+          in: query
+          description: "Apakah menampilkan post yang sudah didelete, tidak, atau semuanya"
+          schema:
+            type: string
+            enum:
+              - "DELETED"
+              - "NONDELETED"
+              - "ALL"
+            default: "NONDELETED"
         - name: "limit"
           in: query
           description: "Jumlah postingan yang akan ditampilkan"
           schema:
             type: integer
-            default: 6
+            default: 10
             minimum: 1
           example: 1
         - name: "sortBy"
@@ -88,7 +98,7 @@ paths:
           example: "PUBLISHED"
         - name: sortOrder
           in: query
-          description: "Arah pengurutan"
+          description: "Arah pengurutan postingan"
           schema:
             type: string
             enum:
@@ -104,6 +114,14 @@ paths:
             type: string
           example: "nama-kategori"
           required: false
+        - name: "page"
+          in: query
+          description: "sekarang page ke berapa dari postingan yang ditampilkan"
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 1
         - name: search
           in: query
           description: "Keyword untuk mencari postingan"
@@ -154,6 +172,71 @@ paths:
       description: "Mendapatakan semua postingan."
       security:
         - BearerAuth: [ ]
+      parameters:
+        - name: "deleted"
+          in: query
+          description: "Apakah menampilkan post yang sudah didelete, tidak, atau semuanya"
+          schema:
+            type: string
+            enum:
+              - "DELETED"
+              - "NONDELETED"
+              - "ALL"
+            default: "NONDELETED"
+        - name: "limit"
+          in: query
+          description: "Jumlah postingan yang akan ditampilkan"
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          example: 1
+        - name: "sortBy"
+          in: query
+          description: "Mengurutkan hasil berdasarkan"
+          schema:
+            type: string
+            enum:
+              - "PUBLISHED"
+              - "VIEWS"
+              - "TITLE"
+            default: "PUBLISHED"
+          example: "PUBLISHED"
+        - name: sortOrder
+          in: query
+          description: "Arah pengurutan postingan"
+          schema:
+            type: string
+            enum:
+              - "ASC"
+              - "DESC"
+            default: "ASC"
+          example: "ASC"
+          required: false
+        - name: categorySlug
+          in: query
+          description: "Menampilkan postingan berdasarkan kategori"
+          schema:
+            type: string
+          example: "nama-kategori"
+          required: false
+        - name: "page"
+          in: query
+          description: "sekarang page ke berapa dari postingan yang ditampilkan"
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 1
+        - name: search
+          in: query
+          description: "Keyword untuk mencari postingan"
+          schema:
+            type: string
+            minimum: 1
+            maximum: 225
+          example: "Cara membuat cms dengan springboot"
+          required: false
       responses:
         "200":
           description: "Berhasil mendapatakn semua postingan"
@@ -165,8 +248,15 @@ paths:
                   - type: object
                     properties:
                       data:
-                        allOf:
-                          - $ref: '#/components/schemas/ListOfArticleResponses'
+                        type: object
+                        properties:
+                          posts:
+                            allOf:
+                              - $ref: '#/components/schemas/ListOfArticleResponses'
+                          pagination:
+                            allOf:
+                              - $ref: './blogs-openapi.yaml#/components/schemas/PaginationMetadata'
+
 
         "401":
           description: "Unauthorized"
@@ -566,6 +656,63 @@ paths:
             format: int64
             example: 1
           required: true
+        - name: "deleted"
+          in: query
+          description: "Apakah menampilkan post yang sudah didelete, tidak, atau semuanya"
+          schema:
+            type: string
+            enum:
+              - "DELETED"
+              - "NONDELETED"
+              - "ALL"
+            default: "NONDELETED"
+        - name: "limit"
+          in: query
+          description: "Jumlah postingan yang akan ditampilkan"
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+          example: 1
+        - name: "sortBy"
+          in: query
+          description: "Mengurutkan hasil berdasarkan"
+          schema:
+            type: string
+            enum:
+              - "PUBLISHED"
+              - "VIEWS"
+              - "TITLE"
+            default: "PUBLISHED"
+          example: "PUBLISHED"
+        - name: sortOrder
+          in: query
+          description: "Arah pengurutan postingan"
+          schema:
+            type: string
+            enum:
+              - "ASC"
+              - "DESC"
+            default: "ASC"
+          example: "ASC"
+          required: false
+        - name: "page"
+          in: query
+          description: "sekarang page ke berapa dari postingan yang ditampilkan"
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 1
+        - name: search
+          in: query
+          description: "Keyword untuk mencari postingan"
+          schema:
+            type: string
+            minimum: 1
+            maximum: 225
+          example: "Cara membuat cms dengan springboot"
+          required: false
       responses:
         "200":
           description: "Berhasil mendapatakan detail sebuah kategori"
@@ -577,8 +724,23 @@ paths:
                   - type: object
                     properties:
                       data:
-                        allOf:
-                          - $ref: '#/components/schemas/categoryResponse'
+                        type: object
+                        properties:
+                          category:
+                            allOf:
+                              - $ref: '#/components/schemas/categoryResponse'
+                          posts:
+                            allOf:
+                              - type: array
+                                items:
+                                  allOf:
+                                    - $ref: "#/components/schemas/PostSimpleDTO"
+                          pagination:
+                            allOf:
+                              - $ref: './blogs-openapi.yaml#/components/schemas/PaginationMetadata'
+
+
+
         "401":
           description: "Unauthorized"
           content:

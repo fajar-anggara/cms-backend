@@ -4,14 +4,14 @@ import com.backendapp.cms.blogging.dto.PostRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.common.enums.Status;
-import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
-import com.backendapp.cms.openapi.dto.PostRequest;
-import com.backendapp.cms.openapi.dto.PostSimpleResponse;
+import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -339,6 +339,23 @@ public class PostBuilder {
         return postSimpleResponse;
     }
 
+    public CategoryResponseAllOfPosts buildCategoryResponseAllOfPosts() {
+        CategoryResponseAllOfPosts categoryResponseAllOfPosts = new CategoryResponseAllOfPosts();
+        categoryResponseAllOfPosts.setId(this.id);
+        categoryResponseAllOfPosts.setTitle(this.title);
+        categoryResponseAllOfPosts.setSlug(this.slug);
+        categoryResponseAllOfPosts.setExcerpt(this.excerpt);
+        categoryResponseAllOfPosts.setCategories(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1));
+        categoryResponseAllOfPosts.setFeaturedImageUrl(this.featuredImageUrl);
+        categoryResponseAllOfPosts.setStatus(CategoryResponseAllOfPosts.StatusEnum.valueOf(this.status.toString()));
+        categoryResponseAllOfPosts.setUser(new UserBuilder().withDefault().buildUserSimpleResponse());
+        categoryResponseAllOfPosts.setCreatedAt(this.createdAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
+        categoryResponseAllOfPosts.setPublishedAt(this.publishedAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
+
+        return categoryResponseAllOfPosts;
+
+    }
+
     public PostRequest buildPostRequest() {
         PostRequest postRequest = new PostRequest();
         postRequest.setTitle(this.title);
@@ -352,4 +369,20 @@ public class PostBuilder {
         return postRequest;
     }
 
+    public PostResponse buildPostResponse() {
+        PostResponse postResponse = new PostResponse();
+        postResponse.setId(this.id);
+        postResponse.setTitle(this.title);
+        postResponse.setSlug(this.slug);
+        postResponse.setContent(this.content);
+        postResponse.setExcerpt(this.excerpt);
+        postResponse.setFeaturedImageUrl(this.featuredImageUrl);
+        postResponse.setStatus(PostResponse.StatusEnum.valueOf(this.status.toString()));
+        postResponse.setCategories(new CategoryBuilder().withDefault().buildListCategoriesSimpleDTO(1));
+        postResponse.setUser(new UserBuilder().withDefault().buildUserSimpleResponse());
+        postResponse.setCreatedAt(this.createdAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
+        postResponse.setPublishedAt(this.publishedAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
+
+        return postResponse;
+    }
 }

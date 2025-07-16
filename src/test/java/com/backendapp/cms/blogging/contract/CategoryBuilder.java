@@ -3,12 +3,14 @@ package com.backendapp.cms.blogging.contract;
 import com.backendapp.cms.blogging.dto.CategoryRequestDto;
 import com.backendapp.cms.blogging.entity.CategoryEntity;
 import com.backendapp.cms.blogging.entity.PostEntity;
-import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
-import com.backendapp.cms.openapi.dto.CategoryRequest;
+import com.backendapp.cms.openapi.dto.*;
 import com.backendapp.cms.users.entity.UserEntity;
 import jakarta.persistence.ManyToOne;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 public class CategoryBuilder {
@@ -177,6 +179,18 @@ public class CategoryBuilder {
         // nanti kedepannya tambahkan POST
 
         return categoryRequestDto;
+    }
+
+    public CategoryResponse buildCategoryResponse () {
+        CategoryResponse categoryResponse = new CategoryResponse();
+        categoryResponse.setId(this.id);
+        categoryResponse.setName(this.name);
+        categoryResponse.setSlug(this.slug);
+        categoryResponse.setUser(new UserBuilder().withDefault().buildUserSimpleResponse());
+        categoryResponse.setDescription(this.description);
+        categoryResponse.createdAt(this.createdAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
+
+        return categoryResponse;
     }
 
     /**

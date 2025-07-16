@@ -3,7 +3,8 @@ package com.backendapp.cms.common.enums;
 public enum SortBy {
     USERNAME("username"),
     CREATEDAT("createdAt"),
-    DELETEDAT("deletedAt");
+    DELETEDAT("deletedAt"),
+    PUBLISHED("deletedAt");
 
     public final String value;
 

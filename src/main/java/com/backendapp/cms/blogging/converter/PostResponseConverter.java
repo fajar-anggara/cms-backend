@@ -27,6 +27,4 @@ public interface PostResponseConverter {
     @Mapping(source = "user.authority", target = "user.authority", qualifiedByName = "mapFromUserAuthorityToUserAuthorityEnum")
     PostResponse fromPostEntityToPostResponse(PostEntity postEntity);
 
-    // TODO create unit test for fromPostEntityToPostResponse
-
 }

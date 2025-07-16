@@ -30,9 +30,8 @@ public class AuthenticationOperationPerformer {
         );
 
         AuthenticationResponse tokens = jwtService.generateTokenAndRefreshToken((UserEntity) authentication.getPrincipal());
-        log.info("not duplicated yet");
         AuthenticationResponse response = AuthenticationResponse.builder().accessToken(tokens.getAccessToken()).refreshToken(tokens.getRefreshToken()).build();
-        log.info("not duplicated yet - in authentication response");
+
         return response;
     }
 }
