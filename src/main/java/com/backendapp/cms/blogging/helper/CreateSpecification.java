@@ -19,8 +19,17 @@ public class CreateSpecification {
         return Specification.allOf(
                 createSearchSpecification(search),
                 createSpecificationDelete(delete),
-                createCategorySLug(categorySLug),
+                createCategorySLugSpecification(categorySLug),
                 createUserSpecification(user)
+        );
+    }
+
+    public Specification<PostEntity> getSpecificationByCategory(String search, Deleted delete, UserEntity user, CategoryEntity category) {
+        return Specification.allOf(
+                createSearchSpecification(search),
+                createSpecificationDelete(delete),
+                createUserSpecification(user),
+                createCategoryEntitySpecification(category)
         );
     }
 
@@ -48,7 +57,7 @@ public class CreateSpecification {
         });
     }
 
-    private Specification<PostEntity> createCategorySLug(String categorySLug) {
+    private Specification<PostEntity> createCategorySLugSpecification(String categorySLug) {
         if (categorySLug == null || categorySLug.trim().isEmpty()) {
             return null;
         }
@@ -58,6 +67,15 @@ public class CreateSpecification {
             Join<PostEntity, CategoryEntity> join = root.join("categories");
             return cb.equal(cb.lower(join.get("slug")), category);
         });
+    }
+
+    private Specification<PostEntity> createCategoryEntitySpecification(CategoryEntity category) {
+        // category tidak mungkin null
+
+        return (((root, query, cb) ->  {
+            Join<PostEntity, CategoryEntity> join = root.join("categories");
+            return cb.equal(join.get("id"), category.getId());
+        }));
     }
 
     private Specification<PostEntity> createUserSpecification(UserEntity user) {

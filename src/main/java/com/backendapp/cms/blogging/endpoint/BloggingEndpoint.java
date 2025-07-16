@@ -88,6 +88,7 @@ public class BloggingEndpoint implements BloggingControllerApi {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GetAllArticles200Response> getAllArticles(
             String deleted,
             Integer limit,
@@ -97,7 +98,7 @@ public class BloggingEndpoint implements BloggingControllerApi {
             Integer page,
             String search) {
         UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<PostEntity> articles = getAllArticleOperationPerformer.getAll(
+        Page<PostEntity> articles = getAllArticleOperationPerformer.getAllByUser(
                 Deleted.valueOf(deleted),
                 limit,
                 SortBy.valueOf(sortBy).value,
@@ -132,34 +133,6 @@ public class BloggingEndpoint implements BloggingControllerApi {
         return ResponseEntity.ok(response);
     }
 
-    //    @Override
-//    public ResponseEntity<GetAllArticles200Response> getAllArticles(String deleted, String sortBy, String sortOrder, Integer limit, Integer page, String search) {
-//        return BloggingControllerApi.super.getAllArticles(deleted, sortBy, sortOrder, limit, page, search);
-//    }
-
-
-    //    @Override
-//    @PreAuthorize("isAuthenticated()")
-//    public ResponseEntity<GetAllArticles200Response> getAllArticles() {
-//        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        List<PostSimpleResponse> presentPosts = postCrudRepository.findAllByUserAndDeletedAtIsNull(user)
-//                .orElseThrow(NoPostsException::new)
-//                .stream()
-//                .map(postResponseConverter::fromPostEntityToPostSimpleResponse)
-//                .toList();
-//
-//        GetAllArticles200ResponseAllOfData data = new GetAllArticles200ResponseAllOfData();
-//        data.setPosts(presentPosts);
-//        data.setPagination();
-//
-//        GetAllArticles200Response response = new GetAllArticles200Response();
-//        response.setSuccess(true);
-//        response.setMessage("Berhasil memuat data artikel");
-//        response.setData(data);
-//
-//        return ResponseEntity.ok(response);
-//    }
-
     @Override
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GetAllCategories200Response> getAllCategories() {
@@ -179,6 +152,7 @@ public class BloggingEndpoint implements BloggingControllerApi {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GetSingleArticle200Response> getSingleArticle(Long id) {
         UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         PostEntity post = postCrudRepository.findByIdAndUserAndDeletedAtIsNull(id, user).orElseThrow(NoPostsException::new);
@@ -193,50 +167,65 @@ public class BloggingEndpoint implements BloggingControllerApi {
         return ResponseEntity.ok(response);
     }
 
-//    @Override
-//    @PreAuthorize("isAuthenticated()")
-//    public ResponseEntity<GetSingleCategory200Response> getSingleCategory(Long id) {
-//        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        CategoryEntity category = categoryCrudRepository.findByIdAndUserAndDeletedAtIsNull(id, user).orElseThrow(NoCategoryException::new);
-//        List<CategoryResponseAllOfPosts> posts = new ArrayList<>();
-//        if (!category.getPosts().isEmpty()) {
-//            posts = category.getPosts()
-//                .stream()
-//                    .map(categoryResponseConverter::mapFromPostEntityToCategoryResponseAllOfPost)
-//                    .toList();
-//        }
-//        CategoryResponse categoryResponse = categoryResponseConverter.fromCategoryEntityToCategoryResponse(category);
-//        categoryResponse.setPosts(posts);
-//
-//        GetSingleCategory200Response response = new GetSingleCategory200Response();
-//        response.setSuccess(true);
-//        response.setMessage("Berhasil memuat data kategori");
-//        response.setData(categoryResponse);
-//
-//        return ResponseEntity.ok(response);
-//    }
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<GetSingleCategory200Response> getSingleCategory(
+            Long id,
+            String deleted,
+            Integer limit,
+            String sortBy,
+            String sortOrder,
+            Integer page,
+            String search) {
+        if (id == null) throw new NoCategoryException();
+        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        CategoryEntity category = getAllArticleOperationPerformer.getCategoryById(id, user);
+
+        Page<PostEntity> articles = getAllArticleOperationPerformer.getAllByCategory(
+                category,
+                Deleted.valueOf(deleted),
+                limit,
+                SortBy.valueOf(sortBy).value,
+                SortOrder.valueOf(sortOrder).direction,
+                page,
+                search,
+                user
+        );
+        List<PostSimpleDTO> mappedArticles = articles
+                .stream()
+                .map(postResponseConverter::fromPostEntityToPostSimpleDTO)
+                .toList();
+        PaginationMetadata pagination = paginationConverter.toPaginationMetadata(
+                articles.getNumber(),
+                articles.getSize(),
+                articles.getTotalElements(),
+                articles.getTotalPages(),
+                articles.hasNext(),
+                articles.hasPrevious()
+        );
+
+        GetSingleCategory200ResponseAllOfData data = new GetSingleCategory200ResponseAllOfData();
+        data.setCategory(categoryResponseConverter.fromCategoryEntityToCategoryResponse(category));
+        data.setPosts(mappedArticles);
+        data.setPagination(pagination);
+
+        GetSingleCategory200Response response = new GetSingleCategory200Response();
+        response.setSuccess(true);
+        response.setMessage("Berhasil memuat semua data kategori");
+        response.setData(data);
+
+        return ResponseEntity.ok(response);
+    }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<GetSingleArticle200Response> editSingleArticleCategories(Long id, List<PostRequest> postRequest) {
-        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return BloggingControllerApi.super.editSingleArticleCategories(id, postRequest);
     }
 
     @Override
-    public ResponseEntity<EditSingleCategory200Response> editSingleCategory(Long id, CategoryRequest categoryRequest) {
-        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return BloggingControllerApi.super.editSingleCategory(id, categoryRequest);
-    }
-
-//    @Override
-//    public ResponseEntity<GetSingleCategory200Response> editSingleCategoryArticles(Long id, List<CategoryRequest> categoryRequest) {
-//        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        return BloggingControllerApi.super.editSingleCategoryArticles(id, categoryRequest);
-//    }
-
-    @Override
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostArticle200Response> updateSingleArticle(Long id, PostRequest postRequest) {
-        UserEntity user = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return BloggingControllerApi.super.updateSingleArticle(id, postRequest);
     }
 
@@ -261,6 +250,4 @@ public class BloggingEndpoint implements BloggingControllerApi {
 
         return ResponseEntity.ok(new Success200Response(true, "Berhasil menghapus artikel"));
     }
-
-
 }
