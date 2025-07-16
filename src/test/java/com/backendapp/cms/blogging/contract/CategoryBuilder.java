@@ -164,7 +164,6 @@ public class CategoryBuilder {
     public CategoryRequest buildCategoryRequest() {
         CategoryRequest categoryRequest = new CategoryRequest();
         categoryRequest.setName(this.name);
-        categoryRequest.setSlug(this.slug);
         categoryRequest.setDescription(this.description);
         // untuk nanti kedepannya tambahkan POST
 
@@ -174,7 +173,6 @@ public class CategoryBuilder {
     public CategoryRequestDto buildCategoryRequestDto() {
         CategoryRequestDto categoryRequestDto = new CategoryRequestDto();
         categoryRequestDto.setName(this.name);
-        categoryRequestDto.setSlug(Optional.of(this.slug));
         categoryRequestDto.setDescription(Optional.of(this.description));
         // nanti kedepannya tambahkan POST
 

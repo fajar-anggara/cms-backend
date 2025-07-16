@@ -65,7 +65,7 @@ public class PostArticleOperationPerformer {
 
         PostEntity article = PostEntity.builder()
                 .title(sanitizedRequest.getTitle())
-                .slug(postGenerator.generateSlug(sanitizedRequest.getSlug(), sanitizedRequest.getTitle()))
+                .slug(postGenerator.generateSlug(sanitizedRequest.getTitle()))
                 .content(sanitizedRequest.getContent())
                 .excerpt(sanitizedRequest.getExcerpt()
                         .orElseGet(() -> {

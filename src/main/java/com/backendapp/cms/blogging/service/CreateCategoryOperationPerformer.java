@@ -21,16 +21,14 @@ public class CreateCategoryOperationPerformer {
     private final CategoryCrudRepository categoryCrudRepository;
     private final PostCrudRepository postCrudRepository;
     private final CategoryGenerator categoryGenerator;
-    private final CategorySanitizer categorySanitizer;
 
     @Transactional
     public CategoryEntity createCategory(@Valid CategoryRequestDto category, UserEntity user) {
-        // sanitized
-        String categoryName = categorySanitizer.toPlainText(category.getName());
-
-        CategoryEntity categoryEntity = categoryGenerator.checkOrCreate(categoryName, user);
+        CategoryEntity categoryEntity = categoryGenerator.checkOrCreate(category.getName(), user); // termasuk generate slug
         category.getDescription().ifPresent(categoryEntity::setDescription);
-        category.getPosts().ifPresent(postCrudRepository::findAllById);
+        category.getPosts().ifPresent((listOfPost) -> {
+            categoryEntity.setPosts(postCrudRepository.findAllByIdInAndUser(listOfPost, user));
+        });
 
         return categoryCrudRepository.save(categoryEntity);
     }

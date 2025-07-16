@@ -6,6 +6,7 @@ import com.backendapp.cms.blogging.entity.PostEntity;
 import com.backendapp.cms.blogging.exception.NoPostsException;
 import com.backendapp.cms.blogging.helper.CategoryGenerator;
 import com.backendapp.cms.blogging.helper.CategorySanitizer;
+import com.backendapp.cms.blogging.helper.PostGenerator;
 import com.backendapp.cms.blogging.helper.PostSanitizer;
 import com.backendapp.cms.blogging.repository.PostCrudRepository;
 import com.backendapp.cms.openapi.dto.CategoriesSimpleDTO;
@@ -31,6 +32,7 @@ public class UpdateSingleArticleOperationPerformer {
     private final Validator validator;
     private final CategorySanitizer categorySanitizer;
     private final CategoryGenerator categoryGenerator;
+    private final PostGenerator postGenerator;
 
     @Transactional
     public PostEntity update(Long id, PostRequestDto article, UserEntity user) {
@@ -58,7 +60,7 @@ public class UpdateSingleArticleOperationPerformer {
         }
 
         post.setTitle(sanitizedArticle.getTitle());
-        sanitizedArticle.getSlug().ifPresent(post::setSlug);
+        post.setSlug(postGenerator.generateSlug(sanitizedArticle.getTitle()));
         post.setContent(sanitizedArticle.getContent());
         sanitizedArticle.getExcerpt().ifPresent(post::setExcerpt);
         sanitizedArticle.getFeaturedImageUrl().ifPresent(post::setFeaturedImageUrl);

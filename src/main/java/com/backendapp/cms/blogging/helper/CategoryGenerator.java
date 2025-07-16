@@ -45,7 +45,8 @@ public class CategoryGenerator {
     }
 
     public CategoryEntity checkOrCreate(String categoryNames, UserEntity user) {
-        Optional<CategoryEntity> category = categoryCrudRepository.findByNameAndUser(categoryNames, user);
+        String categoryName = categorySanitizer.toPlainText(categoryNames);
+        Optional<CategoryEntity> category = categoryCrudRepository.findByNameAndUser(categoryName, user);
         if (category.isEmpty()) {
             return generateCategoryByName(categoryNames, user);
         }

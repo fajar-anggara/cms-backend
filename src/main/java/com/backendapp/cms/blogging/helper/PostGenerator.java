@@ -27,22 +27,7 @@ public class PostGenerator {
      * @param title the post title
      * @return unique slug
      */
-    public String generateSlug(Optional<String> slug, String title) {
-        if (slug.isPresent()) {
-            String presentSlug = plainText.sanitize(slug.get()).toLowerCase();
-            String regexPattern = "^" + escapeRegex(presentSlug) + "(-[0-9]+)?$";
-            List<PostEntity> findPostLikeSlug = postCrudRepository.findSlugPatternNative(presentSlug, regexPattern);
-            if (findPostLikeSlug.isEmpty()) {
-                return slugFormat(presentSlug);
-            }
-
-            log.warn("slug exists in database");
-            int existsSlugs = findPostLikeSlug.size();
-
-
-            return slugFormat(presentSlug + "-" + (existsSlugs + 1));
-        }
-
+    public String generateSlug(String title) {
         if (title != null) {
             String presentTitle = plainText.sanitize(title).toLowerCase();
             String regexPattern = "^" + escapeRegex(presentTitle) + "(-[0-9]+)?$";
@@ -52,9 +37,7 @@ public class PostGenerator {
             }
 
             log.warn("slug exists in database");
-            int existsSlugs = findPostLikeSlug.size();
-
-            return slugFormat(presentTitle + "-" + (existsSlugs + 1));
+            return slugFormat(presentTitle + "-" + System.currentTimeMillis());
         }
 
         return UUID.randomUUID().toString();
