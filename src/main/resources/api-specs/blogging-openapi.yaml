@@ -21,8 +21,7 @@ info:
       getSingleArticle
     put
       editSingleArticle
-    patch
-      editSingleArticleCategories
+    
     delete
       deleteSingleArticle
     
@@ -36,8 +35,7 @@ info:
       getSingleCategories ## bersamaan dengan post post nya (landing page single categories) atau edit (tergantung parameter)
     put
       editSingleCategories
-    patch
-      editSingleCategoryArticles
+   
     delete
       deleteSingleCategories
   
@@ -437,65 +435,7 @@ paths:
               schema:
                 allOf:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
-    patch:
-      tags:
-        - BloggingController
-      operationId: "editSingleArticleCategories"
-      description: "Mengedit, menambahkan atau menghapus kategori sebuah artikel"
-      security:
-        - BearerAuth: [ ]
-      parameters:
-        - name: "id"
-          in: path
-          description: "ID artikel"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                allOf:
-                  - $ref: '#/components/schemas/PostRequest'
 
-      responses:
-        "200":
-          description: "Berhasil mengedit sebuah kategori di postingan"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - $ref: '#/components/schemas/PostResponse'
-
-        "400":
-          description: "Bad request"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
-                  - type: object
-                    properties:
-                      errors:
-                        allOf:
-                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
-
-        "500":
-          description: "Bad server"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
     delete:
       tags:
         - BloggingController
@@ -820,65 +760,7 @@ paths:
               schema:
                 allOf:
                   - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
-    patch:
-      tags:
-        - BloggingController
-      operationId: "editSingleCategoryArticles"
-      description: "Mengedit, menambahkan atau menghapus kategori sebuah artikel"
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: "id"
-          in: path
-          description: "ID category"
-          schema:
-            type: integer
-            format: int64
-            example: 1
-          required: true
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                allOf:
-                  - $ref: '#/components/schemas/CategoryRequest'
 
-      responses:
-        "200":
-          description: "Berhasil mengedit sebuah post di category."
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/success200Response'
-                  - type: object
-                    properties:
-                      data:
-                        allOf:
-                          - $ref: '#/components/schemas/categoryResponse'
-
-        "400":
-          description: "Bad request"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error400Response'
-                  - type: object
-                    properties:
-                      errors:
-                        allOf:
-                          - $ref: './general-responses-openapi.yaml#/components/schemas/ErrorFieldResponse'
-
-        "500":
-          description: "Bad server"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: './general-responses-openapi.yaml#/components/schemas/Error500Response'
     delete:
       tags:
         - BloggingController
