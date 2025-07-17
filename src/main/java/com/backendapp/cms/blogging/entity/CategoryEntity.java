@@ -40,7 +40,7 @@ public class CategoryEntity {
     @ToString.Exclude
     private Set<PostEntity> posts;
 
-    @Column(name = "slug", unique = true, nullable = false)
+    @Column(name = "slug", nullable = false)
     private String slug;
 
     @Column(name = "description", nullable = true)

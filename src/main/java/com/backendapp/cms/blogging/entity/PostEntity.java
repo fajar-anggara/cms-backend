@@ -30,7 +30,7 @@ public class PostEntity {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "slug", unique = true)
+    @Column(name = "slug")
     private String slug;
 
     @Column(name = "content", columnDefinition = "TEXT" , nullable = false)

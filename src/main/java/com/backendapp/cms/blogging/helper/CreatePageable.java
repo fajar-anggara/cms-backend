@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CreatePageable {
 
-    public PageRequest get(String sortBy, Sort.Direction direction, int page, int limit) {
-        return PageRequest.of(page, limit, Sort.by(direction, sortBy));
+    public PageRequest get(String sortBy, Sort.Direction direction, int pageSize, int limit) {
+        return PageRequest.of(pageSize, limit, Sort.by(direction, sortBy));
     }
 }

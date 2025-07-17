@@ -3,6 +3,7 @@ package com.backendapp.cms.common.exception.handler;
 import com.backendapp.cms.blogging.exception.CategoryAlreadyExistsException;
 import com.backendapp.cms.blogging.exception.NoCategoryException;
 import com.backendapp.cms.blogging.exception.NoPostsException;
+import com.backendapp.cms.blogs.exception.UserNotFoundException;
 import com.backendapp.cms.common.dto.ErrorResponse;
 import com.backendapp.cms.security.exception.*;
 import com.backendapp.cms.security.exception.RefreshTokenExpiredException;
@@ -129,6 +130,9 @@ public class GlobalExceptionHandler {
      * |
      * handle_categoryAlreadyExistsException
      * handle_noPostsException
+     * handle_noCategoryException
+     * handle_userNotFoundException
+     * | //
      */
 
 
@@ -160,7 +164,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // TODO Create resource not found handler
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle_userNotFoundException(UserNotFoundException e) {
+        log.warn("no user, message {}", e.getMessage());
+        ErrorResponse error = new ErrorResponse(false, e.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+//    @ExceptionHandler(Found.class)
+//    public ResponseEntity<ErrorResponse> handle_noResourceFoundException(NoResourceFoundException e) {
+//        log.warn("no resource, message {}", e.getMessage());
+//        ErrorResponse error = new ErrorResponse(false, e.getMessage());
+//        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+//    }
 
 
 

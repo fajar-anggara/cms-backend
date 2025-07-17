@@ -39,15 +39,22 @@ paths:
           description: "Setiap path pertama merupakan user berbeda (pembuat blog yang berbeda)"
           schema:
             type: string
-            default: "default"
           example: "Andriana"
           required: true
+        - name: "page"
+          in: query
+          description: "sekarang page ke berapa dari postingan yang ditampilkan"
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          example: 1
         - name: "limit"
           in: query
           description: "Jumlah postingan yang akan ditampilkan"
           schema:
             type: integer
-            default: 6
+            default: 5
             minimum: 1
           example: 1
         - name: "sortBy"
@@ -56,11 +63,11 @@ paths:
           schema:
             type: string
             enum:
-              - "PUBLISHEDAT"
+              - "PUBLISHED"
               - "VIEWS"
               - "TITLE"
-            default: "PUBLUSHEDAT"
-          example: "published_at"
+            default: "PUBLISHED"
+          example: "PUBLISHED"
         - name: sortOrder
           in: query
           description: "Arah pengurutan"
@@ -68,7 +75,8 @@ paths:
             type: string
             enum:
               - "ASC"
-              - "DSC"
+              - "DESC"
+            default: "DESC"
           example: "ASC"
           required: false
         - name: categorySlug
@@ -113,11 +121,10 @@ paths:
       parameters:
         - name: "user"
           in: path
-          description: "The blogger"
+          description: "nama blogger"
           schema:
-            type: integer
-            format: int64
-            example: 1
+            type: string
+            example: "andriana"
           required: true
         - name: postId
           in: path
@@ -181,20 +188,16 @@ components:
           description: "Deskripsi pemilik blog / page ini"
           allOf:
             - $ref: './users-openapi.yaml#/components/schemas/UserSimpleResponse'
-        posts:
-          type: object
-          properties:
-            articles:
-              allOf:
-                - $ref: './blogging-openapi.yaml#/components/schemas/PostResponse'
-            pagination:
-              allOf:
-                - $ref: '#/components/schemas/PaginationMetadata'
+        articles:
+          allOf:
+            - $ref: './blogging-openapi.yaml#/components/schemas/PostResponse'
         categories:
             allOf:
               - $ref: './blogging-openapi.yaml#/components/schemas/ListOfCategoryResponses'
       required:
         - user
+        - posts
+        - categories
 
     PaginationMetadata:
       type: object

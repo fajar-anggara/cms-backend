@@ -191,7 +191,7 @@ public class BloggingEndpoint implements BloggingControllerApi {
                 limit,
                 SortBy.valueOf(sortBy).value,
                 SortOrder.valueOf(sortOrder).direction,
-                page,
+                page, // Page ganti menjadi size, dan buat page yang benar.
                 search,
                 user
         );

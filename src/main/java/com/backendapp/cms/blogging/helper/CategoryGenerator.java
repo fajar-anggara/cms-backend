@@ -5,6 +5,7 @@ import com.backendapp.cms.blogging.exception.CategoryAlreadyExistsException;
 import com.backendapp.cms.blogging.repository.CategoryCrudRepository;
 import com.backendapp.cms.users.entity.UserEntity;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class CategoryGenerator {
 
     private final CategoryCrudRepository categoryCrudRepository;
@@ -26,6 +28,7 @@ public class CategoryGenerator {
      */
     public Set<CategoryEntity> findOrCreateByName(List<String> categoryNames, UserEntity user) {
         Set<CategoryEntity> availableCategories = categoryCrudRepository.findAllByNameInAndUser(categoryNames, user);
+        log.info("category that get by name and user {}", availableCategories);
         Set<String> nameOfAvailableCategories = availableCategories
                 .stream()
                 .map(CategoryEntity::getName)
