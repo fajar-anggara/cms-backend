@@ -9,7 +9,7 @@ Ini merupakan apikasi REST API untuk fitur basic CMS yang saya buat sembari bela
 - JWT authentication dan authorization untuk keamanan di aplikasi yang stateless 
 - API documentation menggunakan Open API / Swagger
 - Unit testing menggunakan JUnit
-- API-first development approach menggunaka openapi generator
+- API-first development approach menggunaka OpenAPI generator
 
 ## Features
 
@@ -19,21 +19,22 @@ Ini merupakan apikasi REST API untuk fitur basic CMS yang saya buat sembari bela
 - **Authentication**: JWT access token dan refresh token rotation
 - **Authorization**: Akses aplikasi tesedia utuk dua role (SuperUser, Blogger) dan public akan diberi anonymous
 - **API Documentation**: Api documentation menggunakan Swagger/Open Api.
-- **Post Create, Sanitizing and Convert to HTML**: Sudah bisa create post dan find or create category jika kategori post tidak ada di database
+- **Content Management**: CRUD artikel dan kategori
+- **Public Path**: Path untuk pembaca membaca artikel yang di post oleh blogger
 
 ### Sedang dikerjakan
 
-- **Content Management**: Menyelesaikan CRUD post dan Categories dengan sanitasi, menerima markdown sebagai request.
-- **UnitTest Coverage**: Sedang meningkatkan coverage unit test dan akan menggunakan Test Driven Development mulai dari sekarang.
+- **UnitTest Coverage**: Sedang meningkatkan coverage unit test.
 - 
 ## Current Status
 
-Yang sudah terimplementasi dan di test mengguakan postman:
+Yang sudah terimplementasi dan di test mengguakan insomnia:
 - CRUD user
 - CRUD user by superuser
 - JWT token handling
 - API documentation
-- Create post and find ot create category if not exists in database.
+- CRUD article and category
+- Public path
 
 
 ## API Documentation
@@ -48,21 +49,6 @@ Run tests with:
 ```bash
 mvn test
 ```
-
-Test coverage sekarang:
-UnitTest:
-- PrincipalProvider
-- CategoryGeneratorTest
-- CategorySanitizerTest
-- PostGeneratorTest
-- PostSanitizerTest
-
-Postman:
-All endpoint of:
-- /api/v1/auth/register, login, logout, refresh-password, refresh-token
-- /api/v1/superuser/login, CRUD user
-- /api/v1/admin/posts (posting artikel)
-
 
 ## Tech Stack
 
@@ -81,6 +67,35 @@ All endpoint of:
 - **Maven** - Build tool
 
 
+## Getting Started
+
+### Prerequisites
+- Java 21+
+- Maven 3.9+
+- MySQL 8.0+
+
+### Setup local
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/fajar-anggara/cms-backend
+   cd cms-backend
+   ```
+
+2. Run the application
+   ```bash
+   mvn spring-boot:run
+   ```
+   
+### Setup docker
+   ```bash
+   docker compose up --build
+   ```
+
+## Swagger Ui
+
+![Swagger UI Preview](https://raw.githubusercontent.com/fajar-anggara/cms-backend/main/assets/swagger-ui.jpeg)
+
 ## Project Structure
 
 ```
@@ -95,11 +110,14 @@ All endpoint of:
 │   │               │   ├───dto
 │   │               │   ├───endpoint
 │   │               │   ├───entity
-│   │               │   ├───exeption
+│   │               │   ├───exception
 │   │               │   ├───helper
 │   │               │   ├───repository
 │   │               │   └───service
 │   │               ├───blogs
+│   │               │   ├───endpoint
+│   │               │   ├───exception
+│   │               │   └───service
 │   │               ├───common
 │   │               │   ├───config
 │   │               │   ├───constant
@@ -153,29 +171,9 @@ All endpoint of:
                     └───users
                         ├───endpoint
                         └───helper
+
 ```
 
-## Getting Started
-
-### Prerequisites
-- Java 21+
-- Maven 3.9+
-- MySQL 8.0+
-
-### Setup
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/fajar-anggara/cms-backend
-   cd cms-backend
-   ```
-
-2. Run the application
-   ```bash
-   mvn spring-boot:run
-   ```
-
-3. Access API documentation at `http://localhost:8080/swagger-ui.html`
 
 ## Yang saya pelajari
 
@@ -201,16 +199,15 @@ All endpoint of:
 
 Saya akan membuat aplikasi ini scalable dan kedepannya akan:
 - Memperbaiki test coverage
-- Menyelesaikan POST managment
-- Fitur komentar
+- Fitur komentar terpisan menggunakan laravel
 - OAUTH dengan auhtentication server yang terpisah (akan menggunakan Laravel)
 - Menambahkan custom SEO
 - Caching
 
 ## Notes
 
-Aplikasi ini bukan production-ready, saya membuat ini untuk belajar backend developer. Aplikasi ini akan menemani saya mempelajari konsep konsep di dunia teknologi Development menggunkaan spring boot dan mengimplementasikannya. 
-Saya berharap suatu hari aplikasi ini bisa industrial-grade dan akan terus ada sejauh pemahaman saya tentang programming meningkat.
+Aplikasi ini bukan indistrial grade, saya membuat ini untuk belajar backend developer. Aplikasi ini akan menemani saya mempelajari konsep konsep di dunia teknologi Development menggunkaan spring boot dan mengimplementasikannya. 
+Saya berharap suatu hari aplikasi ini bisa industrial grade dan akan terus ada sejauh pemahaman saya tentang programming meningkat.
 
 ## Contact
 

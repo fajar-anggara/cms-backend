@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-// TODO get all categories
 // TODO check all transaction in services
 
 @Slf4j
